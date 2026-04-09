@@ -1,9 +1,10 @@
 import { ReactNode } from "react";
-import { Target, ShieldCheck, Upload, FileText, History, Settings, CreditCard, LayoutDashboard, ChevronLeft, ChevronRight } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Target, ShieldCheck, Upload, FileText, History, Settings, CreditCard, LayoutDashboard, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NavItem {
   label: string;
@@ -28,6 +29,8 @@ const bottomNav: NavItem[] = [
 
 export function AppSidebar({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -111,8 +114,11 @@ export function AppSidebar({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground">5 créditos restantes</span>
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
-              U
+              {user?.user_metadata?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
             </div>
+            <button onClick={async () => { await signOut(); navigate("/login"); }} className="text-muted-foreground hover:text-foreground transition-colors" title="Sair">
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </header>
 

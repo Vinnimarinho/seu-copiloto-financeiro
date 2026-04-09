@@ -1,14 +1,38 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export default function SignupPage() {
   const [showPass, setShowPass] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { signUp } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agreed) { toast.error("Você precisa aceitar os termos"); return; }
+    if (password.length < 8) { toast.error("A senha deve ter pelo menos 8 caracteres"); return; }
+    setLoading(true);
+    const { error } = await signUp(email, password, fullName);
+    setLoading(false);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Conta criada! Verifique seu email para confirmar.");
+      navigate("/login");
+    }
+  };
 
   return (
-    <div className="min-h-screen gradient-hero flex items-center justify-center p-6">
+    <div className="min-h-screen bg-sidebar flex items-center justify-center p-6">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
@@ -18,41 +42,41 @@ export default function SignupPage() {
           <p className="text-sm text-sidebar-foreground/60 mt-1">Comece a analisar sua carteira gratuitamente</p>
         </div>
 
-        <div className="bg-card border border-border rounded-xl p-6 shadow-elevated space-y-4">
+        <form onSubmit={handleSubmit} className="bg-card border border-border rounded-xl p-6 shadow-elevated space-y-4">
           <div>
             <label className="text-sm font-medium text-foreground mb-1.5 block">Nome completo</label>
             <div className="relative">
               <User className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-              <input type="text" placeholder="Seu nome" className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Seu nome" required className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
           </div>
           <div>
             <label className="text-sm font-medium text-foreground mb-1.5 block">Email</label>
             <div className="relative">
               <Mail className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-              <input type="email" placeholder="seu@email.com" className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
           </div>
           <div>
             <label className="text-sm font-medium text-foreground mb-1.5 block">Senha</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-              <input type={showPass ? "text" : "password"} placeholder="Mínimo 8 caracteres" className="w-full h-10 pl-10 pr-10 rounded-lg border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-              <button onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <input type={showPass ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 8 caracteres" required className="w-full h-10 pl-10 pr-10 rounded-lg border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                 {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
           <div className="flex items-start gap-2">
-            <input type="checkbox" className="mt-1 rounded border-input" id="terms" />
+            <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-1 rounded border-input" id="terms" />
             <label htmlFor="terms" className="text-xs text-muted-foreground leading-relaxed">
               Li e concordo com os <Link to="/terms" className="text-primary hover:underline">Termos de Uso</Link> e a <Link to="/privacy" className="text-primary hover:underline">Política de Privacidade</Link>
             </label>
           </div>
-          <Link to="/dashboard">
-            <Button variant="hero" className="w-full">Criar conta grátis</Button>
-          </Link>
-        </div>
+          <Button variant="hero" className="w-full" type="submit" disabled={loading}>
+            {loading ? "Criando conta..." : "Criar conta grátis"}
+          </Button>
+        </form>
 
         <p className="text-center text-sm text-sidebar-foreground/60 mt-6">
           Já tem conta? <Link to="/login" className="text-sidebar-primary font-medium hover:underline">Entrar</Link>
