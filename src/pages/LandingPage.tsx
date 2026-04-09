@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { PieChart, Target, ShieldCheck, BarChart3, ArrowRight, CheckCircle2, Zap, Lock, FileText } from "lucide-react";
+import { Target, ShieldCheck, ArrowRight, CheckCircle2, Zap, Lock, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Logo } from "@/components/Logo";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -12,10 +13,10 @@ const fadeUp = {
 };
 
 const features = [
-  { icon: <PieChart className="w-6 h-6" />, title: "Visão completa da carteira", desc: "Veja alocação, concentração, liquidez e exposição em um único painel claro e intuitivo." },
-  { icon: <Target className="w-6 h-6" />, title: "Diagnóstico inteligente", desc: "Descubra riscos ocultos, custos elevados e oportunidades de melhoria com explicações simples." },
-  { icon: <ShieldCheck className="w-6 h-6" />, title: "Recomendações assistidas", desc: "Receba sugestões claras com impacto estimado. Você decide o que fazer — sempre no controle." },
-  { icon: <FileText className="w-6 h-6" />, title: "Relatórios profissionais", desc: "Exporte relatórios em PDF com resumo executivo, diagnóstico e plano de ação." },
+  { icon: <Target className="w-6 h-6" />, title: "Visão completa da carteira", desc: "Alocação, concentração, liquidez e exposição em um único painel claro e intuitivo." },
+  { icon: <ShieldCheck className="w-6 h-6" />, title: "Diagnóstico inteligente", desc: "Riscos ocultos, custos elevados e oportunidades de melhoria com explicações simples." },
+  { icon: <Zap className="w-6 h-6" />, title: "Recomendações assistidas", desc: "Sugestões claras com impacto estimado. Você decide — sempre no controle." },
+  { icon: <FileText className="w-6 h-6" />, title: "Relatórios profissionais", desc: "Resumo executivo, diagnóstico e plano de ação exportáveis em PDF." },
 ];
 
 const benefits = [
@@ -29,30 +30,31 @@ const benefits = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen">
+      {/* Header — dark */}
+      <header className="border-b border-sidebar-border bg-sidebar sticky top-0 z-50">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-              <PieChart className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-heading font-semibold text-lg text-foreground">Meu Copiloto</span>
-          </div>
+          <Logo variant="light" />
           <div className="flex items-center gap-3">
             <Link to="/login">
-              <Button variant="ghost" size="sm">Entrar</Button>
+              <Button variant="ghost" size="sm" className="text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent">Entrar</Button>
             </Link>
             <Link to="/signup">
-              <Button variant="default" size="sm">Começar grátis</Button>
+              <Button variant="hero" size="sm">Começar grátis</Button>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="gradient-hero">
-        <div className="container mx-auto px-6 py-20 md:py-32">
+      {/* Hero — dark Slytherin */}
+      <section className="gradient-hero relative overflow-hidden">
+        {/* Decorative serpent pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5C20 5 15 12 15 20c0 8 5 12 10 14s10 4 10 12c0 8-5 14-15 14' stroke='%2322c55e' fill='none' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: "60px 60px",
+        }} />
+        
+        <div className="container mx-auto px-6 py-24 md:py-36 relative">
           <motion.div
             className="max-w-3xl mx-auto text-center"
             initial="hidden"
@@ -60,19 +62,21 @@ export default function LandingPage() {
             variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
           >
             <motion.div variants={fadeUp} custom={0}>
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-                <Zap className="w-3.5 h-3.5" />
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-sidebar-primary/30 bg-sidebar-primary/10 text-sidebar-primary text-sm font-medium mb-8">
+                <svg viewBox="0 0 16 16" fill="none" className="w-4 h-4">
+                  <path d="M8 2C5.5 2 4 3.5 4 5.5S5.5 8 7 8.5s3 1 3 3S8.5 14 6 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
                 Análise assistida por IA
               </span>
             </motion.div>
             
-            <motion.h1 variants={fadeUp} custom={1} className="font-heading text-4xl md:text-6xl font-bold text-foreground leading-tight mb-6 text-balance">
-              Seu copiloto para investir com
-              <span className="text-primary"> clareza</span>
+            <motion.h1 variants={fadeUp} custom={1} className="font-heading text-4xl md:text-6xl font-bold leading-tight mb-6 text-balance text-sidebar-foreground">
+              Lucidez e controle sobre seus
+              <span className="text-sidebar-primary"> investimentos</span>
             </motion.h1>
 
-            <motion.p variants={fadeUp} custom={2} className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto text-balance">
-              Importe sua carteira, entenda seus riscos e receba recomendações claras — sem economês, sem complicação. Você sempre no controle.
+            <motion.p variants={fadeUp} custom={2} className="text-lg md:text-xl text-sidebar-foreground/60 mb-10 max-w-2xl mx-auto text-balance">
+              Importe sua carteira, entenda seus riscos e receba recomendações claras — sem economês. Você sempre no comando.
             </motion.p>
 
             <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -89,27 +93,30 @@ export default function LandingPage() {
               </Link>
             </motion.div>
 
-            <motion.p variants={fadeUp} custom={4} className="text-xs text-muted-foreground mt-4 flex items-center justify-center gap-1">
+            <motion.p variants={fadeUp} custom={4} className="text-xs text-sidebar-foreground/40 mt-6 flex items-center justify-center gap-1">
               <Lock className="w-3 h-3" />
               Seus dados são protegidos e nunca compartilhados
             </motion.p>
           </motion.div>
         </div>
+
+        {/* Bottom gradient fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
       </section>
 
-      {/* Features */}
+      {/* Features — light */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-6">
           <div className="text-center mb-14">
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Tudo que você precisa para analisar sua carteira
+              O poder de uma análise profissional
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Ferramentas profissionais com linguagem acessível. Nada de complicação.
+              Ferramentas sofisticadas com linguagem acessível. Precisão sem complicação.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
             {features.map((f, i) => (
               <motion.div
                 key={i}
@@ -117,9 +124,9 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.4 }}
-                className="bg-card rounded-xl border border-border p-6 shadow-card hover:shadow-card-hover transition-shadow duration-300"
+                className="bg-card rounded-xl border border-border p-6 shadow-card hover:shadow-card-hover transition-all duration-300 group"
               >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:gradient-serpent group-hover:text-primary-foreground transition-all duration-300">
                   {f.icon}
                 </div>
                 <h3 className="font-heading font-semibold text-lg text-foreground mb-2">{f.title}</h3>
@@ -131,38 +138,44 @@ export default function LandingPage() {
       </section>
 
       {/* Benefits */}
-      <section className="py-20 bg-secondary/30">
+      <section className="py-20 bg-secondary/50">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-12">
             <div className="flex-1">
               <h2 className="font-heading text-3xl font-bold text-foreground mb-6">
-                Investir não precisa ser complicado
+                Investir com clareza, não com medo
               </h2>
               <p className="text-muted-foreground mb-8">
-                O Meu Copiloto analisa sua carteira e traduz informações complexas em linguagem simples. Sem jargão, sem pressão, sem execução automática.
+                O Lucius analisa sua carteira e traduz informações complexas em linguagem simples. Sem jargão, sem pressão, sem execução automática.
               </p>
               <ul className="space-y-3">
                 {benefits.map((b, i) => (
                   <li key={i} className="flex items-center gap-3 text-sm text-foreground">
-                    <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
                     {b}
                   </li>
                 ))}
               </ul>
             </div>
             <div className="flex-1 flex justify-center">
-              <div className="w-full max-w-sm bg-card rounded-2xl border border-border shadow-elevated p-6 space-y-4">
+              <div className="w-full max-w-sm rounded-2xl border border-border shadow-elevated p-6 space-y-4 bg-card relative overflow-hidden">
+                {/* Subtle serpent watermark */}
+                <div className="absolute top-3 right-3 opacity-5">
+                  <svg viewBox="0 0 40 40" fill="none" className="w-16 h-16">
+                    <path d="M20 4C13 4 9 9 9 14c0 5 4 8 8 9.5s8 3 8 8.5c0 5.5-4 10-12 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Patrimônio total</span>
-                  <span className="text-xs text-success font-medium">+2,3% mês</span>
+                  <span className="text-xs text-primary font-medium">+2,3% mês</span>
                 </div>
                 <p className="font-heading text-3xl font-bold text-foreground">R$ 287.450</p>
                 <div className="space-y-2">
                   {[
                     { label: "Renda Fixa", pct: 45, color: "bg-primary" },
-                    { label: "Ações BR", pct: 25, color: "bg-success" },
-                    { label: "FIIs", pct: 12, color: "bg-warning" },
-                    { label: "Outros", pct: 18, color: "bg-muted" },
+                    { label: "Ações BR", pct: 25, color: "bg-emerald-light" },
+                    { label: "FIIs", pct: 12, color: "bg-accent" },
+                    { label: "Outros", pct: 18, color: "bg-silver" },
                   ].map((item) => (
                     <div key={item.label} className="flex items-center gap-3">
                       <div className={`w-2 h-2 rounded-full ${item.color}`} />
@@ -177,14 +190,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Comece sua análise agora
+      {/* CTA — dark */}
+      <section className="py-20 gradient-hero relative">
+        <div className="container mx-auto px-6 text-center relative z-10">
+          <h2 className="font-heading text-3xl md:text-4xl font-bold text-sidebar-foreground mb-4">
+            Assuma o controle da sua carteira
           </h2>
-          <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
-            Importe sua carteira em minutos e descubra como melhorar seus investimentos.
+          <p className="text-sidebar-foreground/60 text-lg mb-8 max-w-xl mx-auto">
+            Importe em minutos e descubra como melhorar seus investimentos.
           </p>
           <Link to="/signup">
             <Button variant="hero" size="xl">
@@ -192,26 +205,21 @@ export default function LandingPage() {
               <ArrowRight className="w-5 h-5" />
             </Button>
           </Link>
-          <p className="text-xs text-muted-foreground mt-6">
+          <p className="text-xs text-sidebar-foreground/40 mt-6">
             Análise assistida — não é recomendação de investimento nem execução automática de ordens.
           </p>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-card py-10">
+      {/* Footer — dark */}
+      <footer className="border-t border-sidebar-border bg-sidebar py-10">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-md gradient-primary flex items-center justify-center">
-                <PieChart className="w-3 h-3 text-primary-foreground" />
-              </div>
-              <span className="font-heading font-semibold text-sm text-foreground">Meu Copiloto</span>
-            </div>
-            <div className="flex items-center gap-6 text-xs text-muted-foreground">
-              <Link to="/terms" className="hover:text-foreground transition-colors">Termos de Uso</Link>
-              <Link to="/privacy" className="hover:text-foreground transition-colors">Privacidade</Link>
-              <span>© 2026 Meu Copiloto. Todos os direitos reservados.</span>
+            <Logo size="sm" variant="light" />
+            <div className="flex items-center gap-6 text-xs text-sidebar-foreground/50">
+              <Link to="/terms" className="hover:text-sidebar-foreground transition-colors">Termos de Uso</Link>
+              <Link to="/privacy" className="hover:text-sidebar-foreground transition-colors">Privacidade</Link>
+              <span>© 2026 Lucius. Todos os direitos reservados.</span>
             </div>
           </div>
         </div>
