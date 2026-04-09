@@ -26,7 +26,7 @@ export default function HistoryPage() {
                 <XAxis dataKey="date" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
                 <Tooltip formatter={(v: number) => formatCurrency(v)} />
-                <Line type="monotone" dataKey="value" stroke="hsl(217, 91%, 50%)" strokeWidth={2} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="value" stroke="hsl(153, 60%, 32%)" strokeWidth={2} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
