@@ -110,7 +110,7 @@ export function AppSidebar({ children }: { children: ReactNode }) {
           <div className="hidden md:block" />
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground">5 créditos restantes</span>
-            <div className="w-8 h-8 rounded-full gradient-serpent flex items-center justify-center text-primary-foreground font-semibold text-sm">
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
               U
             </div>
           </div>

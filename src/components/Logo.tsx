@@ -18,7 +18,7 @@ export function Logo({ size = "md", showText = true, className, variant = "dark"
 
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
-      <div className={cn(s.box, "rounded-lg gradient-serpent flex items-center justify-center relative overflow-hidden")}>
+      <div className={cn(s.box, "rounded-lg bg-primary flex items-center justify-center relative overflow-hidden")}>
         {/* Serpent S mark */}
         <svg viewBox="0 0 24 24" fill="none" className={s.icon}>
           <path

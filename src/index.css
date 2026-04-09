@@ -58,10 +58,10 @@
     --emerald-light: 153 45% 60%;
     --serpent: 153 70% 25%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(153, 60%, 32%), hsl(160, 50%, 22%));
-    --gradient-accent: linear-gradient(135deg, hsl(45, 30%, 52%), hsl(40, 35%, 62%));
-    --gradient-hero: linear-gradient(160deg, hsl(160, 15%, 6%) 0%, hsl(153, 25%, 12%) 50%, hsl(160, 15%, 6%) 100%);
-    --gradient-serpent: linear-gradient(135deg, hsl(153, 60%, 32%), hsl(153, 70%, 25%), hsl(160, 50%, 18%));
+    --gradient-primary: hsl(153, 60%, 32%);
+    --gradient-accent: hsl(45, 30%, 52%);
+    --gradient-hero: hsl(160, 15%, 6%);
+    --gradient-serpent: hsl(153, 60%, 32%);
 
     --shadow-card: 0 1px 3px 0 hsl(160 20% 8% / 0.05), 0 1px 2px -1px hsl(160 20% 8% / 0.04);
     --shadow-card-hover: 0 4px 12px 0 hsl(153 60% 32% / 0.08), 0 2px 4px -2px hsl(160 20% 8% / 0.04);
@@ -138,8 +138,6 @@
   .gradient-serpent {
     background: var(--gradient-serpent);
   }
-
-  .shadow-card {
     box-shadow: var(--shadow-card);
   }
 
