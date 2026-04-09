@@ -53,8 +53,6 @@ export default function LandingPage() {
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5C20 5 15 12 15 20c0 8 5 12 10 14s10 4 10 12c0 8-5 14-15 14' stroke='%2322c55e' fill='none' stroke-width='1'/%3E%3C/svg%3E")`,
           backgroundSize: "60px 60px",
         }} />
-        
-        <div className="container mx-auto px-6 py-24 md:py-36 relative">
           <motion.div
             className="max-w-3xl mx-auto text-center"
             initial="hidden"
