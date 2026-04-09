@@ -125,7 +125,7 @@ export default function LandingPage() {
                 transition={{ delay: i * 0.1, duration: 0.4 }}
                 className="bg-card rounded-xl border border-border p-6 shadow-card hover:shadow-card-hover transition-all duration-300 group"
               >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:gradient-serpent group-hover:text-primary-foreground transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                   {f.icon}
                 </div>
                 <h3 className="font-heading font-semibold text-lg text-foreground mb-2">{f.title}</h3>
