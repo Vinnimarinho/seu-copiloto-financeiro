@@ -1,9 +1,10 @@
 import { ReactNode } from "react";
-import { Target, ShieldCheck, Upload, FileText, History, Settings, CreditCard, LayoutDashboard, ChevronLeft, ChevronRight } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Target, ShieldCheck, Upload, FileText, History, Settings, CreditCard, LayoutDashboard, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NavItem {
   label: string;
