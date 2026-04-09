@@ -138,6 +138,8 @@
   .gradient-serpent {
     background: var(--gradient-serpent);
   }
+
+  .shadow-card {
     box-shadow: var(--shadow-card);
   }
 
