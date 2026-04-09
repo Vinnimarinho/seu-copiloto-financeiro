@@ -29,6 +29,8 @@ const bottomNav: NavItem[] = [
 
 export function AppSidebar({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
   return (
