@@ -2,7 +2,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { BentoCard, BentoGrid } from "@/components/BentoGrid";
 import { AlertCard } from "@/components/AlertCard";
 import { mockPortfolio, mockAlerts, formatCurrency, formatPercent } from "@/data/mockData";
-import { TrendingUp, TrendingDown, DollarSign, Clock } from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 
 function StatValue({ label, value, sub, trend }: { label: string; value: string; sub?: string; trend?: "up" | "down" }) {
@@ -12,7 +12,7 @@ function StatValue({ label, value, sub, trend }: { label: string; value: string;
       <div className="flex items-end gap-2">
         <span className="font-heading text-2xl font-bold text-foreground">{value}</span>
         {sub && (
-          <span className={`text-sm font-medium flex items-center gap-0.5 mb-0.5 ${trend === "up" ? "text-success" : trend === "down" ? "text-destructive" : "text-muted-foreground"}`}>
+          <span className={`text-sm font-medium flex items-center gap-0.5 mb-0.5 ${trend === "up" ? "text-primary" : trend === "down" ? "text-destructive" : "text-muted-foreground"}`}>
             {trend === "up" && <TrendingUp className="w-3.5 h-3.5" />}
             {trend === "down" && <TrendingDown className="w-3.5 h-3.5" />}
             {sub}
@@ -23,8 +23,20 @@ function StatValue({ label, value, sub, trend }: { label: string; value: string;
   );
 }
 
+// Slytherin-inspired chart colors
+const CHART_COLORS = {
+  emerald: "hsl(153, 60%, 32%)",
+  emeraldLight: "hsl(153, 45%, 50%)",
+  serpent: "hsl(153, 70%, 25%)",
+  silver: "hsl(160, 8%, 65%)",
+  gold: "hsl(45, 30%, 52%)",
+  dark: "hsl(160, 15%, 18%)",
+};
+
 export default function Dashboard() {
   const { allocation, sectors, countries, liquidity } = mockPortfolio;
+
+  const allocationColors = [CHART_COLORS.emerald, CHART_COLORS.emeraldLight, CHART_COLORS.gold, CHART_COLORS.serpent, CHART_COLORS.silver, CHART_COLORS.dark];
 
   const liquidityData = [
     { name: "Imediata", value: liquidity.immediate },
@@ -41,7 +53,6 @@ export default function Dashboard() {
           <p className="text-sm text-muted-foreground mt-1">Visão geral da sua carteira de investimentos</p>
         </div>
 
-        {/* Top stats */}
         <BentoGrid columns={4}>
           <BentoCard title="Patrimônio Total">
             <StatValue label="" value={formatCurrency(mockPortfolio.totalValue)} sub={formatPercent(mockPortfolio.monthlyReturn) + " mês"} trend="up" />
@@ -57,15 +68,14 @@ export default function Dashboard() {
           </BentoCard>
         </BentoGrid>
 
-        {/* Charts row */}
         <BentoGrid columns={3}>
           <BentoCard title="Alocação por Classe" subtitle="Distribuição atual da carteira">
             <div className="h-48 flex items-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={allocation} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={40} outerRadius={72} paddingAngle={2}>
-                    {allocation.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} />
+                    {allocation.map((_, i) => (
+                      <Cell key={i} fill={allocationColors[i]} />
                     ))}
                   </Pie>
                   <Tooltip formatter={(v: number) => `${v}%`} />
@@ -73,9 +83,9 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </div>
             <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 mt-2">
-              {allocation.map((a) => (
+              {allocation.map((a, i) => (
                 <div key={a.name} className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: a.color }} />
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: allocationColors[i] }} />
                   <span className="text-xs text-muted-foreground truncate">{a.name}</span>
                   <span className="text-xs font-medium text-foreground ml-auto">{a.value}%</span>
                 </div>
@@ -90,7 +100,7 @@ export default function Dashboard() {
                   <XAxis type="number" hide />
                   <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
                   <Tooltip formatter={(v: number) => `${v}%`} />
-                  <Bar dataKey="pct" fill="hsl(217, 91%, 50%)" radius={[0, 4, 4, 0]} barSize={14} />
+                  <Bar dataKey="pct" fill={CHART_COLORS.emerald} radius={[0, 4, 4, 0]} barSize={14} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -105,7 +115,6 @@ export default function Dashboard() {
           </BentoCard>
         </BentoGrid>
 
-        {/* Bottom row */}
         <BentoGrid columns={3}>
           <BentoCard title="Exposição por País" subtitle="Distribuição geográfica">
             <div className="space-y-3 mt-2">
@@ -128,10 +137,10 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={liquidityData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} paddingAngle={2}>
-                    <Cell fill="hsl(160, 60%, 45%)" />
-                    <Cell fill="hsl(217, 91%, 50%)" />
-                    <Cell fill="hsl(38, 92%, 50%)" />
-                    <Cell fill="hsl(210, 15%, 70%)" />
+                    <Cell fill={CHART_COLORS.emerald} />
+                    <Cell fill={CHART_COLORS.emeraldLight} />
+                    <Cell fill={CHART_COLORS.gold} />
+                    <Cell fill={CHART_COLORS.silver} />
                   </Pie>
                   <Tooltip formatter={(v: number) => `${v}%`} />
                 </PieChart>
@@ -140,7 +149,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 gap-y-1.5 gap-x-3 mt-1">
               {liquidityData.map((l, i) => (
                 <div key={l.name} className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full" style={{ background: ["hsl(160,60%,45%)", "hsl(217,91%,50%)", "hsl(38,92%,50%)", "hsl(210,15%,70%)"][i] }} />
+                  <span className="w-2 h-2 rounded-full" style={{ background: [CHART_COLORS.emerald, CHART_COLORS.emeraldLight, CHART_COLORS.gold, CHART_COLORS.silver][i] }} />
                   <span className="text-xs text-muted-foreground">{l.name}</span>
                   <span className="text-xs font-medium text-foreground ml-auto">{l.value}%</span>
                 </div>
@@ -158,7 +167,7 @@ export default function Dashboard() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium text-foreground">{formatCurrency(a.value)}</p>
-                    <p className={`text-xs ${a.return30d >= 0 ? "text-success" : "text-destructive"}`}>
+                    <p className={`text-xs ${a.return30d >= 0 ? "text-primary" : "text-destructive"}`}>
                       {formatPercent(a.return30d)}
                     </p>
                   </div>

@@ -1,16 +1,12 @@
-import { PieChart, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Logo } from "@/components/Logo";
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card h-16 flex items-center px-6">
-        <Link to="/" className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-            <PieChart className="w-4 h-4 text-primary-foreground" />
-          </div>
-          <span className="font-heading font-semibold text-foreground">Meu Copiloto</span>
-        </Link>
+        <Link to="/"><Logo size="md" /></Link>
       </header>
       <div className="container mx-auto px-6 py-12 max-w-3xl">
         <Link to="/" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 mb-6">
@@ -26,7 +22,7 @@ export default function PrivacyPage() {
           <h2 className="font-heading text-lg font-semibold text-foreground">3. Armazenamento</h2>
           <p>Os dados são armazenados com criptografia em servidores seguros. Aplicamos políticas de acesso mínimo (RLS) no banco de dados.</p>
           <h2 className="font-heading text-lg font-semibold text-foreground">4. Seus direitos (LGPD)</h2>
-          <p>Você pode acessar, corrigir, exportar ou excluir seus dados a qualquer momento. Para isso, acesse as configurações da sua conta ou entre em contato conosco.</p>
+          <p>Você pode acessar, corrigir, exportar ou excluir seus dados a qualquer momento.</p>
           <h2 className="font-heading text-lg font-semibold text-foreground">5. Consentimento</h2>
           <p>Ao criar uma conta, você consente com o tratamento dos dados conforme descrito nesta política. Você pode revogar o consentimento a qualquer momento.</p>
         </div>

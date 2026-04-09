@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { PieChart, ArrowLeft, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { Logo } from "@/components/Logo";
 
 export default function SignupPage() {
   const [showPass, setShowPass] = useState(false);
@@ -10,11 +11,11 @@ export default function SignupPage() {
     <div className="min-h-screen gradient-hero flex items-center justify-center p-6">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-4">
-            <PieChart className="w-6 h-6 text-primary-foreground" />
+          <div className="flex justify-center mb-4">
+            <Logo size="lg" variant="light" showText={false} />
           </div>
-          <h1 className="font-heading text-2xl font-bold text-foreground">Criar conta</h1>
-          <p className="text-sm text-muted-foreground mt-1">Comece a analisar sua carteira gratuitamente</p>
+          <h1 className="font-heading text-2xl font-bold text-sidebar-foreground">Criar conta</h1>
+          <p className="text-sm text-sidebar-foreground/60 mt-1">Comece a analisar sua carteira gratuitamente</p>
         </div>
 
         <div className="bg-card border border-border rounded-xl p-6 shadow-elevated space-y-4">
@@ -53,11 +54,11 @@ export default function SignupPage() {
           </Link>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          Já tem conta? <Link to="/login" className="text-primary font-medium hover:underline">Entrar</Link>
+        <p className="text-center text-sm text-sidebar-foreground/60 mt-6">
+          Já tem conta? <Link to="/login" className="text-sidebar-primary font-medium hover:underline">Entrar</Link>
         </p>
         <div className="text-center mt-3">
-          <Link to="/" className="text-xs text-muted-foreground hover:text-foreground flex items-center justify-center gap-1">
+          <Link to="/" className="text-xs text-sidebar-foreground/40 hover:text-sidebar-foreground/70 flex items-center justify-center gap-1">
             <ArrowLeft className="w-3 h-3" /> Voltar ao site
           </Link>
         </div>
