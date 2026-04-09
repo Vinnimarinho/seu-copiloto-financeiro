@@ -4,93 +4,101 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 220 25% 10%;
+    /* Lucius — Sonserina: verde esmeralda, prata, escuro aristocrático */
+    --background: 160 10% 97%;
+    --foreground: 160 20% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 25% 10%;
+    --card-foreground: 160 20% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 10%;
+    --popover-foreground: 160 20% 8%;
 
-    --primary: 217 91% 50%;
+    --primary: 153 60% 32%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 20% 95%;
-    --secondary-foreground: 220 25% 20%;
+    --secondary: 160 12% 93%;
+    --secondary-foreground: 160 20% 15%;
 
-    --muted: 210 15% 93%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 160 10% 91%;
+    --muted-foreground: 160 8% 45%;
 
-    --accent: 160 60% 45%;
+    --accent: 45 30% 52%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 20% 90%;
-    --input: 214 20% 90%;
-    --ring: 217 91% 50%;
+    --border: 160 12% 88%;
+    --input: 160 12% 88%;
+    --ring: 153 60% 32%;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 25% 10%;
-    --sidebar-primary: 217 91% 50%;
+    --sidebar-background: 160 15% 6%;
+    --sidebar-foreground: 160 10% 85%;
+    --sidebar-primary: 153 55% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 20% 95%;
-    --sidebar-accent-foreground: 220 25% 20%;
-    --sidebar-border: 214 20% 92%;
-    --sidebar-ring: 217 91% 50%;
+    --sidebar-accent: 160 15% 12%;
+    --sidebar-accent-foreground: 160 10% 85%;
+    --sidebar-border: 160 12% 14%;
+    --sidebar-ring: 153 55% 45%;
 
     /* Custom tokens */
-    --success: 160 60% 45%;
+    --success: 153 60% 38%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-    --info: 217 91% 50%;
+    --warning: 45 85% 50%;
+    --warning-foreground: 45 80% 10%;
+    --info: 200 70% 45%;
     --info-foreground: 0 0% 100%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(217, 91%, 50%), hsl(230, 80%, 60%));
-    --gradient-accent: linear-gradient(135deg, hsl(160, 60%, 45%), hsl(180, 60%, 50%));
-    --gradient-hero: linear-gradient(160deg, hsl(210, 20%, 98%) 0%, hsl(217, 40%, 95%) 50%, hsl(210, 20%, 98%) 100%);
+    /* Slytherin-inspired */
+    --silver: 160 8% 72%;
+    --emerald: 153 60% 32%;
+    --emerald-light: 153 45% 60%;
+    --serpent: 153 70% 25%;
 
-    --shadow-card: 0 1px 3px 0 hsl(220 25% 10% / 0.04), 0 1px 2px -1px hsl(220 25% 10% / 0.04);
-    --shadow-card-hover: 0 4px 12px 0 hsl(220 25% 10% / 0.08), 0 2px 4px -2px hsl(220 25% 10% / 0.04);
-    --shadow-elevated: 0 10px 30px -5px hsl(217 91% 50% / 0.12), 0 4px 8px -2px hsl(220 25% 10% / 0.04);
+    --gradient-primary: linear-gradient(135deg, hsl(153, 60%, 32%), hsl(160, 50%, 22%));
+    --gradient-accent: linear-gradient(135deg, hsl(45, 30%, 52%), hsl(40, 35%, 62%));
+    --gradient-hero: linear-gradient(160deg, hsl(160, 15%, 6%) 0%, hsl(153, 25%, 12%) 50%, hsl(160, 15%, 6%) 100%);
+    --gradient-serpent: linear-gradient(135deg, hsl(153, 60%, 32%), hsl(153, 70%, 25%), hsl(160, 50%, 18%));
+
+    --shadow-card: 0 1px 3px 0 hsl(160 20% 8% / 0.05), 0 1px 2px -1px hsl(160 20% 8% / 0.04);
+    --shadow-card-hover: 0 4px 12px 0 hsl(153 60% 32% / 0.08), 0 2px 4px -2px hsl(160 20% 8% / 0.04);
+    --shadow-elevated: 0 10px 30px -5px hsl(153 60% 32% / 0.15), 0 4px 8px -2px hsl(160 20% 8% / 0.06);
 
     --font-heading: 'Space Grotesk', system-ui, sans-serif;
     --font-body: 'DM Sans', system-ui, sans-serif;
   }
 
   .dark {
-    --background: 222 30% 6%;
-    --foreground: 210 20% 95%;
-    --card: 222 25% 9%;
-    --card-foreground: 210 20% 95%;
-    --popover: 222 25% 9%;
-    --popover-foreground: 210 20% 95%;
-    --primary: 217 91% 60%;
+    --background: 160 15% 4%;
+    --foreground: 160 10% 92%;
+    --card: 160 15% 7%;
+    --card-foreground: 160 10% 92%;
+    --popover: 160 15% 7%;
+    --popover-foreground: 160 10% 92%;
+    --primary: 153 55% 45%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 222 20% 14%;
-    --secondary-foreground: 210 20% 90%;
-    --muted: 222 20% 14%;
-    --muted-foreground: 215 15% 55%;
-    --accent: 160 60% 45%;
+    --secondary: 160 15% 12%;
+    --secondary-foreground: 160 10% 85%;
+    --muted: 160 15% 12%;
+    --muted-foreground: 160 8% 55%;
+    --accent: 45 30% 52%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62% 30%;
     --destructive-foreground: 210 20% 95%;
-    --border: 222 20% 16%;
-    --input: 222 20% 16%;
-    --ring: 217 91% 60%;
-    --sidebar-background: 222 25% 8%;
-    --sidebar-foreground: 210 20% 90%;
-    --sidebar-primary: 217 91% 60%;
+    --border: 160 12% 14%;
+    --input: 160 12% 14%;
+    --ring: 153 55% 45%;
+    --sidebar-background: 160 15% 4%;
+    --sidebar-foreground: 160 10% 85%;
+    --sidebar-primary: 153 55% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 20% 14%;
-    --sidebar-accent-foreground: 210 20% 90%;
-    --sidebar-border: 222 20% 16%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-accent: 160 15% 10%;
+    --sidebar-accent-foreground: 160 10% 85%;
+    --sidebar-border: 160 12% 12%;
+    --sidebar-ring: 153 55% 45%;
   }
 }
 
@@ -127,6 +135,10 @@
     background: var(--gradient-hero);
   }
 
+  .gradient-serpent {
+    background: var(--gradient-serpent);
+  }
+
   .shadow-card {
     box-shadow: var(--shadow-card);
   }
@@ -137,5 +149,13 @@
 
   .shadow-elevated {
     box-shadow: var(--shadow-elevated);
+  }
+
+  .text-silver {
+    color: hsl(var(--silver));
+  }
+
+  .text-emerald-brand {
+    color: hsl(var(--emerald));
   }
 }

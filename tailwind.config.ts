@@ -63,6 +63,12 @@ export default {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))",
         },
+        silver: "hsl(var(--silver))",
+        emerald: {
+          brand: "hsl(var(--emerald))",
+          light: "hsl(var(--emerald-light))",
+        },
+        serpent: "hsl(var(--serpent))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -99,10 +105,6 @@ export default {
         "scale-in": {
           from: { opacity: "0", transform: "scale(0.96)" },
           to: { opacity: "1", transform: "scale(1)" },
-        },
-        "count-up": {
-          from: { opacity: "0" },
-          to: { opacity: "1" },
         },
       },
       animation: {
