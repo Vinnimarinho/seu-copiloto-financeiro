@@ -114,8 +114,11 @@ export function AppSidebar({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground">5 créditos restantes</span>
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
-              U
+              {user?.user_metadata?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
             </div>
+            <button onClick={async () => { await signOut(); navigate("/login"); }} className="text-muted-foreground hover:text-foreground transition-colors" title="Sair">
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </header>
 
