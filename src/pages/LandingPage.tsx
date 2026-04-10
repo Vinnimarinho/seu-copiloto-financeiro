@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Target, ShieldCheck, ArrowRight, CheckCircle2, Zap, Lock, FileText } from "lucide-react";
+import { Target, ShieldCheck, ArrowRight, CheckCircle2, Zap, Lock, FileText, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Logo } from "@/components/Logo";
+import { cn } from "@/lib/utils";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -28,14 +29,48 @@ const benefits = [
   "Seus dados são seus — sempre",
 ];
 
+const pricingPlans = [
+  {
+    name: "Gratuito",
+    price: "R$ 0",
+    period: "/mês",
+    desc: "Para conhecer a plataforma",
+    features: ["1 carteira", "Diagnóstico básico", "3 créditos de análise/mês", "Sem relatórios PDF"],
+    cta: "Começar grátis",
+    href: "/signup",
+  },
+  {
+    name: "Essencial",
+    price: "R$ 39",
+    period: "/mês",
+    desc: "Para investidores ativos",
+    features: ["3 carteiras", "Diagnóstico completo", "20 créditos de análise/mês", "Relatórios PDF", "Recomendações assistidas", "Histórico 12 meses"],
+    cta: "Assinar Essencial",
+    href: "/signup",
+    highlight: true,
+  },
+  {
+    name: "Pro",
+    price: "R$ 89",
+    period: "/mês",
+    desc: "Para quem leva a sério",
+    features: ["Carteiras ilimitadas", "Diagnóstico avançado", "100 créditos de análise/mês", "Relatórios completos", "Recomendações prioritárias", "Histórico completo", "Suporte prioritário"],
+    cta: "Assinar Pro",
+    href: "/signup",
+  },
+];
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen">
-      {/* Header — dark */}
+      {/* Header */}
       <header className="border-b border-sidebar-border bg-sidebar sticky top-0 z-50">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <Logo variant="light" />
           <div className="flex items-center gap-3">
+            <a href="#pricing">
+              <Button variant="ghost" size="sm" className="text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent">Preços</Button>
+            </a>
             <Link to="/login">
               <Button variant="ghost" size="sm" className="text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent">Entrar</Button>
             </Link>
@@ -46,9 +81,8 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero — dark Slytherin */}
+      {/* Hero */}
       <section className="gradient-hero relative overflow-hidden">
-        {/* Decorative serpent pattern */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5C20 5 15 12 15 20c0 8 5 12 10 14s10 4 10 12c0 8-5 14-15 14' stroke='%2322c55e' fill='none' stroke-width='1'/%3E%3C/svg%3E")`,
           backgroundSize: "60px 60px",
@@ -98,12 +132,10 @@ export default function LandingPage() {
             </motion.p>
           </motion.div>
         </div>
-
-        {/* Bottom gradient fade */}
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
       </section>
 
-      {/* Features — light */}
+      {/* Features */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-6">
           <div className="text-center mb-14">
@@ -114,7 +146,6 @@ export default function LandingPage() {
               Ferramentas sofisticadas com linguagem acessível. Precisão sem complicação.
             </p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
             {features.map((f, i) => (
               <motion.div
@@ -158,7 +189,6 @@ export default function LandingPage() {
             </div>
             <div className="flex-1 flex justify-center">
               <div className="w-full max-w-sm rounded-2xl border border-border shadow-elevated p-6 space-y-4 bg-card relative overflow-hidden">
-                {/* Subtle serpent watermark */}
                 <div className="absolute top-3 right-3 opacity-5">
                   <svg viewBox="0 0 40 40" fill="none" className="w-16 h-16">
                     <path d="M20 4C13 4 9 9 9 14c0 5 4 8 8 9.5s8 3 8 8.5c0 5.5-4 10-12 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -189,7 +219,61 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA — dark */}
+      {/* Pricing */}
+      <section id="pricing" className="py-20 bg-background scroll-mt-16">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Planos e Preços
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Escolha o plano ideal para suas necessidades
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+            {pricingPlans.map((plan, i) => (
+              <motion.div
+                key={plan.name}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.4 }}
+                className={cn(
+                  "bg-card border rounded-xl p-6 shadow-card flex flex-col",
+                  plan.highlight ? "border-primary ring-2 ring-primary/20" : "border-border"
+                )}
+              >
+                {plan.highlight && (
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary mb-3">
+                    <Zap className="w-3 h-3" /> Mais popular
+                  </span>
+                )}
+                <h3 className="font-heading font-semibold text-lg text-foreground">{plan.name}</h3>
+                <p className="text-xs text-muted-foreground mb-4">{plan.desc}</p>
+                <div className="mb-6">
+                  <span className="font-heading text-3xl font-bold text-foreground">{plan.price}</span>
+                  <span className="text-sm text-muted-foreground">{plan.period}</span>
+                </div>
+                <ul className="space-y-2 mb-6 flex-1">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm text-foreground">
+                      <Check className="w-4 h-4 text-success flex-shrink-0" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link to={plan.href}>
+                  <Button variant={plan.highlight ? "hero" : "default"} className="w-full">
+                    {plan.cta}
+                  </Button>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
       <section className="py-20 gradient-hero relative">
         <div className="container mx-auto px-6 text-center relative z-10">
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-sidebar-foreground mb-4">
@@ -210,7 +294,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer — dark */}
+      {/* Footer */}
       <footer className="border-t border-sidebar-border bg-sidebar py-10">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
