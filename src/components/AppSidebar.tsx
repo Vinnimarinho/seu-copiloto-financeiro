@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserCredits } from "@/hooks/usePortfolio";
 
 interface NavItem {
   label: string;
@@ -17,7 +18,7 @@ const mainNav: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
   { label: "Importar Carteira", href: "/portfolio/import", icon: <Upload className="w-5 h-5" /> },
   { label: "Diagnóstico", href: "/diagnosis", icon: <Target className="w-5 h-5" /> },
-  { label: "Recomendações", href: "/recommendations", icon: <ShieldCheck className="w-5 h-5" />, badge: "3" },
+  { label: "Recomendações", href: "/recommendations", icon: <ShieldCheck className="w-5 h-5" /> },
   { label: "Relatórios", href: "/reports", icon: <FileText className="w-5 h-5" /> },
   { label: "Histórico", href: "/history", icon: <History className="w-5 h-5" /> },
 ];
@@ -31,25 +32,20 @@ export function AppSidebar({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { data: credits } = useUserCredits();
   const [collapsed, setCollapsed] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Sidebar — dark Slytherin theme */}
+      {/* Sidebar */}
       <aside className={cn(
         "hidden md:flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300 relative",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}>
-        {/* Logo */}
         <div className={cn("flex items-center gap-3 px-5 h-16 border-b border-sidebar-border", collapsed && "justify-center px-0")}>
-          {collapsed ? (
-            <Logo size="sm" showText={false} />
-          ) : (
-            <Logo size="md" variant="light" />
-          )}
+          {collapsed ? <Logo size="sm" showText={false} /> : <Logo size="md" variant="light" />}
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 py-4 px-3 space-y-1">
           {mainNav.map((item) => (
             <Link
@@ -74,7 +70,6 @@ export function AppSidebar({ children }: { children: ReactNode }) {
           ))}
         </nav>
 
-        {/* Bottom */}
         <div className="py-4 px-3 space-y-1 border-t border-sidebar-border">
           {bottomNav.map((item) => (
             <Link
@@ -94,7 +89,6 @@ export function AppSidebar({ children }: { children: ReactNode }) {
           ))}
         </div>
 
-        {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="absolute -right-3 top-20 w-6 h-6 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
@@ -105,14 +99,11 @@ export function AppSidebar({ children }: { children: ReactNode }) {
 
       {/* Main content */}
       <main className="flex-1 flex flex-col min-h-screen">
-        {/* Top bar */}
         <header className="h-16 border-b border-border bg-card/80 backdrop-blur-sm flex items-center justify-between px-6 sticky top-0 z-10">
-          <div className="md:hidden">
-            <Logo size="sm" />
-          </div>
+          <div className="md:hidden"><Logo size="sm" /></div>
           <div className="hidden md:block" />
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">5 créditos restantes</span>
+            <span className="text-sm text-muted-foreground">{credits ?? "–"} créditos</span>
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
               {user?.user_metadata?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
             </div>
@@ -121,11 +112,7 @@ export function AppSidebar({ children }: { children: ReactNode }) {
             </button>
           </div>
         </header>
-
-        {/* Page content */}
-        <div className="flex-1 p-6">
-          {children}
-        </div>
+        <div className="flex-1 p-6">{children}</div>
       </main>
     </div>
   );
