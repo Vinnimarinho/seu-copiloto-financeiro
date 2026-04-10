@@ -1,38 +1,68 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowRight, Zap } from "lucide-react";
+import { Check, Zap, Loader2, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSubscription, getPlanByProductId, startCheckout, openCustomerPortal, PLANS } from "@/hooks/useSubscription";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const plans = [
   {
+    key: "free" as const,
     name: "Gratuito",
     price: "R$ 0",
     period: "/mês",
     desc: "Para conhecer a plataforma",
     features: ["1 carteira", "Diagnóstico básico", "3 créditos de análise/mês", "Sem relatórios PDF"],
-    cta: "Plano atual",
-    current: true,
   },
   {
+    key: "essencial" as const,
     name: "Essencial",
     price: "R$ 39",
     period: "/mês",
     desc: "Para investidores ativos",
     features: ["3 carteiras", "Diagnóstico completo", "20 créditos de análise/mês", "Relatórios PDF", "Recomendações assistidas", "Histórico 12 meses"],
-    cta: "Assinar Essencial",
     highlight: true,
   },
   {
+    key: "pro" as const,
     name: "Pro",
     price: "R$ 89",
     period: "/mês",
     desc: "Para quem leva a sério",
     features: ["Carteiras ilimitadas", "Diagnóstico avançado", "100 créditos de análise/mês", "Relatórios completos", "Recomendações prioritárias", "Histórico completo", "Suporte prioritário"],
-    cta: "Assinar Pro",
   },
 ];
 
 export default function Pricing() {
+  const { data: subscription, isLoading } = useSubscription();
+  const currentPlan = getPlanByProductId(subscription?.product_id ?? null);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const handleSubscribe = async (planKey: string) => {
+    const plan = PLANS[planKey as keyof typeof PLANS];
+    if (!plan?.price_id) return;
+    setLoadingPlan(planKey);
+    try {
+      await startCheckout(plan.price_id);
+    } catch (e) {
+      toast.error("Erro ao iniciar checkout");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
+  const handleManage = async () => {
+    setLoadingPlan("manage");
+    try {
+      await openCustomerPortal();
+    } catch {
+      toast.error("Erro ao abrir portal de assinatura");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
   return (
     <AppSidebar>
       <div className="max-w-4xl mx-auto space-y-8">
@@ -42,45 +72,67 @@ export default function Pricing() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {plans.map((plan) => (
-            <div key={plan.name} className={cn(
-              "bg-card border rounded-xl p-6 shadow-card flex flex-col",
-              plan.highlight ? "border-primary ring-2 ring-primary/20" : "border-border"
-            )}>
-              {plan.highlight && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary mb-3">
-                  <Zap className="w-3 h-3" /> Mais popular
-                </span>
-              )}
-              <h3 className="font-heading font-semibold text-lg text-foreground">{plan.name}</h3>
-              <p className="text-xs text-muted-foreground mb-4">{plan.desc}</p>
-              <div className="mb-6">
-                <span className="font-heading text-3xl font-bold text-foreground">{plan.price}</span>
-                <span className="text-sm text-muted-foreground">{plan.period}</span>
+          {plans.map((plan) => {
+            const isCurrent = currentPlan === plan.key;
+            const isUpgrade = !isCurrent && plan.key !== "free";
+            return (
+              <div key={plan.key} className={cn(
+                "bg-card border rounded-xl p-6 shadow-card flex flex-col",
+                plan.highlight ? "border-primary ring-2 ring-primary/20" : "border-border",
+                isCurrent && "ring-2 ring-success/30 border-success"
+              )}>
+                {plan.highlight && !isCurrent && (
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary mb-3">
+                    <Zap className="w-3 h-3" /> Mais popular
+                  </span>
+                )}
+                {isCurrent && (
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-success mb-3">
+                    <Check className="w-3 h-3" /> Seu plano
+                  </span>
+                )}
+                <h3 className="font-heading font-semibold text-lg text-foreground">{plan.name}</h3>
+                <p className="text-xs text-muted-foreground mb-4">{plan.desc}</p>
+                <div className="mb-6">
+                  <span className="font-heading text-3xl font-bold text-foreground">{plan.price}</span>
+                  <span className="text-sm text-muted-foreground">{plan.period}</span>
+                </div>
+                <ul className="space-y-2 mb-6 flex-1">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm text-foreground">
+                      <Check className="w-4 h-4 text-success flex-shrink-0" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                {isCurrent && currentPlan !== "free" ? (
+                  <Button variant="outline" className="w-full" onClick={handleManage} disabled={loadingPlan === "manage"}>
+                    {loadingPlan === "manage" ? <Loader2 className="w-4 h-4 animate-spin" /> : <><ExternalLink className="w-4 h-4" /> Gerenciar assinatura</>}
+                  </Button>
+                ) : isCurrent ? (
+                  <Button variant="outline" className="w-full" disabled>Plano atual</Button>
+                ) : isUpgrade ? (
+                  <Button
+                    variant={plan.highlight ? "hero" : "default"}
+                    className="w-full"
+                    onClick={() => handleSubscribe(plan.key)}
+                    disabled={!!loadingPlan || isLoading}
+                  >
+                    {loadingPlan === plan.key ? <Loader2 className="w-4 h-4 animate-spin" /> : `Assinar ${plan.name}`}
+                  </Button>
+                ) : null}
               </div>
-              <ul className="space-y-2 mb-6 flex-1">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-foreground">
-                    <Check className="w-4 h-4 text-success flex-shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Button
-                variant={plan.highlight ? "hero" : plan.current ? "outline" : "default"}
-                className="w-full"
-                disabled={plan.current}
-              >
-                {plan.cta}
-              </Button>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground">Precisa de mais créditos?</p>
-          <Button variant="link" className="text-sm">Comprar créditos avulsos →</Button>
-        </div>
+        {subscription?.subscription_end && (
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              Sua assinatura renova em {new Date(subscription.subscription_end).toLocaleDateString("pt-BR")}
+            </p>
+          </div>
+        )}
       </div>
     </AppSidebar>
   );
