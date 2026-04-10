@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
@@ -116,6 +117,7 @@ const steps: Step[] = [
 export default function Onboarding() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [saving, setSaving] = useState(false);
@@ -172,6 +174,9 @@ export default function Onboarding() {
         .from("profiles")
         .update({ onboarding_completed: true })
         .eq("user_id", user.id);
+
+      // Invalidate cached profile so ProtectedRoute sees onboarding_completed = true
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
 
       toast.success("Perfil de investidor salvo com sucesso!");
       navigate("/dashboard");
