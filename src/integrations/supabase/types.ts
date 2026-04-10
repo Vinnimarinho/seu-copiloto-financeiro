@@ -238,34 +238,43 @@ export type Database = {
       }
       investor_profiles: {
         Row: {
+          approximate_patrimony: string | null
           created_at: string
           experience_years: number | null
           id: string
           investment_horizon: string | null
+          liquidity_need: string | null
           monthly_income_range: string | null
           objectives: string[] | null
+          preference: string | null
           risk_tolerance: Database["public"]["Enums"]["investor_risk_tolerance"]
           updated_at: string
           user_id: string
         }
         Insert: {
+          approximate_patrimony?: string | null
           created_at?: string
           experience_years?: number | null
           id?: string
           investment_horizon?: string | null
+          liquidity_need?: string | null
           monthly_income_range?: string | null
           objectives?: string[] | null
+          preference?: string | null
           risk_tolerance?: Database["public"]["Enums"]["investor_risk_tolerance"]
           updated_at?: string
           user_id: string
         }
         Update: {
+          approximate_patrimony?: string | null
           created_at?: string
           experience_years?: number | null
           id?: string
           investment_horizon?: string | null
+          liquidity_need?: string | null
           monthly_income_range?: string | null
           objectives?: string[] | null
+          preference?: string | null
           risk_tolerance?: Database["public"]["Enums"]["investor_risk_tolerance"]
           updated_at?: string
           user_id?: string
