@@ -19,6 +19,7 @@ import Pricing from "./pages/Pricing";
 import SettingsPage from "./pages/Settings";
 import TermsPage from "./pages/Terms";
 import PrivacyPage from "./pages/Privacy";
+import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
 
             {/* Protected */}
+            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/portfolio/import" element={<ProtectedRoute><PortfolioImport /></ProtectedRoute>} />
             <Route path="/diagnosis" element={<ProtectedRoute><Diagnosis /></ProtectedRoute>} />
