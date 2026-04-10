@@ -175,6 +175,9 @@ export default function Onboarding() {
         .update({ onboarding_completed: true })
         .eq("user_id", user.id);
 
+      // Invalidate cached profile so ProtectedRoute sees onboarding_completed = true
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+
       toast.success("Perfil de investidor salvo com sucesso!");
       navigate("/dashboard");
     } catch (e) {
