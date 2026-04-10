@@ -117,6 +117,7 @@ const steps: Step[] = [
 export default function Onboarding() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [saving, setSaving] = useState(false);
