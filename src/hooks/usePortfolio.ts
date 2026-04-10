@@ -26,7 +26,6 @@ export function useEnsurePortfolio() {
   return useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Not authenticated");
-      // Check if portfolio exists
       const { data: existing } = await supabase
         .from("portfolios")
         .select("id")
@@ -34,7 +33,6 @@ export function useEnsurePortfolio() {
         .single();
       if (existing) return existing.id;
 
-      // Create default portfolio
       const { data, error } = await supabase
         .from("portfolios")
         .insert({ user_id: user.id, name: "Minha Carteira" })
@@ -47,34 +45,17 @@ export function useEnsurePortfolio() {
   });
 }
 
-export function useAssets(portfolioId?: string) {
+export function usePositions(portfolioId?: string) {
   const { user } = useAuth();
   return useQuery({
-    queryKey: ["assets", portfolioId],
+    queryKey: ["positions", portfolioId],
     enabled: !!user && !!portfolioId,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("assets")
+        .from("portfolio_positions")
         .select("*")
         .eq("portfolio_id", portfolioId!)
         .order("current_value", { ascending: false, nullsFirst: false });
-      if (error) throw error;
-      return data;
-    },
-  });
-}
-
-export function useAlerts() {
-  const { user } = useAuth();
-  return useQuery({
-    queryKey: ["alerts", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("alerts")
-        .select("*")
-        .eq("status", "active")
-        .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -134,7 +115,7 @@ export function useUserCredits() {
     enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("user_credits")
+        .from("credit_wallets")
         .select("balance")
         .limit(1)
         .single();
@@ -161,10 +142,27 @@ export function useProfile() {
   });
 }
 
+export function useInvestorProfile() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["investor_profile", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("investor_profiles")
+        .select("*")
+        .limit(1)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (updates: { full_name?: string; phone?: string; investor_profile?: "conservador" | "moderado" | "arrojado" }) => {
+    mutationFn: async (updates: { full_name?: string; phone?: string }) => {
       const { error } = await supabase
         .from("profiles")
         .update(updates)
@@ -176,6 +174,24 @@ export function useUpdateProfile() {
       toast.success("Perfil atualizado!");
     },
     onError: () => toast.error("Erro ao atualizar perfil"),
+  });
+}
+
+export function useUpdateInvestorProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (updates: { risk_tolerance?: "conservador" | "moderado" | "arrojado"; investment_horizon?: string; objectives?: string[] }) => {
+      const { error } = await supabase
+        .from("investor_profiles")
+        .update(updates)
+        .eq("user_id", (await supabase.auth.getUser()).data.user!.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["investor_profile"] });
+      toast.success("Perfil de investidor atualizado!");
+    },
+    onError: () => toast.error("Erro ao atualizar perfil de investidor"),
   });
 }
 
