@@ -14,56 +14,58 @@ export type Database = {
   }
   public: {
     Tables: {
-      alerts: {
+      analyses: {
         Row: {
-          alert_type: string
-          asset_id: string | null
+          ai_insights: string | null
+          allocation_breakdown: Json | null
+          concentration_alerts: Json | null
           created_at: string
-          description: string | null
+          credits_used: number
+          diversification_score: number | null
           id: string
-          portfolio_id: string | null
-          severity: Database["public"]["Enums"]["alert_severity"]
-          status: Database["public"]["Enums"]["alert_status"]
-          title: string
+          liquidity_score: number | null
+          portfolio_id: string
+          risk_score: number | null
+          status: Database["public"]["Enums"]["analysis_status"]
+          summary: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
-          alert_type: string
-          asset_id?: string | null
+          ai_insights?: string | null
+          allocation_breakdown?: Json | null
+          concentration_alerts?: Json | null
           created_at?: string
-          description?: string | null
+          credits_used?: number
+          diversification_score?: number | null
           id?: string
-          portfolio_id?: string | null
-          severity?: Database["public"]["Enums"]["alert_severity"]
-          status?: Database["public"]["Enums"]["alert_status"]
-          title: string
+          liquidity_score?: number | null
+          portfolio_id: string
+          risk_score?: number | null
+          status?: Database["public"]["Enums"]["analysis_status"]
+          summary?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
-          alert_type?: string
-          asset_id?: string | null
+          ai_insights?: string | null
+          allocation_breakdown?: Json | null
+          concentration_alerts?: Json | null
           created_at?: string
-          description?: string | null
+          credits_used?: number
+          diversification_score?: number | null
           id?: string
-          portfolio_id?: string | null
-          severity?: Database["public"]["Enums"]["alert_severity"]
-          status?: Database["public"]["Enums"]["alert_status"]
-          title?: string
+          liquidity_score?: number | null
+          portfolio_id?: string
+          risk_score?: number | null
+          status?: Database["public"]["Enums"]["analysis_status"]
+          summary?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "alerts_asset_id_fkey"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "assets"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "alerts_portfolio_id_fkey"
+            foreignKeyName: "analyses_portfolio_id_fkey"
             columns: ["portfolio_id"]
             isOneToOne: false
             referencedRelation: "portfolios"
@@ -71,7 +73,206 @@ export type Database = {
           },
         ]
       }
-      assets: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          reference_type: string | null
+          resulting_balance: number
+          type: Database["public"]["Enums"]["credit_type"]
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          resulting_balance: number
+          type: Database["public"]["Enums"]["credit_type"]
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          resulting_balance?: number
+          type?: Database["public"]["Enums"]["credit_type"]
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "credit_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      imports: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          file_name: string
+          file_url: string | null
+          format: Database["public"]["Enums"]["import_format"]
+          id: string
+          portfolio_id: string | null
+          rows_processed: number | null
+          rows_total: number | null
+          status: Database["public"]["Enums"]["import_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          file_name: string
+          file_url?: string | null
+          format?: Database["public"]["Enums"]["import_format"]
+          id?: string
+          portfolio_id?: string | null
+          rows_processed?: number | null
+          rows_total?: number | null
+          status?: Database["public"]["Enums"]["import_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          file_name?: string
+          file_url?: string | null
+          format?: Database["public"]["Enums"]["import_format"]
+          id?: string
+          portfolio_id?: string | null
+          rows_processed?: number | null
+          rows_total?: number | null
+          status?: Database["public"]["Enums"]["import_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imports_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "portfolios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investor_profiles: {
+        Row: {
+          created_at: string
+          experience_years: number | null
+          id: string
+          investment_horizon: string | null
+          monthly_income_range: string | null
+          objectives: string[] | null
+          risk_tolerance: Database["public"]["Enums"]["investor_risk_tolerance"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          experience_years?: number | null
+          id?: string
+          investment_horizon?: string | null
+          monthly_income_range?: string | null
+          objectives?: string[] | null
+          risk_tolerance?: Database["public"]["Enums"]["investor_risk_tolerance"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          experience_years?: number | null
+          id?: string
+          investment_horizon?: string | null
+          monthly_income_range?: string | null
+          objectives?: string[] | null
+          risk_tolerance?: Database["public"]["Enums"]["investor_risk_tolerance"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      portfolio_positions: {
         Row: {
           asset_class: string
           asset_subclass: string | null
@@ -128,108 +329,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "assets_portfolio_id_fkey"
-            columns: ["portfolio_id"]
-            isOneToOne: false
-            referencedRelation: "portfolios"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      audit_log: {
-        Row: {
-          action: string
-          created_at: string
-          id: string
-          new_data: Json | null
-          old_data: Json | null
-          record_id: string | null
-          table_name: string | null
-          user_id: string | null
-        }
-        Insert: {
-          action: string
-          created_at?: string
-          id?: string
-          new_data?: Json | null
-          old_data?: Json | null
-          record_id?: string | null
-          table_name?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          action?: string
-          created_at?: string
-          id?: string
-          new_data?: Json | null
-          old_data?: Json | null
-          record_id?: string | null
-          table_name?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      credit_transactions: {
-        Row: {
-          amount: number
-          created_at: string
-          description: string | null
-          id: string
-          resulting_balance: number
-          type: Database["public"]["Enums"]["credit_type"]
-          user_id: string
-        }
-        Insert: {
-          amount: number
-          created_at?: string
-          description?: string | null
-          id?: string
-          resulting_balance: number
-          type: Database["public"]["Enums"]["credit_type"]
-          user_id: string
-        }
-        Update: {
-          amount?: number
-          created_at?: string
-          description?: string | null
-          id?: string
-          resulting_balance?: number
-          type?: Database["public"]["Enums"]["credit_type"]
-          user_id?: string
-        }
-        Relationships: []
-      }
-      portfolio_snapshots: {
-        Row: {
-          allocation: Json | null
-          created_at: string
-          id: string
-          portfolio_id: string
-          snapshot_date: string
-          total_value: number
-          user_id: string
-        }
-        Insert: {
-          allocation?: Json | null
-          created_at?: string
-          id?: string
-          portfolio_id: string
-          snapshot_date: string
-          total_value?: number
-          user_id: string
-        }
-        Update: {
-          allocation?: Json | null
-          created_at?: string
-          id?: string
-          portfolio_id?: string
-          snapshot_date?: string
-          total_value?: number
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "portfolio_snapshots_portfolio_id_fkey"
+            foreignKeyName: "portfolio_positions_portfolio_id_fkey"
             columns: ["portfolio_id"]
             isOneToOne: false
             referencedRelation: "portfolios"
@@ -270,10 +370,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
-          investor_profile:
-            | Database["public"]["Enums"]["investor_profile"]
-            | null
-          onboarding_completed: boolean | null
+          onboarding_completed: boolean
           phone: string | null
           updated_at: string
           user_id: string
@@ -283,10 +380,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
-          investor_profile?:
-            | Database["public"]["Enums"]["investor_profile"]
-            | null
-          onboarding_completed?: boolean | null
+          onboarding_completed?: boolean
           phone?: string | null
           updated_at?: string
           user_id: string
@@ -296,10 +390,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
-          investor_profile?:
-            | Database["public"]["Enums"]["investor_profile"]
-            | null
-          onboarding_completed?: boolean | null
+          onboarding_completed?: boolean
           phone?: string | null
           updated_at?: string
           user_id?: string
@@ -308,13 +399,14 @@ export type Database = {
       }
       recommendations: {
         Row: {
-          asset_id: string | null
+          analysis_id: string | null
           created_at: string
           decided_at: string | null
           description: string | null
           estimated_impact: string | null
           id: string
           portfolio_id: string | null
+          position_id: string | null
           recommendation_type: string
           status: Database["public"]["Enums"]["recommendation_status"]
           title: string
@@ -322,13 +414,14 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          asset_id?: string | null
+          analysis_id?: string | null
           created_at?: string
           decided_at?: string | null
           description?: string | null
           estimated_impact?: string | null
           id?: string
           portfolio_id?: string | null
+          position_id?: string | null
           recommendation_type: string
           status?: Database["public"]["Enums"]["recommendation_status"]
           title: string
@@ -336,13 +429,14 @@ export type Database = {
           user_id: string
         }
         Update: {
-          asset_id?: string | null
+          analysis_id?: string | null
           created_at?: string
           decided_at?: string | null
           description?: string | null
           estimated_impact?: string | null
           id?: string
           portfolio_id?: string | null
+          position_id?: string | null
           recommendation_type?: string
           status?: Database["public"]["Enums"]["recommendation_status"]
           title?: string
@@ -351,10 +445,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "recommendations_asset_id_fkey"
-            columns: ["asset_id"]
+            foreignKeyName: "recommendations_analysis_id_fkey"
+            columns: ["analysis_id"]
             isOneToOne: false
-            referencedRelation: "assets"
+            referencedRelation: "analyses"
             referencedColumns: ["id"]
           },
           {
@@ -364,10 +458,18 @@ export type Database = {
             referencedRelation: "portfolios"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "recommendations_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_positions"
+            referencedColumns: ["id"]
+          },
         ]
       }
       reports: {
         Row: {
+          analysis_id: string | null
           created_at: string
           file_url: string | null
           id: string
@@ -379,6 +481,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          analysis_id?: string | null
           created_at?: string
           file_url?: string | null
           id?: string
@@ -390,6 +493,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          analysis_id?: string | null
           created_at?: string
           file_url?: string | null
           id?: string
@@ -402,6 +506,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "reports_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analyses"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "reports_portfolio_id_fkey"
             columns: ["portfolio_id"]
             isOneToOne: false
@@ -410,25 +521,43 @@ export type Database = {
           },
         ]
       }
-      user_credits: {
+      subscriptions: {
         Row: {
-          balance: number
+          canceled_at: string | null
           created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
           id: string
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
-          balance?: number
+          canceled_at?: string | null
           created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
           id?: string
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
-          balance?: number
+          canceled_at?: string | null
           created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
           id?: string
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -442,12 +571,15 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      alert_severity: "low" | "medium" | "high" | "critical"
-      alert_status: "active" | "dismissed" | "resolved"
-      credit_type: "purchase" | "usage" | "bonus"
-      investor_profile: "conservador" | "moderado" | "arrojado"
+      analysis_status: "pending" | "running" | "completed" | "error"
+      credit_type: "purchase" | "usage" | "bonus" | "refund"
+      import_format: "csv" | "xlsx" | "pdf" | "ofx" | "manual"
+      import_status: "pending" | "processing" | "completed" | "error"
+      investor_risk_tolerance: "conservador" | "moderado" | "arrojado"
       recommendation_status: "pending" | "accepted" | "postponed" | "discarded"
       report_status: "generating" | "generated" | "error"
+      subscription_plan: "free" | "essencial" | "pro"
+      subscription_status: "active" | "canceled" | "past_due" | "trialing"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -575,12 +707,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      alert_severity: ["low", "medium", "high", "critical"],
-      alert_status: ["active", "dismissed", "resolved"],
-      credit_type: ["purchase", "usage", "bonus"],
-      investor_profile: ["conservador", "moderado", "arrojado"],
+      analysis_status: ["pending", "running", "completed", "error"],
+      credit_type: ["purchase", "usage", "bonus", "refund"],
+      import_format: ["csv", "xlsx", "pdf", "ofx", "manual"],
+      import_status: ["pending", "processing", "completed", "error"],
+      investor_risk_tolerance: ["conservador", "moderado", "arrojado"],
       recommendation_status: ["pending", "accepted", "postponed", "discarded"],
       report_status: ["generating", "generated", "error"],
+      subscription_plan: ["free", "essencial", "pro"],
+      subscription_status: ["active", "canceled", "past_due", "trialing"],
     },
   },
 } as const

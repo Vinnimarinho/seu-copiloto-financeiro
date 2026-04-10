@@ -1,7 +1,7 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { User, Shield, Trash2, Download, Loader2 } from "lucide-react";
-import { useProfile, useUpdateProfile } from "@/hooks/usePortfolio";
+import { useProfile, useUpdateProfile, useInvestorProfile, useUpdateInvestorProfile } from "@/hooks/usePortfolio";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 
@@ -14,22 +14,32 @@ const profileOptions = [
 export default function SettingsPage() {
   const { user } = useAuth();
   const { data: profile, isLoading } = useProfile();
+  const { data: investorData } = useInvestorProfile();
   const updateProfile = useUpdateProfile();
+  const updateInvestor = useUpdateInvestorProfile();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [investorProfile, setInvestorProfile] = useState<"conservador" | "moderado" | "arrojado">("moderado");
+  const [riskTolerance, setRiskTolerance] = useState<"conservador" | "moderado" | "arrojado">("moderado");
 
   useEffect(() => {
     if (profile) {
       setName(profile.full_name || "");
       setPhone(profile.phone || "");
-      setInvestorProfile(profile.investor_profile || "moderado");
     }
   }, [profile]);
 
+  useEffect(() => {
+    if (investorData) {
+      setRiskTolerance(investorData.risk_tolerance || "moderado");
+    }
+  }, [investorData]);
+
   const handleSave = () => {
-    updateProfile.mutate({ full_name: name, phone, investor_profile: investorProfile });
+    updateProfile.mutate({ full_name: name, phone });
+    updateInvestor.mutate({ risk_tolerance: riskTolerance });
   };
+
+  const isSaving = updateProfile.isPending || updateInvestor.isPending;
 
   if (isLoading) {
     return (
@@ -79,8 +89,8 @@ export default function SettingsPage() {
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Perfil de investidor</label>
               <select
-                value={investorProfile}
-                onChange={e => setInvestorProfile(e.target.value as typeof investorProfile)}
+                value={riskTolerance}
+                onChange={e => setRiskTolerance(e.target.value as typeof riskTolerance)}
                 className="w-full h-10 px-3 rounded-lg border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 {profileOptions.map(o => (
@@ -89,8 +99,8 @@ export default function SettingsPage() {
               </select>
             </div>
           </div>
-          <Button variant="default" size="sm" onClick={handleSave} disabled={updateProfile.isPending}>
-            {updateProfile.isPending ? <><Loader2 className="w-4 h-4 animate-spin" /> Salvando...</> : "Salvar alterações"}
+          <Button variant="default" size="sm" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? <><Loader2 className="w-4 h-4 animate-spin" /> Salvando...</> : "Salvar alterações"}
           </Button>
         </div>
 
