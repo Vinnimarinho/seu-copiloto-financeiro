@@ -4,10 +4,10 @@ import { useProfile } from "@/hooks/usePortfolio";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  const { data: profile, isLoading: profileLoading } = useProfile();
+  const { data: profile, isLoading: profileLoading, isError } = useProfile();
   const location = useLocation();
 
-  if (loading || profileLoading) {
+  if (loading || (profileLoading && !isError)) {
     return (
       <div className="min-h-screen bg-sidebar flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />

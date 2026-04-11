@@ -118,7 +118,7 @@ export function useUserCredits() {
         .from("credit_wallets")
         .select("balance")
         .limit(1)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return data?.balance ?? 0;
     },
@@ -135,7 +135,7 @@ export function useProfile() {
         .from("profiles")
         .select("*")
         .limit(1)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -152,7 +152,7 @@ export function useInvestorProfile() {
         .from("investor_profiles")
         .select("*")
         .limit(1)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -206,7 +206,7 @@ export function useLatestAnalysis() {
         .select("*")
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
