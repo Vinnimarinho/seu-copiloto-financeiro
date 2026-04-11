@@ -43,12 +43,13 @@ const toDateInputValue = (date: Date) => {
 const formatPeriodLabel = (startDate: string, endDate: string) => {
   const start = new Date(`${startDate}T00:00:00`);
   const end = new Date(`${endDate}T00:00:00`);
-
-  return new Intl.DateTimeFormat("pt-BR", {
+  const formatter = new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-  }).formatRange(start, end);
+  });
+
+  return `${formatter.format(start)} a ${formatter.format(end)}`;
 };
 
 export default function PortfolioImport() {
