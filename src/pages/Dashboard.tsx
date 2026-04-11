@@ -1,13 +1,14 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { BentoCard, BentoGrid } from "@/components/BentoGrid";
 import { AlertCard } from "@/components/AlertCard";
-import { formatCurrency, formatPercent } from "@/data/mockData";
-import { TrendingUp, TrendingDown, Loader2, Upload } from "lucide-react";
+import { formatCurrency } from "@/data/mockData";
+import { TrendingUp, TrendingDown, Loader2, Upload, User } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
-import { usePortfolios, usePositions, useLatestAnalysis } from "@/hooks/usePortfolio";
+import { usePortfolios, usePositions, useLatestAnalysis, useInvestorProfile } from "@/hooks/usePortfolio";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
+import { getInvestorCategory } from "@/lib/investorProfile";
 
 function StatValue({ label, value, sub, trend }: { label: string; value: string; sub?: string; trend?: "up" | "down" }) {
   return (
@@ -43,14 +44,16 @@ export default function Dashboard() {
   const portfolioId = portfolios?.[0]?.id;
   const { data: positions, isLoading: loadingPositions } = usePositions(portfolioId);
   const { data: analysis } = useLatestAnalysis();
+  const { data: investorProfile } = useInvestorProfile();
   const navigate = useNavigate();
+
+  const category = getInvestorCategory(investorProfile?.risk_tolerance);
 
   const stats = useMemo(() => {
     if (!positions || positions.length === 0) return null;
 
     const totalValue = positions.reduce((sum, p) => sum + (Number(p.current_value) || Number(p.avg_price) * Number(p.quantity) || 0), 0);
 
-    // Group by asset_class for allocation
     const classMap: Record<string, number> = {};
     positions.forEach(p => {
       const cls = p.asset_class || "Outros";
@@ -61,7 +64,6 @@ export default function Dashboard() {
       .map(([name, amount]) => ({ name, value: Math.round((amount / totalValue) * 100), amount }))
       .sort((a, b) => b.value - a.value);
 
-    // Group by sector
     const sectorMap: Record<string, number> = {};
     positions.forEach(p => {
       const sec = p.sector || "Outros";
@@ -73,7 +75,6 @@ export default function Dashboard() {
       .sort((a, b) => b.pct - a.pct)
       .slice(0, 7);
 
-    // Top positions
     const topAssets = positions
       .map(p => ({
         ticker: p.ticker,
@@ -85,7 +86,6 @@ export default function Dashboard() {
       .slice(0, 5)
       .map(a => ({ ...a, pct: Math.round((a.value / totalValue) * 100) }));
 
-    // Liquidity
     const liqMap: Record<string, number> = { "Imediata": 0, "Até 30d": 0, "Até 90d": 0, "90d+": 0 };
     positions.forEach(p => {
       const val = Number(p.current_value) || Number(p.avg_price) * Number(p.quantity) || 0;
@@ -100,7 +100,6 @@ export default function Dashboard() {
       value: totalValue > 0 ? Math.round((amount / totalValue) * 100) : 0,
     }));
 
-    // Concentration alerts from analysis
     const alerts = (analysis?.concentration_alerts as string[] || []).map((a, i) => ({
       id: String(i),
       type: "concentration" as const,
@@ -122,14 +121,36 @@ export default function Dashboard() {
     );
   }
 
+  // Empty state — no positions yet
   if (!stats) {
     return (
       <AppSidebar>
-        <div className="max-w-lg mx-auto text-center space-y-4 py-20">
-          <Upload className="w-12 h-12 text-muted-foreground mx-auto" />
-          <h1 className="font-heading text-2xl font-bold text-foreground">Sua carteira está vazia</h1>
-          <p className="text-muted-foreground">Importe seus extratos para ver o dashboard completo com análise por IA.</p>
-          <Button onClick={() => navigate("/portfolio/import")}>Importar Carteira</Button>
+        <div className="space-y-6">
+          <div>
+            <h1 className="font-heading text-2xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-1">Visão geral da sua carteira de investimentos</p>
+          </div>
+
+          {/* Investor profile card */}
+          {investorProfile && (
+            <div className="bg-card border border-border rounded-xl p-6 shadow-card flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full gradient-primary flex items-center justify-center text-3xl">
+                {category.emoji}
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Seu perfil de investidor</p>
+                <h2 className="font-heading text-xl font-bold text-foreground">{category.name}</h2>
+                <p className="text-sm text-muted-foreground">{category.description}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="max-w-lg mx-auto text-center space-y-4 py-12">
+            <Upload className="w-12 h-12 text-muted-foreground mx-auto" />
+            <h2 className="font-heading text-xl font-bold text-foreground">Sua carteira está vazia</h2>
+            <p className="text-muted-foreground">Importe seus extratos para ver o dashboard completo com análise por IA.</p>
+            <Button onClick={() => navigate("/portfolio/import")}>Importar Carteira</Button>
+          </div>
         </div>
       </AppSidebar>
     );
@@ -142,6 +163,18 @@ export default function Dashboard() {
           <h1 className="font-heading text-2xl font-bold text-foreground">Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-1">Visão geral da sua carteira de investimentos</p>
         </div>
+
+        {/* Investor profile badge */}
+        {investorProfile && (
+          <div className="bg-card border border-border rounded-xl p-4 shadow-card flex items-center gap-3">
+            <span className="text-2xl">{category.emoji}</span>
+            <div className="flex-1">
+              <p className="text-xs text-muted-foreground">Perfil</p>
+              <p className="font-heading font-bold text-foreground">{category.name}</p>
+            </div>
+            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full font-medium">{category.title}</span>
+          </div>
+        )}
 
         <BentoGrid columns={3}>
           <BentoCard title="Patrimônio Total">
