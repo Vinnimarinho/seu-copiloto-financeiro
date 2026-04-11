@@ -220,11 +220,33 @@ export default function PortfolioImport() {
             </Button>
           </div>
 
-          {!uploadedFile && (
-            <p className="text-xs text-muted-foreground">Primeiro envie o arquivo da carteira; depois clique no botão para iniciar o diagnóstico.</p>
-          )}
-          {!isPeriodValid && (
-            <p className="text-xs text-destructive">A data inicial precisa ser anterior ou igual à data final.</p>
+          {!canAnalyze && !isBusy && (
+            <div className="space-y-1">
+              {!uploadedFile && (
+                <p className="text-xs text-muted-foreground flex items-center gap-1">❌ Envie o arquivo da carteira</p>
+              )}
+              {uploadedFile && (
+                <p className="text-xs text-success flex items-center gap-1">✅ Arquivo enviado</p>
+              )}
+              {!isPeriodValid && (
+                <p className="text-xs text-destructive flex items-center gap-1">❌ Informe um período válido (data inicial ≤ data final)</p>
+              )}
+              {isPeriodValid && (
+                <p className="text-xs text-success flex items-center gap-1">✅ Período configurado</p>
+              )}
+              {!profile?.onboarding_completed && (
+                <p className="text-xs text-destructive flex items-center gap-1">❌ Complete o perfil do investidor (onboarding)</p>
+              )}
+              {profile?.onboarding_completed && (
+                <p className="text-xs text-success flex items-center gap-1">✅ Perfil do investidor completo</p>
+              )}
+              {!investorProfile && (
+                <p className="text-xs text-destructive flex items-center gap-1">❌ Perfil investidor não encontrado</p>
+              )}
+              {investorProfile && (
+                <p className="text-xs text-success flex items-center gap-1">✅ Perfil investidor encontrado</p>
+              )}
+            </div>
           )}
         </div>
 
