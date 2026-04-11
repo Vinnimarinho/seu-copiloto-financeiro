@@ -1,28 +1,21 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useRecommendations, useUpdateRecommendation } from "@/hooks/usePortfolio";
-import { mockRecommendations } from "@/data/mockData";
 import { CheckCircle2, Clock, X, AlertCircle, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Recommendations() {
-  const { data: dbRecs, isLoading } = useRecommendations();
+  const navigate = useNavigate();
+  const { data: dbRecs = [], isLoading } = useRecommendations();
   const updateRec = useUpdateRecommendation();
 
-  // Use DB data if available, otherwise fall back to mock
-  const hasDbData = dbRecs && dbRecs.length > 0;
-
-  const recs = hasDbData
-    ? dbRecs.map(r => ({
-        id: r.id,
-        title: r.title,
-        reason: r.description || "",
-        action: r.recommendation_type,
-        impact: r.estimated_impact || "",
-        urgency: "Média",
-        priority: 1,
-        status: r.status as string,
-      }))
-    : mockRecommendations;
+  const recs = dbRecs.map((recommendation) => ({
+    id: recommendation.id,
+    title: recommendation.title,
+    reason: recommendation.description || "",
+    impact: recommendation.estimated_impact || "",
+    status: recommendation.status as string,
+  }));
 
   return (
     <AppSidebar>
@@ -34,6 +27,14 @@ export default function Recommendations() {
 
         {isLoading ? (
           <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
+        ) : recs.length === 0 ? (
+          <div className="bg-card border border-border rounded-xl p-8 text-center shadow-card space-y-4">
+            <h2 className="font-heading text-xl font-semibold text-foreground">Ainda não há recomendações geradas</h2>
+            <p className="text-sm text-muted-foreground">
+              Envie sua carteira e rode o diagnóstico completo para gerar recomendações baseadas no seu perfil investidor.
+            </p>
+            <Button onClick={() => navigate("/portfolio/import")}>Importar carteira</Button>
+          </div>
         ) : (
           <div className="space-y-4">
             {recs.map((rec) => {
@@ -68,13 +69,13 @@ export default function Recommendations() {
 
                   {isPending && (
                     <div className="flex items-center gap-2 pt-4 border-t border-border">
-                      <Button variant="default" size="sm" onClick={() => hasDbData && updateRec.mutate({ id: rec.id, status: "accepted" })}>
+                      <Button variant="default" size="sm" disabled={updateRec.isPending} onClick={() => updateRec.mutate({ id: rec.id, status: "accepted" })}>
                         <CheckCircle2 className="w-4 h-4" /> Aceitar
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => hasDbData && updateRec.mutate({ id: rec.id, status: "postponed" })}>
+                      <Button variant="outline" size="sm" disabled={updateRec.isPending} onClick={() => updateRec.mutate({ id: rec.id, status: "postponed" })}>
                         <Clock className="w-4 h-4" /> Adiar
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => hasDbData && updateRec.mutate({ id: rec.id, status: "discarded" })}>
+                      <Button variant="ghost" size="sm" disabled={updateRec.isPending} onClick={() => updateRec.mutate({ id: rec.id, status: "discarded" })}>
                         <X className="w-4 h-4" /> Descartar
                       </Button>
                     </div>

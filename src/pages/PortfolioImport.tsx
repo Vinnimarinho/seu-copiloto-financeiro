@@ -1,12 +1,12 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { Upload, FileSpreadsheet, FileText, File, CheckCircle2, Loader2, X, Sparkles, ArrowRight } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
-import { useUploadPortfolioFile } from "@/hooks/usePortfolio";
-import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Upload, FileSpreadsheet, FileText, File, CheckCircle2, Loader2, X, Sparkles, ArrowRight, CalendarRange } from "lucide-react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { useInvestorProfile, useProfile, useUploadPortfolioFile } from "@/hooks/usePortfolio";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { useRunPortfolioDiagnosis } from "@/hooks/usePortfolioAnalysis";
 
 const formats = [
   { icon: <FileSpreadsheet className="w-8 h-8" />, name: "CSV", desc: "Extrato de corretora em CSV" },
@@ -30,77 +30,120 @@ interface ProcessResult {
   positionsCount: number;
   recommendationsCount: number;
   analysisId?: string;
+  periodLabel: string;
 }
+
+const toDateInputValue = (date: Date) => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const formatPeriodLabel = (startDate: string, endDate: string) => {
+  const start = new Date(`${startDate}T00:00:00`);
+  const end = new Date(`${endDate}T00:00:00`);
+  const formatter = new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  return `${formatter.format(start)} a ${formatter.format(end)}`;
+};
 
 export default function PortfolioImport() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [processResult, setProcessResult] = useState<ProcessResult | null>(null);
+  const [periodStart, setPeriodStart] = useState(() => {
+    const start = new Date();
+    start.setMonth(start.getMonth() - 12);
+    return toDateInputValue(start);
+  });
+  const [periodEnd, setPeriodEnd] = useState(() => toDateInputValue(new Date()));
   const inputRef = useRef<HTMLInputElement>(null);
   const uploadMutation = useUploadPortfolioFile();
+  const diagnosisMutation = useRunPortfolioDiagnosis();
+  const { data: profile } = useProfile();
+  const { data: investorProfile } = useInvestorProfile();
   const [dragOver, setDragOver] = useState(false);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const processFile = async (filePath: string, fileName: string) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error("Não autenticado");
-
-    const response = await supabase.functions.invoke("process-portfolio", {
-      body: { filePath, fileName },
-    });
-
-    if (response.error) {
-      throw new Error(response.error.message || "Erro ao processar arquivo");
-    }
-
-    const data = response.data;
-    if (data.error) throw new Error(data.error);
-    return data;
-  };
+  const isPeriodValid = !!periodStart && !!periodEnd && periodStart <= periodEnd;
+  const uploadedFile = files.find((file) => file.status === "uploaded" && file.path);
+  const isBusy = uploadMutation.isPending || diagnosisMutation.isPending || files.some((file) => file.status === "uploading" || file.status === "processing");
+  const canAnalyze = !!uploadedFile && isPeriodValid && !!profile?.onboarding_completed && !!investorProfile && !isBusy;
+  const periodLabel = useMemo(() => {
+    if (!isPeriodValid) return "";
+    return formatPeriodLabel(periodStart, periodEnd);
+  }, [isPeriodValid, periodEnd, periodStart]);
 
   const handleFiles = useCallback(async (fileList: FileList | File[]) => {
-    const newFiles = Array.from(fileList);
-    const entries: UploadedFile[] = newFiles.map(f => ({ file: f, status: "uploading" as const }));
-    setFiles(prev => [...prev, ...entries]);
+    const [file] = Array.from(fileList);
+    if (!file) return;
+
+    setFiles([{ file, status: "uploading" }]);
     setProcessResult(null);
 
-    for (let i = 0; i < newFiles.length; i++) {
-      const file = newFiles[i];
-      try {
-        // Step 1: Upload
-        const path = await uploadMutation.mutateAsync(file);
-        setFiles(prev => prev.map(f => f.file === file ? { ...f, status: "uploaded", path } : f));
-
-        // Step 2: Process with AI
-        setFiles(prev => prev.map(f => f.file === file ? { ...f, status: "processing" } : f));
-        toast.info("Analisando arquivo com IA... Isso pode levar alguns segundos.");
-
-        const result = await processFile(path, file.name);
-        setFiles(prev => prev.map(f => f.file === file ? { ...f, status: "done" } : f));
-        setProcessResult({
-          positionsCount: result.positionsCount || 0,
-          recommendationsCount: result.recommendationsCount || 0,
-          analysisId: result.analysisId,
-        });
-
-        // Invalidate caches
-        queryClient.invalidateQueries({ queryKey: ["portfolios"] });
-        queryClient.invalidateQueries({ queryKey: ["positions"] });
-        queryClient.invalidateQueries({ queryKey: ["recommendations"] });
-
-        toast.success(`Pronto! ${result.positionsCount} posições e ${result.recommendationsCount} recomendações encontradas.`);
-      } catch (e) {
-        setFiles(prev => prev.map(f => f.file === file ? { ...f, status: "error", error: (e as Error).message } : f));
-        toast.error(`Erro: ${(e as Error).message}`);
-      }
+    try {
+      const path = await uploadMutation.mutateAsync(file);
+      setFiles([{ file, status: "uploaded", path }]);
+      toast.info("Arquivo pronto para análise. Agora clique em Executar diagnóstico completo.");
+    } catch (e) {
+      setFiles([{ file, status: "error", error: (e as Error).message }]);
+      toast.error(`Erro: ${(e as Error).message}`);
     }
-  }, [uploadMutation, queryClient]);
+  }, [uploadMutation]);
+
+  const handleRunDiagnosis = useCallback(async () => {
+    if (!uploadedFile?.path) {
+      toast.error("Envie um arquivo antes de iniciar o diagnóstico.");
+      return;
+    }
+
+    if (!profile?.onboarding_completed) {
+      toast.error("Complete seu perfil de investidor antes de rodar o diagnóstico.");
+      return;
+    }
+
+    if (!isPeriodValid) {
+      toast.error("Informe um período válido para a análise.");
+      return;
+    }
+
+    setFiles((current) => current.map((file) => file.file === uploadedFile.file ? { ...file, status: "processing", error: undefined } : file));
+    setProcessResult(null);
+    toast.info("Diagnóstico iniciado. Estamos cruzando arquivo, período e perfil do investidor.");
+
+    try {
+      const result = await diagnosisMutation.mutateAsync({
+        filePath: uploadedFile.path,
+        fileName: uploadedFile.file.name,
+        analysisPeriod: {
+          startDate: periodStart,
+          endDate: periodEnd,
+          label: periodLabel,
+        },
+      });
+
+      setFiles((current) => current.map((file) => file.file === uploadedFile.file ? { ...file, status: "done" } : file));
+      setProcessResult({
+        positionsCount: result.positionsCount || 0,
+        recommendationsCount: result.recommendationsCount || 0,
+        analysisId: result.analysisId,
+        periodLabel,
+      });
+      toast.success(`Pronto! ${result.positionsCount} posições e ${result.recommendationsCount} recomendações foram geradas.`);
+    } catch (e) {
+      setFiles((current) => current.map((file) => file.file === uploadedFile.file ? { ...file, status: "error", error: (e as Error).message } : file));
+      toast.error(`Erro: ${(e as Error).message}`);
+    }
+  }, [diagnosisMutation, isPeriodValid, periodEnd, periodLabel, periodStart, profile?.onboarding_completed, uploadedFile, uploadedFile?.path]);
 
   const removeFile = (file: File) => setFiles(prev => prev.filter(f => f.file !== file));
 
   const statusLabel: Record<FileStatus, string> = {
     uploading: "Enviando...",
-    uploaded: "Enviado",
+    uploaded: "Pronto para diagnóstico",
     processing: "Analisando com IA...",
     done: "Análise completa",
     error: "Erro",
@@ -114,36 +157,80 @@ export default function PortfolioImport() {
           <p className="text-sm text-muted-foreground mt-1">Envie seus extratos e posições para análise automática com IA</p>
         </div>
 
-        {/* Upload area */}
         <div
           className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors cursor-pointer bg-card ${dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
-          onClick={() => inputRef.current?.click()}
+          onClick={() => !isBusy && inputRef.current?.click()}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={(e) => {
             e.preventDefault();
             setDragOver(false);
-            if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+            if (e.dataTransfer.files.length && !isBusy) handleFiles(e.dataTransfer.files);
           }}
         >
           <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-4" />
-          <p className="font-heading font-semibold text-foreground mb-1">Arraste seus arquivos aqui</p>
-          <p className="text-sm text-muted-foreground mb-4">ou clique para selecionar</p>
-          <Button variant="outline" size="sm" type="button">Selecionar arquivos</Button>
+          <p className="font-heading font-semibold text-foreground mb-1">Envie o arquivo que será a base do diagnóstico</p>
+          <p className="text-sm text-muted-foreground mb-4">Após o upload, você escolhe o período e aciona manualmente a inteligência do sistema</p>
+          <Button variant="outline" size="sm" type="button" disabled={isBusy}>Selecionar arquivo</Button>
           <input
             ref={inputRef}
             type="file"
             accept={ACCEPTED}
-            multiple
             className="hidden"
             onChange={(e) => { if (e.target.files?.length) handleFiles(e.target.files); e.target.value = ""; }}
           />
         </div>
 
-        {/* Uploaded files list */}
+        <div className="bg-card border border-border rounded-xl p-6 space-y-4 shadow-card">
+          <div>
+            <h2 className="font-heading font-semibold text-foreground flex items-center gap-2">
+              <CalendarRange className="w-4 h-4 text-primary" /> Configurar diagnóstico
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              O sistema vai cruzar o arquivo enviado com o período analisado e seu perfil de investidor para montar diagnóstico e recomendações.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <label htmlFor="period-start" className="text-sm font-medium text-foreground">Data inicial</label>
+              <Input id="period-start" type="date" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} max={periodEnd} />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="period-end" className="text-sm font-medium text-foreground">Data final</label>
+              <Input id="period-end" type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} min={periodStart} max={toDateInputValue(new Date())} />
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-border bg-secondary/40 p-4 text-sm text-muted-foreground">
+            {profile?.onboarding_completed
+              ? "Seu perfil investidor já será usado como contexto para personalizar as recomendações." 
+              : "Antes do diagnóstico, complete o perfil do investidor para liberar recomendações personalizadas."}
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            {!profile?.onboarding_completed && (
+              <Button variant="outline" onClick={() => navigate("/onboarding")}>
+                Completar perfil investidor
+              </Button>
+            )}
+            <Button onClick={handleRunDiagnosis} disabled={!canAnalyze} className="gap-2 sm:min-w-[260px]">
+              {diagnosisMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              Executar diagnóstico completo
+            </Button>
+          </div>
+
+          {!uploadedFile && (
+            <p className="text-xs text-muted-foreground">Primeiro envie o arquivo da carteira; depois clique no botão para iniciar o diagnóstico.</p>
+          )}
+          {!isPeriodValid && (
+            <p className="text-xs text-destructive">A data inicial precisa ser anterior ou igual à data final.</p>
+          )}
+        </div>
+
         {files.length > 0 && (
           <div className="space-y-2">
-            <h2 className="font-heading font-semibold text-sm text-foreground">Arquivos</h2>
+            <h2 className="font-heading font-semibold text-sm text-foreground">Arquivo enviado</h2>
             {files.map((f, i) => (
               <div key={i} className="flex items-center gap-3 bg-card border border-border rounded-lg px-4 py-3">
                 <FileText className="w-5 h-5 text-muted-foreground flex-shrink-0" />
@@ -163,7 +250,7 @@ export default function PortfolioImport() {
                 {f.status === "error" && (
                   <span className="text-xs text-destructive max-w-[200px] truncate">{f.error || "Erro"}</span>
                 )}
-                <button onClick={(e) => { e.stopPropagation(); removeFile(f.file); }} className="text-muted-foreground hover:text-foreground">
+                <button onClick={(e) => { e.stopPropagation(); removeFile(f.file); }} className="text-muted-foreground hover:text-foreground" disabled={isBusy}>
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -181,14 +268,15 @@ export default function PortfolioImport() {
                 <p className="text-sm text-muted-foreground">
                   {processResult.positionsCount} posições identificadas · {processResult.recommendationsCount} recomendações geradas
                 </p>
+                <p className="text-xs text-muted-foreground mt-1">Período analisado: {processResult.periodLabel}</p>
               </div>
             </div>
             <div className="flex gap-3">
-              <Button onClick={() => navigate("/dashboard")} variant="outline" size="sm">
-                Ver Dashboard
-              </Button>
               <Button onClick={() => navigate("/diagnosis")} size="sm" className="gap-1">
                 Ver Diagnóstico <ArrowRight className="w-4 h-4" />
+              </Button>
+              <Button onClick={() => navigate("/dashboard")} variant="outline" size="sm">
+                Ver Dashboard
               </Button>
               <Button onClick={() => navigate("/recommendations")} variant="outline" size="sm">
                 Ver Recomendações
