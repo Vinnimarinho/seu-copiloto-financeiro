@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { z } from "npm:zod@3.25.76";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,6 +9,179 @@ const corsHeaders = {
 
 const log = (step: string, details?: any) =>
   console.log(`[PROCESS-PORTFOLIO] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
+
+const AnalysisPeriodSchema = z.object({
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  label: z.string().min(1).max(120),
+}).refine((value) => value.startDate <= value.endDate, {
+  message: "Período inválido",
+  path: ["endDate"],
+});
+
+const BodySchema = z.object({
+  filePath: z.string().min(1),
+  fileName: z.string().min(1),
+  analysisPeriod: AnalysisPeriodSchema,
+});
+
+const normalizeText = (value: string) => value.replace(/\u0000/g, " ").trim();
+
+async function extractPdfText(fileBytes: Uint8Array) {
+  try {
+    const pdfParse = (await import("npm:pdf-parse@1.1.1/lib/pdf-parse.js")).default;
+    const { Buffer } = await import("node:buffer");
+    const pdfData = await pdfParse(Buffer.from(fileBytes));
+    const text = normalizeText(pdfData.text || "");
+
+    if (text.length >= 20) {
+      log("PDF text extracted with pdf-parse", { chars: text.length });
+      return text;
+    }
+  } catch (error) {
+    log("pdf-parse failed", { error: (error as Error).message });
+  }
+
+  try {
+    const pdfjs = await import("npm:pdfjs-dist@4.8.69/legacy/build/pdf.mjs");
+    const document = await pdfjs.getDocument({ data: fileBytes, useWorkerFetch: false, isEvalSupported: false }).promise;
+    const pageTexts: string[] = [];
+
+    for (let pageNumber = 1; pageNumber <= Math.min(document.numPages, 10); pageNumber += 1) {
+      const page = await document.getPage(pageNumber);
+      const textContent = await page.getTextContent();
+      pageTexts.push(
+        textContent.items
+          .map((item: any) => ("str" in item ? item.str : ""))
+          .join(" ")
+      );
+    }
+
+    const text = normalizeText(pageTexts.join("\n\n"));
+    if (text.length >= 20) {
+      log("PDF text extracted with pdfjs", { chars: text.length });
+      return text;
+    }
+  } catch (error) {
+    log("pdfjs failed", { error: (error as Error).message });
+  }
+
+  return "";
+}
+
+async function extractSpreadsheetText(fileBytes: Uint8Array) {
+  try {
+    const XLSX = await import("npm:xlsx@0.18.5");
+    const workbook = XLSX.read(fileBytes, { type: "array" });
+    const text = normalizeText(
+      workbook.SheetNames
+        .map((sheetName: string) => XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]))
+        .join("\n")
+    );
+
+    if (text.length >= 20) {
+      log("Spreadsheet text extracted", { chars: text.length });
+      return text;
+    }
+  } catch (error) {
+    log("Spreadsheet extraction failed", { error: (error as Error).message });
+  }
+
+  return "";
+}
+
+async function extractTextFromFile(fileBytes: Uint8Array, fileName: string) {
+  const ext = fileName.split(".").pop()?.toLowerCase();
+
+  if (ext === "pdf") {
+    return extractPdfText(fileBytes);
+  }
+
+  if (ext === "xlsx" || ext === "xls") {
+    return extractSpreadsheetText(fileBytes);
+  }
+
+  if (ext === "csv" || ext === "ofx" || ext === "ofc" || ext === "txt") {
+    const text = normalizeText(new TextDecoder().decode(fileBytes));
+    log("Text file decoded", { chars: text.length });
+    return text;
+  }
+
+  return "";
+}
+
+function buildInvestorContext(profile: any, investorProfile: any) {
+  return {
+    onboardingCompleted: Boolean(profile?.onboarding_completed),
+    objectives: investorProfile?.objectives ?? [],
+    investment_horizon: investorProfile?.investment_horizon ?? null,
+    liquidity_need: investorProfile?.liquidity_need ?? null,
+    risk_tolerance: investorProfile?.risk_tolerance ?? null,
+    monthly_income_range: investorProfile?.monthly_income_range ?? null,
+    approximate_patrimony: investorProfile?.approximate_patrimony ?? null,
+    experience_years: investorProfile?.experience_years ?? null,
+    preference: investorProfile?.preference ?? null,
+  };
+}
+
+function buildPrompt(extractedText: string, fileName: string, analysisPeriod: z.infer<typeof AnalysisPeriodSchema>, investorContext: ReturnType<typeof buildInvestorContext>) {
+  return `Você é um analista de carteira brasileiro extremamente criterioso.
+
+ARQUIVO ENVIADO: ${fileName}
+PERÍODO INFORMADO PELO USUÁRIO: ${analysisPeriod.label} (${analysisPeriod.startDate} até ${analysisPeriod.endDate})
+
+PERFIL DO INVESTIDOR:
+${JSON.stringify(investorContext, null, 2)}
+
+CONTEÚDO EXTRAÍDO DO ARQUIVO:
+${extractedText.substring(0, 18000)}
+
+REGRAS IMPORTANTES:
+1. Extraia as posições atuais ou mais recentes encontradas no documento.
+2. Faça o diagnóstico considerando o período informado PELO USUÁRIO e os dados presentes no arquivo.
+3. Se o documento não tiver informação suficiente para calcular performance exata no período, deixe isso explícito no resumo e nos insights, sem inventar números.
+4. As recomendações precisam ser coerentes com o perfil do investidor, especialmente risco, liquidez, objetivos e preferência.
+5. Use linguagem simples em português do Brasil.
+6. Retorne SOMENTE JSON válido, sem markdown.
+
+Formato de resposta:
+{
+  "positions": [
+    {
+      "ticker": "PETR4",
+      "name": "Petrobras PN",
+      "asset_class": "Ações",
+      "asset_subclass": "Ação Nacional",
+      "quantity": 100,
+      "avg_price": 35.5,
+      "current_price": 38.2,
+      "current_value": 3820,
+      "sector": "Petróleo e Gás",
+      "currency": "BRL",
+      "liquidity": "D+2"
+    }
+  ],
+  "analysis": {
+    "risk_score": 65,
+    "diversification_score": 45,
+    "liquidity_score": 70,
+    "summary": "Resumo em português simples, incluindo leitura da performance no período informado e eventual limitação de dados.",
+    "ai_insights": "Insights detalhados incluindo performance, riscos, concentração e aderência ao perfil do investidor.",
+    "allocation_breakdown": {"Ações": 40, "FIIs": 30, "Renda Fixa": 30},
+    "concentration_alerts": ["PETR4 representa 25% da carteira"]
+  },
+  "recommendations": [
+    {
+      "title": "Reduzir concentração em PETR4",
+      "description": "Explique a ação recomendada e a relação com o perfil do investidor.",
+      "recommendation_type": "rebalance",
+      "estimated_impact": "Descreva o impacto esperado na carteira"
+    }
+  ]
+}
+
+Se não encontrar posições, retorne positions como array vazio, mas ainda gere analysis e recommendations contextualizadas.`;
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -20,8 +194,9 @@ serve(async (req) => {
     { auth: { persistSession: false } }
   );
 
+  let importId: string | null = null;
+
   try {
-    // Auth
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("Sem autorização");
     const token = authHeader.replace("Bearer ", "");
@@ -31,52 +206,49 @@ serve(async (req) => {
     if (!user) throw new Error("Usuário não autenticado");
     log("Auth OK", { userId: user.id });
 
-    const { filePath, fileName } = await req.json();
-    if (!filePath) throw new Error("filePath é obrigatório");
-    log("Processing file", { filePath, fileName });
+    const parsedBody = BodySchema.safeParse(await req.json());
+    if (!parsedBody.success) {
+      return new Response(
+        JSON.stringify({ error: parsedBody.error.flatten().fieldErrors }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
 
-    // Download file from storage
+    const { filePath, fileName, analysisPeriod } = parsedBody.data;
+    log("Processing file", { filePath, fileName, analysisPeriod });
+
     const { data: fileData, error: downloadErr } = await supabase.storage
       .from("portfolio-files")
       .download(filePath);
     if (downloadErr) throw new Error(`Erro ao baixar arquivo: ${downloadErr.message}`);
     log("File downloaded", { size: fileData.size });
 
-    // Extract text from PDF
-    let extractedText = "";
     const fileBytes = new Uint8Array(await fileData.arrayBuffer());
+    const extractedText = await extractTextFromFile(fileBytes, fileName);
 
-    // Try native PDF text extraction
-    try {
-      const pdfParse = (await import("npm:pdf-parse@1.1.1/lib/pdf-parse.js")).default;
-      const { Buffer } = await import("node:buffer");
-      const pdfData = await pdfParse(Buffer.from(fileBytes));
-      extractedText = pdfData.text;
-      log("PDF text extracted", { chars: extractedText.length });
-    } catch (e) {
-      log("PDF parse failed, treating as raw text", { error: (e as Error).message });
+    if (!extractedText || extractedText.length < 20) {
+      throw new Error("Não foi possível extrair conteúdo legível do arquivo. Tente um PDF com texto selecionável, planilha Excel ou CSV.");
     }
 
-    // For CSV/XLSX/OFX, decode as text
-    if (!extractedText && fileName) {
-      const ext = fileName.split(".").pop()?.toLowerCase();
-      if (ext === "csv" || ext === "ofx" || ext === "ofc" || ext === "txt") {
-        extractedText = new TextDecoder().decode(fileBytes);
-        log("Text file decoded", { chars: extractedText.length });
-      }
-    }
+    const [
+      { data: existingPortfolio, error: portfolioError },
+      { data: profile, error: profileError },
+      { data: investorProfile, error: investorProfileError },
+      { data: wallet, error: walletError },
+    ] = await Promise.all([
+      supabase.from("portfolios").select("id").eq("user_id", user.id).limit(1).maybeSingle(),
+      supabase.from("profiles").select("onboarding_completed").eq("user_id", user.id).maybeSingle(),
+      supabase.from("investor_profiles").select("*").eq("user_id", user.id).maybeSingle(),
+      supabase.from("credit_wallets").select("id, balance").eq("user_id", user.id).maybeSingle(),
+    ]);
 
-    if (!extractedText || extractedText.trim().length < 20) {
-      throw new Error("Não foi possível extrair texto do arquivo. Tente um PDF com texto selecionável ou CSV.");
-    }
-
-    // Ensure portfolio exists
-    const { data: existingPortfolio } = await supabase
-      .from("portfolios")
-      .select("id")
-      .eq("user_id", user.id)
-      .limit(1)
-      .single();
+    if (portfolioError) throw new Error(`Erro ao consultar carteira: ${portfolioError.message}`);
+    if (profileError) throw new Error(`Erro ao consultar perfil: ${profileError.message}`);
+    if (investorProfileError) throw new Error(`Erro ao consultar perfil de investidor: ${investorProfileError.message}`);
+    if (walletError) throw new Error(`Erro ao consultar créditos: ${walletError.message}`);
+    if (!profile?.onboarding_completed) throw new Error("Complete seu perfil de investidor antes de executar o diagnóstico.");
+    if (!wallet) throw new Error("Carteira de créditos não encontrada.");
+    if (wallet.balance <= 0) throw new Error("Você não tem créditos suficientes para rodar o diagnóstico.");
 
     let portfolioId: string;
     if (existingPortfolio) {
@@ -92,7 +264,6 @@ serve(async (req) => {
     }
     log("Portfolio ready", { portfolioId });
 
-    // Create import record
     const ext = fileName?.split(".").pop()?.toLowerCase() || "pdf";
     const formatMap: Record<string, string> = { csv: "csv", xlsx: "xlsx", xls: "xlsx", pdf: "pdf", ofx: "ofx", ofc: "ofx" };
     const { data: importRecord, error: importErr } = await supabase
@@ -108,55 +279,18 @@ serve(async (req) => {
       .select("id")
       .single();
     if (importErr) throw new Error(`Erro ao criar import: ${importErr.message}`);
+    importId = importRecord.id;
     log("Import record created", { importId: importRecord.id });
 
-    // Call AI to extract positions and generate analysis
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!lovableApiKey) throw new Error("LOVABLE_API_KEY não configurada");
 
-    const aiPrompt = `Você é um analista financeiro. Analise o extrato/documento abaixo e extraia as informações de investimentos.
-
-DOCUMENTO:
-${extractedText.substring(0, 15000)}
-
-Retorne SOMENTE um JSON válido (sem markdown, sem \`\`\`) com este formato:
-{
-  "positions": [
-    {
-      "ticker": "PETR4",
-      "name": "Petrobras PN",
-      "asset_class": "Ações",
-      "asset_subclass": "Ação Nacional",
-      "quantity": 100,
-      "avg_price": 35.50,
-      "current_price": 38.20,
-      "current_value": 3820.00,
-      "sector": "Petróleo e Gás",
-      "currency": "BRL",
-      "liquidity": "D+2"
-    }
-  ],
-  "analysis": {
-    "risk_score": 65,
-    "diversification_score": 45,
-    "liquidity_score": 70,
-    "summary": "Breve resumo da carteira em português simples",
-    "ai_insights": "Insights detalhados sobre a carteira, pontos fortes e fracos",
-    "allocation_breakdown": {"Ações": 40, "FIIs": 30, "Renda Fixa": 30},
-    "concentration_alerts": ["PETR4 representa 25% da carteira"]
-  },
-  "recommendations": [
-    {
-      "title": "Reduzir concentração em PETR4",
-      "description": "Sua posição em PETR4 está acima do recomendado. Considere diversificar.",
-      "recommendation_type": "rebalance",
-      "estimated_impact": "Redução de risco de concentração"
-    }
-  ]
-}
-
-Se não conseguir identificar posições, retorne positions como array vazio. Sempre retorne analysis e recommendations.
-Use linguagem simples, sem jargões financeiros complexos.`;
+    const aiPrompt = buildPrompt(
+      extractedText,
+      fileName,
+      analysisPeriod,
+      buildInvestorContext(profile, investorProfile)
+    );
 
     log("Calling AI...");
     const aiResponse = await fetch("https://ai.lovable.dev/api/chat", {
@@ -181,11 +315,9 @@ Use linguagem simples, sem jargões financeiros complexos.`;
     const aiText = aiResult.choices?.[0]?.message?.content || "";
     log("AI response received", { length: aiText.length });
 
-    // Parse AI response
     let parsed: any;
     try {
-      // Try to extract JSON from response (handle possible markdown wrapping)
-      const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+      const jsonMatch = aiText.replace(/```json|```/g, "").match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error("No JSON found in AI response");
       parsed = JSON.parse(jsonMatch[0]);
     } catch (e) {
@@ -193,12 +325,10 @@ Use linguagem simples, sem jargões financeiros complexos.`;
       throw new Error("IA não conseguiu processar o documento. Tente novamente ou use um arquivo diferente.");
     }
 
-    // Save positions
     const positions = parsed.positions || [];
     let positionsSaved = 0;
 
     if (positions.length > 0) {
-      // Clear existing positions for this portfolio
       await supabase
         .from("portfolio_positions")
         .delete()
@@ -229,7 +359,6 @@ Use linguagem simples, sem jargões financeiros complexos.`;
     }
     log("Positions saved", { count: positionsSaved });
 
-    // Save analysis
     const analysis = parsed.analysis || {};
     const { data: analysisRecord, error: analysisErr } = await supabase
       .from("analyses")
@@ -251,9 +380,14 @@ Use linguagem simples, sem jargões financeiros complexos.`;
     if (analysisErr) log("Error saving analysis", { error: analysisErr.message });
     log("Analysis saved", { id: analysisRecord?.id });
 
-    // Save recommendations
     const recommendations = parsed.recommendations || [];
     if (recommendations.length > 0 && analysisRecord) {
+      await supabase
+        .from("recommendations")
+        .delete()
+        .eq("portfolio_id", portfolioId)
+        .eq("user_id", user.id);
+
       const recsToInsert = recommendations.map((r: any) => ({
         user_id: user.id,
         portfolio_id: portfolioId,
@@ -272,7 +406,6 @@ Use linguagem simples, sem jargões financeiros complexos.`;
       else log("Recommendations saved", { count: recsToInsert.length });
     }
 
-    // Update import status
     await supabase
       .from("imports")
       .update({
@@ -282,32 +415,23 @@ Use linguagem simples, sem jargões financeiros complexos.`;
       })
       .eq("id", importRecord.id);
 
-    // Deduct 1 credit
-    const { data: wallet } = await supabase
+    const newBalance = wallet.balance - 1;
+    await supabase
       .from("credit_wallets")
-      .select("id, balance")
-      .eq("user_id", user.id)
-      .single();
+      .update({ balance: newBalance })
+      .eq("id", wallet.id);
 
-    if (wallet && wallet.balance > 0) {
-      const newBalance = wallet.balance - 1;
-      await supabase
-        .from("credit_wallets")
-        .update({ balance: newBalance })
-        .eq("id", wallet.id);
-
-      await supabase.from("credit_transactions").insert({
-        user_id: user.id,
-        wallet_id: wallet.id,
-        type: "usage",
-        amount: -1,
-        resulting_balance: newBalance,
-        description: "Análise de carteira",
-        reference_type: "analysis",
-        reference_id: analysisRecord?.id,
-      });
-      log("Credit deducted", { newBalance });
-    }
+    await supabase.from("credit_transactions").insert({
+      user_id: user.id,
+      wallet_id: wallet.id,
+      type: "usage",
+      amount: -1,
+      resulting_balance: newBalance,
+      description: `Análise de carteira (${analysisPeriod.label})`,
+      reference_type: "analysis",
+      reference_id: analysisRecord?.id,
+    });
+    log("Credit deducted", { newBalance });
 
     return new Response(
       JSON.stringify({
@@ -316,13 +440,23 @@ Use linguagem simples, sem jargões financeiros complexos.`;
         analysisId: analysisRecord?.id,
         positionsCount: positionsSaved,
         recommendationsCount: recommendations.length,
+        analysisPeriod,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    log("ERROR", { message: (error as Error).message });
+    const message = (error as Error).message;
+    log("ERROR", { message });
+
+    if (importId) {
+      await supabase
+        .from("imports")
+        .update({ status: "error", error_message: message })
+        .eq("id", importId);
+    }
+
     return new Response(
-      JSON.stringify({ error: (error as Error).message }),
+      JSON.stringify({ error: message }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
