@@ -195,6 +195,24 @@ export function useUpdateInvestorProfile() {
   });
 }
 
+export function useLatestAnalysis() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["latest_analysis", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("analyses")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 export function useUploadPortfolioFile() {
   const { user } = useAuth();
   return useMutation({
