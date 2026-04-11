@@ -154,31 +154,61 @@ export default function Onboarding() {
     if (!user) return;
     setSaving(true);
     try {
-      const { error } = await supabase
+      // Try update first
+      const { data: existing } = await supabase
         .from("investor_profiles")
-        .update({
-          objectives: answers.objectives as string[],
-          investment_horizon: answers.investment_horizon as string,
-          liquidity_need: answers.liquidity_need as string,
-          risk_tolerance: answers.risk_tolerance as "conservador" | "moderado" | "arrojado",
-          monthly_income_range: answers.monthly_income_range as string,
-          approximate_patrimony: answers.approximate_patrimony as string,
-          experience_years: parseInt(answers.experience_years as string, 10),
-          preference: answers.preference as string,
-        })
-        .eq("user_id", user.id);
-      if (error) throw error;
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-      // Mark onboarding completed
-      await supabase
+      const profileData = {
+        objectives: answers.objectives as string[],
+        investment_horizon: answers.investment_horizon as string,
+        liquidity_need: answers.liquidity_need as string,
+        risk_tolerance: answers.risk_tolerance as "conservador" | "moderado" | "arrojado",
+        monthly_income_range: answers.monthly_income_range as string,
+        approximate_patrimony: answers.approximate_patrimony as string,
+        experience_years: parseInt(answers.experience_years as string, 10),
+        preference: answers.preference as string,
+      };
+
+      if (existing) {
+        const { error } = await supabase
+          .from("investor_profiles")
+          .update(profileData)
+          .eq("user_id", user.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("investor_profiles")
+          .insert({ ...profileData, user_id: user.id });
+        if (error) throw error;
+      }
+
+      // Mark onboarding completed — upsert-style
+      const { data: existingProfile } = await supabase
         .from("profiles")
-        .update({ onboarding_completed: true })
-        .eq("user_id", user.id);
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-      // Invalidate cached profile so ProtectedRoute sees onboarding_completed = true
+      if (existingProfile) {
+        await supabase
+          .from("profiles")
+          .update({ onboarding_completed: true })
+          .eq("user_id", user.id);
+      } else {
+        await supabase
+          .from("profiles")
+          .insert({ user_id: user.id, onboarding_completed: true });
+      }
+
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      await queryClient.invalidateQueries({ queryKey: ["investor_profile"] });
 
-      toast.success("Perfil de investidor salvo com sucesso!");
+      const category = (answers.risk_tolerance as string) === "arrojado" ? "Lorde do Risco" :
+                        (answers.risk_tolerance as string) === "conservador" ? "Herdeiro de Gringotes" : "Estrategista da Sonserina";
+      toast.success(`Perfil salvo! Você é um ${category} 🐍`);
       navigate("/dashboard");
     } catch (e) {
       toast.error("Erro ao salvar perfil. Tente novamente.");
