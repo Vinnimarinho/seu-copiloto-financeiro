@@ -290,6 +290,7 @@ export type Database = {
           currency: string | null
           current_price: number | null
           current_value: number | null
+          entry_date: string | null
           id: string
           liquidity: string | null
           name: string
@@ -308,6 +309,7 @@ export type Database = {
           currency?: string | null
           current_price?: number | null
           current_value?: number | null
+          entry_date?: string | null
           id?: string
           liquidity?: string | null
           name: string
@@ -326,6 +328,7 @@ export type Database = {
           currency?: string | null
           current_price?: number | null
           current_value?: number | null
+          entry_date?: string | null
           id?: string
           liquidity?: string | null
           name?: string
