@@ -22,6 +22,7 @@ import PrivacyPage from "./pages/Privacy";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import ChatLucius from "./pages/ChatLucius";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/portfolio/import" element={<ProtectedRoute><PortfolioImport /></ProtectedRoute>} />
             <Route path="/diagnosis" element={<ProtectedRoute><Diagnosis /></ProtectedRoute>} />
             <Route path="/recommendations" element={<ProtectedRoute><Recommendations /></ProtectedRoute>} />
+            <Route path="/chat" element={<ProtectedRoute><ChatLucius /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
             <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />

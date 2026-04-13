@@ -125,31 +125,31 @@ export default function Dashboard() {
   if (!stats) {
     return (
       <AppSidebar>
-        <div className="space-y-6">
+      <div className="space-y-4">
           <div>
             <h1 className="font-heading text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-sm text-muted-foreground mt-1">Visão geral da sua carteira de investimentos</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Visão geral da sua carteira de investimentos</p>
           </div>
 
           {/* Investor profile card */}
           {investorProfile && (
-            <div className="bg-card border border-border rounded-xl p-6 shadow-card flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full gradient-primary flex items-center justify-center text-3xl">
+            <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-2xl">
                 {category.emoji}
               </div>
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">Seu perfil de investidor</p>
-                <h2 className="font-heading text-xl font-bold text-foreground">{category.name}</h2>
-                <p className="text-sm text-muted-foreground">{category.description}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Seu perfil</p>
+                <h2 className="font-heading text-lg font-bold text-foreground">{category.name}</h2>
+                <p className="text-xs text-muted-foreground">{category.description}</p>
               </div>
             </div>
           )}
 
-          <div className="max-w-lg mx-auto text-center space-y-4 py-12">
-            <Upload className="w-12 h-12 text-muted-foreground mx-auto" />
-            <h2 className="font-heading text-xl font-bold text-foreground">Sua carteira está vazia</h2>
-            <p className="text-muted-foreground">Importe seus extratos para ver o dashboard completo com análise por IA.</p>
-            <Button onClick={() => navigate("/portfolio/import")}>Importar Carteira</Button>
+          <div className="max-w-lg mx-auto text-center space-y-3 py-10">
+            <Upload className="w-10 h-10 text-muted-foreground mx-auto" />
+            <h2 className="font-heading text-lg font-bold text-foreground">Sua carteira está vazia</h2>
+            <p className="text-sm text-muted-foreground">Importe seus extratos para ver o dashboard completo com análise por IA.</p>
+            <Button onClick={() => navigate("/portfolio/import")} size="sm">Importar Carteira</Button>
           </div>
         </div>
       </AppSidebar>
@@ -158,21 +158,21 @@ export default function Dashboard() {
 
   return (
     <AppSidebar>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div>
           <h1 className="font-heading text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">Visão geral da sua carteira de investimentos</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Visão geral da sua carteira de investimentos</p>
         </div>
 
         {/* Investor profile badge */}
         {investorProfile && (
-          <div className="bg-card border border-border rounded-xl p-4 shadow-card flex items-center gap-3">
-            <span className="text-2xl">{category.emoji}</span>
+          <div className="bg-card border border-border rounded-xl p-3 flex items-center gap-3">
+            <span className="text-xl">{category.emoji}</span>
             <div className="flex-1">
-              <p className="text-xs text-muted-foreground">Perfil</p>
-              <p className="font-heading font-bold text-foreground">{category.name}</p>
+              <p className="text-[10px] text-muted-foreground">Perfil</p>
+              <p className="font-heading font-bold text-sm text-foreground">{category.name}</p>
             </div>
-            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full font-medium">{category.title}</span>
+            <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">{category.title}</span>
           </div>
         )}
 
