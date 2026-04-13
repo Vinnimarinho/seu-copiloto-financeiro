@@ -1,11 +1,12 @@
 import { ReactNode } from "react";
-import { Target, ShieldCheck, Upload, FileText, History, Settings, CreditCard, LayoutDashboard, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { Target, ShieldCheck, Upload, FileText, History, Settings, CreditCard, LayoutDashboard, ChevronLeft, ChevronRight, LogOut, Shield } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserCredits } from "@/hooks/usePortfolio";
+import { useIsAdmin } from "@/hooks/useAdmin";
 
 interface NavItem {
   label: string;
@@ -33,6 +34,7 @@ export function AppSidebar({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { data: credits } = useUserCredits();
+  const { data: isAdmin } = useIsAdmin();
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -71,6 +73,21 @@ export function AppSidebar({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="py-4 px-3 space-y-1 border-t border-sidebar-border">
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                collapsed && "justify-center px-0",
+                location.pathname === "/admin"
+                  ? "bg-accent/20 text-accent"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              )}
+            >
+              <Shield className="w-5 h-5" />
+              {!collapsed && <span>Admin</span>}
+            </Link>
+          )}
           {bottomNav.map((item) => (
             <Link
               key={item.href}
