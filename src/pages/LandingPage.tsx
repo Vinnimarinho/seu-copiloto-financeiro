@@ -82,7 +82,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="gradient-hero relative overflow-hidden">
+      <section className="bg-sidebar relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5C20 5 15 12 15 20c0 8 5 12 10 14s10 4 10 12c0 8-5 14-15 14' stroke='%2322c55e' fill='none' stroke-width='1'/%3E%3C/svg%3E")`,
           backgroundSize: "60px 60px",
@@ -132,7 +132,7 @@ export default function LandingPage() {
             </motion.p>
           </motion.div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-background" />
       </section>
 
       {/* Features */}
@@ -274,7 +274,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 gradient-hero relative">
+      <section className="py-20 bg-sidebar relative">
         <div className="container mx-auto px-6 text-center relative z-10">
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-sidebar-foreground mb-4">
             Assuma o controle da sua carteira
