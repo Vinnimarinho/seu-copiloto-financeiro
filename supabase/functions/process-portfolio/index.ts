@@ -136,17 +136,43 @@ ${JSON.stringify(investorContext, null, 2)}
 CONTEÚDO EXTRAÍDO DO ARQUIVO:
 ${extractedText.substring(0, 18000)}
 
-REGRAS IMPORTANTES:
+REGRAS CRÍTICAS DE EXTRAÇÃO DE DADOS:
+
+A) DATA DE ENTRADA (entry_date) — OBRIGATÓRIO:
+   - Procure EXAUSTIVAMENTE no documento por: "Data de Aplicação", "Data de Compra", "Data Aquisição", "Data Operação", "Data Negócio", "Data Início", "Dt. Aplicação", "Aplicado em", ou qualquer coluna/campo que indique quando o investimento foi feito.
+   - Em extratos de corretora/banco, a data geralmente aparece como coluna na tabela de posições ou no histórico de movimentações.
+   - Se o documento mostra um PERÍODO (ex: "Extrato de 01/05/2025 a 10/04/2026"), a data de início do período É a data mínima de referência.
+   - Se houver múltiplas movimentações para o mesmo ativo, use a data da PRIMEIRA aplicação/compra.
+   - NUNCA use a data de hoje ou a data de geração do relatório como entry_date.
+   - Se realmente não encontrar nenhuma data, use ${analysisPeriod.startDate}.
+   - Formato OBRIGATÓRIO: "YYYY-MM-DD"
+
+B) PREÇO MÉDIO (avg_price) — OBRIGATÓRIO:
+   - Procure por: "Preço Médio", "PM", "Custo Médio", "Valor Aplicado", "Valor da Cota na Aplicação", "Valor Investido", "Valor de Aquisição".
+   - Se o documento mostra "Valor Aplicado" e "Quantidade", calcule: avg_price = valor_aplicado / quantidade.
+   - Se o documento mostra apenas o valor total investido em um fundo (sem quantidade de cotas), use avg_price = valor_investido e quantity = 1.
+   - Se não encontrar o preço de compra mas encontrar o valor atual e a rentabilidade (%), calcule retroativamente.
+   - NUNCA deixe avg_price como 0 se houver qualquer forma de calcular ou estimar. avg_price = 0 significa dados perdidos.
+
+C) VALOR ATUAL (current_value) e PREÇO ATUAL (current_price):
+   - Procure por: "Valor Atual", "Saldo Bruto", "Saldo Líquido", "Valor de Mercado", "Patrimônio", "Valor Bruto".
+   - current_value é o valor total atual da posição.
+   - current_price = current_value / quantity (se aplicável).
+
+D) QUANTIDADE (quantity):
+   - Para fundos de investimento: procure "Quantidade de Cotas", "Qtd Cotas".
+   - Se não houver quantidade explícita (ex: CDB, LCI), use quantity = 1 e avg_price = valor original aplicado.
+
+REGRAS DE ANÁLISE:
 1. Extraia as posições atuais ou mais recentes encontradas no documento.
 2. Faça o diagnóstico considerando o período informado PELO USUÁRIO e os dados presentes no arquivo.
-3. Se o documento não tiver informação suficiente para calcular performance exata no período, deixe isso explícito no resumo e nos insights, sem inventar números.
-4. As recomendações precisam ser coerentes com o perfil do investidor, especialmente risco, liquidez, objetivos e preferência.
-5. Use linguagem SIMPLES em português do Brasil. Evite "economês". Quando usar termos como "volatilidade", "hedge", "beta", "drawdown", explique o que significa na frase seguinte.
+3. Se o documento não tiver informação suficiente para calcular performance exata, deixe explícito no resumo, sem inventar números.
+4. As recomendações precisam ser coerentes com o perfil do investidor.
+5. Use linguagem SIMPLES em português do Brasil. Evite "economês". Quando usar termos técnicos, explique.
 6. No campo "summary", escreva como se estivesse explicando para alguém que NUNCA investiu antes.
 7. No campo "ai_insights", seja mais detalhado mas SEMPRE acessível.
-8. Nas recomendações, inclua no campo "description" um mini passo-a-passo de como o investidor pode agir na prática (ex: "Acesse sua corretora, vá em Renda Fixa, procure por CDB ou Tesouro Selic...").
+8. Nas recomendações, inclua no campo "description" um mini passo-a-passo prático.
 9. Retorne SOMENTE JSON válido, sem markdown.
-10. MUITO IMPORTANTE: Para cada posição, extraia a DATA DE ENTRADA (data de compra/aplicação) do documento. Procure por datas de compra, data de aplicação, data de aquisição, "Data Operação", "Data Negócio" ou similar. O campo "entry_date" DEVE estar no formato "YYYY-MM-DD". Se a data exata não estiver clara, use a data mais antiga referenciada no documento para aquela posição. Se não houver data alguma, use a data de início do período informado pelo usuário (${analysisPeriod.startDate}).
 
 Formato de resposta:
 {
@@ -170,22 +196,22 @@ Formato de resposta:
     "risk_score": 65,
     "diversification_score": 45,
     "liquidity_score": 70,
-    "summary": "Resumo em português simples, incluindo leitura da performance no período informado e eventual limitação de dados.",
-    "ai_insights": "Insights detalhados incluindo performance, riscos, concentração e aderência ao perfil do investidor.",
+    "summary": "Resumo em português simples.",
+    "ai_insights": "Insights detalhados.",
     "allocation_breakdown": {"Ações": 40, "FIIs": 30, "Renda Fixa": 30},
     "concentration_alerts": ["PETR4 representa 25% da carteira"]
   },
   "recommendations": [
     {
       "title": "Reduzir concentração em PETR4",
-      "description": "Explique a ação recomendada e a relação com o perfil do investidor.",
+      "description": "Passo-a-passo prático.",
       "recommendation_type": "rebalance",
-      "estimated_impact": "Descreva o impacto esperado na carteira"
+      "estimated_impact": "Impacto esperado"
     }
   ]
 }
 
-Se não encontrar posições, retorne positions como array vazio, mas ainda gere analysis e recommendations contextualizadas.`;
+LEMBRETE FINAL: avg_price NUNCA pode ser 0 se o investidor tem dinheiro aplicado. entry_date NUNCA deve ser a data de hoje — deve refletir quando o investimento foi feito originalmente. Se não encontrar posições, retorne positions como array vazio.`;
 }
 
 serve(async (req) => {
