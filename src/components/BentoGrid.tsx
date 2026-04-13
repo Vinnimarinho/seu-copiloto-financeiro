@@ -28,11 +28,11 @@ export function BentoCard({ title, subtitle, children, className, span = "1", ba
 
   return (
     <div className={cn(
-      "bg-card rounded-xl border border-border p-5 shadow-card hover:shadow-card-hover transition-shadow duration-300",
+      "bg-card rounded-xl border border-border p-4 shadow-card hover:shadow-card-hover transition-shadow duration-300",
       spanClasses[span],
       className
     )}>
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-2">
         <div>
           <h3 className="font-heading font-semibold text-sm text-foreground">{title}</h3>
           {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
@@ -62,7 +62,7 @@ export function BentoGrid({ children, className, columns = 3 }: BentoGridProps) 
   };
 
   return (
-    <div className={cn("grid grid-cols-1 gap-4", colClasses[columns], className)}>
+    <div className={cn("grid grid-cols-1 gap-3", colClasses[columns], className)}>
       {children}
     </div>
   );
