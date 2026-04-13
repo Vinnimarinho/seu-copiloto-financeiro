@@ -8,6 +8,7 @@ import { usePortfolios, usePositions, useLatestAnalysis, useInvestorProfile } fr
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
+import PortfolioTracker from "@/components/PortfolioTracker";
 import { getInvestorCategory } from "@/lib/investorProfile";
 
 function StatValue({ label, value, sub, trend }: { label: string; value: string; sub?: string; trend?: "up" | "down" }) {
@@ -282,6 +283,11 @@ export default function Dashboard() {
             </div>
           </BentoCard>
         </BentoGrid>
+
+        {/* Portfolio Tracker */}
+        {positions && positions.length > 0 && (
+          <PortfolioTracker positions={positions as any} />
+        )}
       </div>
     </AppSidebar>
   );
