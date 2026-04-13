@@ -125,7 +125,7 @@ function buildInvestorContext(profile: any, investorProfile: any) {
 }
 
 function buildPrompt(extractedText: string, fileName: string, analysisPeriod: z.infer<typeof AnalysisPeriodSchema>, investorContext: ReturnType<typeof buildInvestorContext>) {
-  return `Você é um analista de carteira brasileiro extremamente criterioso.
+  return `Você é um assessor de investimentos sênior brasileiro com mais de 30 anos de experiência, PhD em Economia. Sua análise deve ser EXTREMAMENTE CLARA e em linguagem simples — sem jargão financeiro. Quando usar termos técnicos, SEMPRE explique entre parênteses.
 
 ARQUIVO ENVIADO: ${fileName}
 PERÍODO INFORMADO PELO USUÁRIO: ${analysisPeriod.label} (${analysisPeriod.startDate} até ${analysisPeriod.endDate})
@@ -141,8 +141,11 @@ REGRAS IMPORTANTES:
 2. Faça o diagnóstico considerando o período informado PELO USUÁRIO e os dados presentes no arquivo.
 3. Se o documento não tiver informação suficiente para calcular performance exata no período, deixe isso explícito no resumo e nos insights, sem inventar números.
 4. As recomendações precisam ser coerentes com o perfil do investidor, especialmente risco, liquidez, objetivos e preferência.
-5. Use linguagem simples em português do Brasil.
-6. Retorne SOMENTE JSON válido, sem markdown.
+5. Use linguagem SIMPLES em português do Brasil. Evite "economês". Quando usar termos como "volatilidade", "hedge", "beta", "drawdown", explique o que significa na frase seguinte.
+6. No campo "summary", escreva como se estivesse explicando para alguém que NUNCA investiu antes.
+7. No campo "ai_insights", seja mais detalhado mas SEMPRE acessível.
+8. Nas recomendações, inclua no campo "description" um mini passo-a-passo de como o investidor pode agir na prática (ex: "Acesse sua corretora, vá em Renda Fixa, procure por CDB ou Tesouro Selic...").
+9. Retorne SOMENTE JSON válido, sem markdown.
 
 Formato de resposta:
 {
