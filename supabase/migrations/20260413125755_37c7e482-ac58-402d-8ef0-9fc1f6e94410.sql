@@ -1,0 +1,1 @@
+ALTER TABLE public.portfolio_positions ADD COLUMN entry_date date;

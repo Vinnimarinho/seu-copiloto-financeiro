@@ -146,6 +146,7 @@ REGRAS IMPORTANTES:
 7. No campo "ai_insights", seja mais detalhado mas SEMPRE acessível.
 8. Nas recomendações, inclua no campo "description" um mini passo-a-passo de como o investidor pode agir na prática (ex: "Acesse sua corretora, vá em Renda Fixa, procure por CDB ou Tesouro Selic...").
 9. Retorne SOMENTE JSON válido, sem markdown.
+10. MUITO IMPORTANTE: Para cada posição, extraia a DATA DE ENTRADA (data de compra/aplicação) do documento. Procure por datas de compra, data de aplicação, data de aquisição, "Data Operação", "Data Negócio" ou similar. O campo "entry_date" DEVE estar no formato "YYYY-MM-DD". Se a data exata não estiver clara, use a data mais antiga referenciada no documento para aquela posição. Se não houver data alguma, use a data de início do período informado pelo usuário (${analysisPeriod.startDate}).
 
 Formato de resposta:
 {
@@ -161,7 +162,8 @@ Formato de resposta:
       "current_value": 3820,
       "sector": "Petróleo e Gás",
       "currency": "BRL",
-      "liquidity": "D+2"
+      "liquidity": "D+2",
+      "entry_date": "2024-03-15"
     }
   ],
   "analysis": {
@@ -352,6 +354,7 @@ serve(async (req) => {
         sector: p.sector || null,
         currency: p.currency || "BRL",
         liquidity: p.liquidity || "D+1",
+        entry_date: p.entry_date || null,
       }));
 
       const { error: posErr } = await supabase
