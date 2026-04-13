@@ -14,6 +14,7 @@ interface Position {
   current_value: number | null;
   current_price: number | null;
   created_at: string;
+  entry_date: string | null;
 }
 
 function diagLabel(pct: number): { text: string; color: string } {
@@ -37,11 +38,12 @@ export default function PortfolioTracker({ positions }: { positions: Position[] 
       const gain = current - invested;
       const pct = invested > 0 ? (gain / invested) * 100 : 0;
       const diag = diagLabel(pct);
+      const displayDate = p.entry_date || p.created_at;
       return {
         ticker: p.ticker,
         name: p.name,
         asset_class: p.asset_class,
-        date: p.created_at,
+        date: displayDate,
         invested,
         current,
         gain,
