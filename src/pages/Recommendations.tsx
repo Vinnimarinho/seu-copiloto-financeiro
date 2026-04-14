@@ -10,7 +10,7 @@ const ACTION_STEPS: Record<string, string[]> = {
   rebalance: [
     "Acesse sua corretora ou banco de investimentos",
     "Vá até a seção de 'Carteira' ou 'Posições'",
-    "Identifique o ativo mencionado na recomendação",
+    "Identifique o ativo mencionado na oportunidade",
     "Avalie se deseja vender parte ou todo o ativo",
     "Se for realocar, escolha ativos da classe sugerida",
     "Execute a ordem de venda/compra na plataforma",
@@ -33,7 +33,7 @@ const ACTION_STEPS: Record<string, string[]> = {
   general: [
     "Analise a sugestão com calma antes de agir",
     "Acesse sua corretora ou banco de investimentos",
-    "Localize os ativos mencionados na recomendação",
+    "Localize os ativos mencionados na sugestão",
     "Simule a operação antes de executar",
     "Execute a ação e acompanhe os resultados",
   ],
@@ -70,16 +70,16 @@ export default function Recommendations() {
     <AppSidebar>
       <div className="max-w-3xl mx-auto space-y-4">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-foreground">Recomendações Assistidas</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Sugestões para melhorar sua carteira — você decide o que fazer</p>
+          <h1 className="font-heading text-2xl font-bold text-foreground">Oportunidades de Melhoria</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Oportunidades identificadas para otimizar sua carteira — você decide o que fazer</p>
         </div>
 
         {isLoading ? (
           <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
         ) : recs.length === 0 ? (
           <div className="bg-card border border-border rounded-xl p-6 text-center space-y-3">
-            <h2 className="font-heading text-lg font-semibold text-foreground">Nenhuma recomendação ainda</h2>
-            <p className="text-sm text-muted-foreground">Envie sua carteira e rode o diagnóstico para gerar recomendações.</p>
+            <h2 className="font-heading text-lg font-semibold text-foreground">Nenhuma oportunidade identificada ainda</h2>
+            <p className="text-sm text-muted-foreground">Envie sua carteira e rode o diagnóstico para identificar oportunidades de melhoria.</p>
             <Button onClick={() => navigate("/portfolio/import")} size="sm">Importar carteira</Button>
           </div>
         ) : (

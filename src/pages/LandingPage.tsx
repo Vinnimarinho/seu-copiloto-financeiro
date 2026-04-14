@@ -16,7 +16,7 @@ const fadeUp = {
 const features = [
   { icon: <Target className="w-6 h-6" />, title: "Visão completa da carteira", desc: "Alocação, concentração, liquidez e exposição em um único painel claro e intuitivo." },
   { icon: <ShieldCheck className="w-6 h-6" />, title: "Diagnóstico inteligente", desc: "Riscos ocultos, custos elevados e oportunidades de melhoria com explicações simples." },
-  { icon: <Zap className="w-6 h-6" />, title: "Recomendações assistidas", desc: "Sugestões claras com impacto estimado. Você decide — sempre no controle." },
+  { icon: <Zap className="w-6 h-6" />, title: "Oportunidades de melhoria", desc: "Identificamos pontos de otimização com impacto estimado. Você decide — sempre no controle." },
   { icon: <FileText className="w-6 h-6" />, title: "Relatórios profissionais", desc: "Resumo executivo, diagnóstico e plano de ação exportáveis em PDF." },
 ];
 
@@ -44,7 +44,7 @@ const pricingPlans = [
     price: "R$ 39",
     period: "/mês",
     desc: "Para investidores ativos",
-    features: ["3 carteiras", "Diagnóstico completo", "20 créditos de análise/mês", "Relatórios PDF", "Recomendações assistidas", "Histórico 12 meses"],
+    features: ["3 carteiras", "Diagnóstico completo", "20 créditos de análise/mês", "Relatórios PDF", "Oportunidades de melhoria", "Histórico 12 meses"],
     cta: "Assinar Essencial",
     href: "/signup",
     highlight: true,
@@ -54,7 +54,7 @@ const pricingPlans = [
     price: "R$ 89",
     period: "/mês",
     desc: "Para quem leva a sério",
-    features: ["Carteiras ilimitadas", "Diagnóstico avançado", "100 créditos de análise/mês", "Relatórios completos", "Recomendações prioritárias", "Histórico completo", "Suporte prioritário"],
+    features: ["Carteiras ilimitadas", "Diagnóstico avançado", "100 créditos de análise/mês", "Relatórios completos", "Oportunidades prioritárias", "Histórico completo", "Suporte prioritário"],
     cta: "Assinar Pro",
     href: "/signup",
   },
@@ -109,7 +109,7 @@ export default function LandingPage() {
             </motion.h1>
 
             <motion.p variants={fadeUp} custom={2} className="text-lg md:text-xl text-sidebar-foreground/60 mb-10 max-w-2xl mx-auto text-balance">
-              Importe sua carteira, entenda seus riscos e receba recomendações claras — sem economês. Você sempre no comando.
+              Importe sua carteira, entenda seus riscos e descubra oportunidades de melhoria — sem economês. Você sempre no comando.
             </motion.p>
 
             <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row items-center justify-center gap-4">

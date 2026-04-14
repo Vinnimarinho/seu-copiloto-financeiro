@@ -71,7 +71,7 @@ const steps: Step[] = [
   {
     id: "monthly_income_range",
     question: "Qual sua renda mensal aproximada?",
-    subtitle: "Isso ajuda a calibrar as recomendações — seus dados são sigilosos",
+    subtitle: "Isso ajuda a calibrar a análise — seus dados são sigilosos",
     options: [
       { value: "ate_3k", label: "Até R$ 3.000", emoji: "💵", desc: "" },
       { value: "3k_10k", label: "R$ 3.000 a R$ 10.000", emoji: "💵", desc: "" },
