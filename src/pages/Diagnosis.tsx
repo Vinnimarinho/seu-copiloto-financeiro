@@ -45,15 +45,24 @@ function getScoreLabel(score: number): string {
 /** Replace any hardcoded name in AI text with the user's actual name */
 function personalizeText(text: string, userName?: string): string {
   if (!text) return text;
-  // Replace common AI greeting patterns with hardcoded names
   const namePattern = /(?:Olá|Oi|Prezad[oa]),?\s+[A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)?\s*[!,.:]/g;
   return text.replace(namePattern, (match) => {
     if (userName) {
       return match.replace(/[A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)?/, userName);
     }
-    // Remove the name entirely, keep the greeting
     return match.replace(/,?\s+[A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)?/, "");
   });
+}
+
+/** Replace approximate patrimony mentions in AI text with exact calculated value */
+function replaceApproxPatrimony(text: string, exactValue: number | null): string {
+  if (!text || !exactValue) return text;
+  const formatted = formatCurrency(exactValue);
+  // Match patterns like "R$ 375 mil", "R$ 374.603,74", "aproximadamente R$ 375 mil", etc.
+  return text.replace(
+    /(?:aproximadamente\s+)?R\$\s*[\d.,]+\s*(?:mil|milhões|milhão)?/gi,
+    formatted
+  );
 }
 
 export default function Diagnosis() {
@@ -144,7 +153,7 @@ export default function Diagnosis() {
           <div className="bg-card border border-border rounded-xl p-4">
             <h3 className="font-heading font-semibold text-sm text-foreground mb-1">Resumo em linguagem simples</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {personalizeText(analysis.summary, userName)}
+              {replaceApproxPatrimony(personalizeText(analysis.summary, userName), totalFromPositions)}
             </p>
           </div>
         )}
@@ -212,7 +221,7 @@ export default function Diagnosis() {
           <div className="bg-card border border-border rounded-xl p-4">
             <h3 className="font-heading font-semibold text-sm text-foreground mb-1">Análise detalhada do Lucius</h3>
             <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-              {personalizeText(analysis.ai_insights, userName)}
+              {replaceApproxPatrimony(personalizeText(analysis.ai_insights, userName), totalFromPositions)}
             </p>
           </div>
         )}

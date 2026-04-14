@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Target, ShieldCheck, Upload, FileText, History, Settings, CreditCard, LayoutDashboard, ChevronLeft, ChevronRight, LogOut, Shield, MessageCircle } from "lucide-react";
+import { Target, ShieldCheck, Upload, FileText, History, Settings, CreditCard, LayoutDashboard, ChevronLeft, ChevronRight, LogOut, Shield, MessageCircle, HelpCircle } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import { Logo } from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserCredits } from "@/hooks/usePortfolio";
 import { useIsAdmin } from "@/hooks/useAdmin";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface NavItem {
   label: string;
@@ -121,7 +122,37 @@ export function AppSidebar({ children }: { children: ReactNode }) {
           <div className="md:hidden"><Logo size="sm" /></div>
           <div className="hidden md:block" />
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">{credits ?? "–"} créditos</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  <span>{credits ?? "–"} créditos</span>
+                  <HelpCircle className="w-3.5 h-3.5" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 text-sm" align="end">
+                <h4 className="font-heading font-semibold text-foreground mb-2">O que são créditos?</h4>
+                <p className="text-muted-foreground text-xs mb-3">
+                  Créditos são usados para gerar análises e diagnósticos da sua carteira com IA.
+                </p>
+                <div className="space-y-1.5 text-xs mb-3">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Diagnóstico completo</span>
+                    <span className="font-medium text-foreground">1 crédito</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Relatório PDF</span>
+                    <span className="font-medium text-foreground">1 crédito</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Chat com Lucius</span>
+                    <span className="font-medium text-foreground">Gratuito</span>
+                  </div>
+                </div>
+                <Link to="/pricing" className="text-xs text-primary hover:underline font-medium">
+                  Obter mais créditos →
+                </Link>
+              </PopoverContent>
+            </Popover>
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
               {user?.user_metadata?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
             </div>

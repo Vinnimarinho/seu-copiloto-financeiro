@@ -1,21 +1,80 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Send, Loader2, Bot, User, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { usePortfolios, usePositions, useLatestAnalysis } from "@/hooks/usePortfolio";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const SUGGESTIONS = [
-  "O que é diversificação e por que é importante?",
-  "Como funciona o Tesouro Direto?",
-  "Explique o que é P/L de uma ação",
-  "Minha carteira está bem diversificada?",
-  "O que são FIIs e como escolher?",
-  "Como funciona o imposto sobre investimentos?",
-];
+function buildDynamicSuggestions(
+  positions: any[] | undefined,
+  analysis: any | undefined
+): string[] {
+  const suggestions: string[] = [];
+
+  if (positions && positions.length > 0) {
+    // Find worst performer
+    const withPerf = positions
+      .filter(p => p.avg_price > 0 && p.current_value && p.quantity > 0)
+      .map(p => ({
+        ticker: p.ticker,
+        perf: ((Number(p.current_value) / (Number(p.avg_price) * Number(p.quantity))) - 1) * 100,
+      }));
+
+    const worst = withPerf.sort((a, b) => a.perf - b.perf)[0];
+    if (worst && worst.perf < 0) {
+      suggestions.push(`Por que meu ativo ${worst.ticker} está com ${worst.perf.toFixed(0)}%? Devo me preocupar?`);
+    }
+
+    const best = withPerf.sort((a, b) => b.perf - a.perf)[0];
+    if (best && best.perf > 0) {
+      suggestions.push(`${best.ticker} subiu ${best.perf.toFixed(0)}%. É hora de realizar lucro?`);
+    }
+
+    // Asset class concentration
+    const classMap: Record<string, number> = {};
+    const total = positions.reduce((s, p) => s + (Number(p.current_value) || 0), 0);
+    positions.forEach(p => {
+      const cls = p.asset_class || "Outros";
+      classMap[cls] = (classMap[cls] || 0) + (Number(p.current_value) || 0);
+    });
+    const topClass = Object.entries(classMap).sort((a, b) => b[1] - a[1])[0];
+    if (topClass && total > 0) {
+      const pct = Math.round((topClass[1] / total) * 100);
+      if (pct > 40) {
+        suggestions.push(`Tenho ${pct}% em ${topClass[0]}. Estou concentrado demais?`);
+      }
+    }
+  }
+
+  if (analysis) {
+    const risk = Number(analysis.risk_score) || 0;
+    if (risk < 50) {
+      suggestions.push("Minha nota de risco está baixa. O que posso fazer para melhorar?");
+    }
+    const div = Number(analysis.diversification_score) || 0;
+    if (div < 60) {
+      suggestions.push("Como posso diversificar melhor minha carteira?");
+    }
+  }
+
+  // Fill remaining with generic but useful ones
+  const generic = [
+    "Minha carteira está bem diversificada?",
+    "O que são FIIs e como escolher?",
+    "Como funciona o imposto sobre investimentos?",
+  ];
+
+  for (const g of generic) {
+    if (suggestions.length >= 6) break;
+    if (!suggestions.includes(g)) suggestions.push(g);
+  }
+
+  return suggestions.slice(0, 6);
+}
 
 export default function ChatLucius() {
   const { session } = useAuth();
@@ -24,6 +83,16 @@ export default function ChatLucius() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const { data: portfolios } = usePortfolios();
+  const portfolioId = portfolios?.[0]?.id;
+  const { data: positions } = usePositions(portfolioId);
+  const { data: analysis } = useLatestAnalysis();
+
+  const suggestions = useMemo(
+    () => buildDynamicSuggestions(positions, analysis),
+    [positions, analysis]
+  );
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -137,7 +206,7 @@ export default function ChatLucius() {
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-lg w-full">
-                {SUGGESTIONS.map((s) => (
+                {suggestions.map((s) => (
                   <button
                     key={s}
                     onClick={() => sendMessage(s)}
