@@ -21,7 +21,7 @@ const plans = [
     price: "R$ 39",
     period: "/mês",
     desc: "Para investidores ativos",
-    features: ["3 carteiras", "Diagnóstico completo", "20 créditos de análise/mês", "Relatórios PDF", "Recomendações assistidas", "Histórico 12 meses"],
+    features: ["3 carteiras", "Diagnóstico completo", "20 créditos de análise/mês", "Relatórios PDF", "Oportunidades de melhoria", "Histórico 12 meses"],
     highlight: true,
   },
   {
@@ -30,7 +30,7 @@ const plans = [
     price: "R$ 89",
     period: "/mês",
     desc: "Para quem leva a sério",
-    features: ["Carteiras ilimitadas", "Diagnóstico avançado", "100 créditos de análise/mês", "Relatórios completos", "Recomendações prioritárias", "Histórico completo", "Suporte prioritário"],
+    features: ["Carteiras ilimitadas", "Diagnóstico avançado", "100 créditos de análise/mês", "Relatórios completos", "Oportunidades prioritárias", "Histórico completo", "Suporte prioritário"],
   },
 ];
 
