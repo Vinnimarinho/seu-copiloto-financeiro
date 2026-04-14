@@ -1,9 +1,11 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { BentoCard, BentoGrid } from "@/components/BentoGrid";
 import { CheckCircle2, AlertTriangle, XCircle, Loader2 } from "lucide-react";
-import { useLatestAnalysis } from "@/hooks/usePortfolio";
+import { useLatestAnalysis, usePortfolios, usePositions, useProfile } from "@/hooks/usePortfolio";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/data/mockData";
+import { useMemo } from "react";
 
 const TERM_GLOSSARY: Record<string, string> = {
   "Risco": "Chance de perder dinheiro — quanto maior, mais volátil o investimento",
@@ -40,9 +42,38 @@ function getScoreLabel(score: number): string {
   return "Crítico";
 }
 
+/** Replace any hardcoded name in AI text with the user's actual name */
+function personalizeText(text: string, userName?: string): string {
+  if (!text) return text;
+  // Replace common AI greeting patterns with hardcoded names
+  const namePattern = /(?:Olá|Oi|Prezad[oa]),?\s+[A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)?\s*[!,.:]/g;
+  return text.replace(namePattern, (match) => {
+    if (userName) {
+      return match.replace(/[A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)?/, userName);
+    }
+    // Remove the name entirely, keep the greeting
+    return match.replace(/,?\s+[A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)?/, "");
+  });
+}
+
 export default function Diagnosis() {
   const { data: analysis, isLoading } = useLatestAnalysis();
+  const { data: profile } = useProfile();
+  const { data: portfolios } = usePortfolios();
+  const portfolioId = portfolios?.[0]?.id;
+  const { data: positions } = usePositions(portfolioId);
   const navigate = useNavigate();
+
+  const userName = profile?.full_name || undefined;
+
+  // Calculate total from positions (same logic as Dashboard) for consistency
+  const totalFromPositions = useMemo(() => {
+    if (!positions || positions.length === 0) return null;
+    return positions.reduce(
+      (sum, p) => sum + (Number(p.current_value) || Number(p.avg_price) * Number(p.quantity) || 0),
+      0
+    );
+  }, [positions]);
 
   if (isLoading) {
     return (
@@ -87,12 +118,12 @@ export default function Diagnosis() {
           <p className="text-xs text-muted-foreground mt-0.5">Análise gerada por IA com base nos seus investimentos</p>
         </div>
 
-        {/* Overall score */}
+        {/* Overall score + patrimony */}
         <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
             <span className="font-heading text-2xl font-bold text-primary-foreground">{overallScore}</span>
           </div>
-          <div>
+          <div className="flex-1">
             <h2 className="font-heading font-semibold text-foreground">
               Nota geral: {getScoreLabel(overallScore)}
             </h2>
@@ -100,13 +131,21 @@ export default function Diagnosis() {
               Média das notas de risco, diversificação e liquidez (quanto maior, melhor)
             </p>
           </div>
+          {totalFromPositions !== null && (
+            <div className="text-right">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Patrimônio</p>
+              <p className="font-heading text-lg font-bold text-foreground">{formatCurrency(totalFromPositions)}</p>
+            </div>
+          )}
         </div>
 
         {/* Summary */}
         {analysis.summary && (
           <div className="bg-card border border-border rounded-xl p-4">
             <h3 className="font-heading font-semibold text-sm text-foreground mb-1">Resumo em linguagem simples</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{analysis.summary}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {personalizeText(analysis.summary, userName)}
+            </p>
           </div>
         )}
 
@@ -172,7 +211,9 @@ export default function Diagnosis() {
         {analysis.ai_insights && (
           <div className="bg-card border border-border rounded-xl p-4">
             <h3 className="font-heading font-semibold text-sm text-foreground mb-1">Análise detalhada do Lucius</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{analysis.ai_insights}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+              {personalizeText(analysis.ai_insights, userName)}
+            </p>
           </div>
         )}
 

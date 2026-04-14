@@ -325,7 +325,8 @@ serve(async (req) => {
       extractedText,
       fileName,
       analysisPeriod,
-      buildInvestorContext(profile, investorProfile)
+      buildInvestorContext(profile, investorProfile),
+      profile?.full_name || undefined
     );
 
     log("Calling AI...");
