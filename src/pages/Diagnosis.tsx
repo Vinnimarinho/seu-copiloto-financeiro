@@ -1,6 +1,7 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { BentoCard, BentoGrid } from "@/components/BentoGrid";
 import { CheckCircle2, AlertTriangle, XCircle, Loader2 } from "lucide-react";
+import { RegulatoryDisclaimer } from "@/components/RegulatoryDisclaimer";
 import { useLatestAnalysis, usePortfolios, usePositions, useProfile } from "@/hooks/usePortfolio";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -226,9 +227,7 @@ export default function Diagnosis() {
           </div>
         )}
 
-        <p className="text-[10px] text-muted-foreground text-center">
-          Diagnóstico assistido por IA — não constitui recomendação de investimento.
-        </p>
+        <RegulatoryDisclaimer />
       </div>
     </AppSidebar>
   );

@@ -1,7 +1,8 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useRecommendations, useUpdateRecommendation } from "@/hooks/usePortfolio";
-import { CheckCircle2, Clock, X, AlertCircle, Loader2, ListChecks, ArrowRight } from "lucide-react";
+import { CheckCircle2, Clock, X, Loader2, ListChecks, ArrowRight } from "lucide-react";
+import { RegulatoryDisclaimer } from "@/components/RegulatoryDisclaimer";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -156,12 +157,7 @@ export default function Recommendations() {
           </div>
         )}
 
-        <div className="bg-secondary/40 rounded-lg p-3 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-          <p className="text-[10px] text-muted-foreground leading-relaxed">
-            Sugestões baseadas na análise da sua carteira e perfil. Não constituem recomendação de investimento.
-          </p>
-        </div>
+        <RegulatoryDisclaimer />
       </div>
     </AppSidebar>
   );
