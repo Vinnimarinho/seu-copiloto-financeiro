@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserCredits } from "@/hooks/usePortfolio";
 import { useIsAdmin } from "@/hooks/useAdmin";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { RegulatoryDisclaimer } from "@/components/RegulatoryDisclaimer";
 
 interface NavItem {
   label: string;
@@ -162,6 +163,9 @@ export function AppSidebar({ children }: { children: ReactNode }) {
           </div>
         </header>
         <div className="flex-1 p-6">{children}</div>
+        <footer className="border-t border-border px-6 py-3">
+          <RegulatoryDisclaimer compact />
+        </footer>
       </main>
     </div>
   );
