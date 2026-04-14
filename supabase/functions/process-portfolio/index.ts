@@ -124,8 +124,13 @@ function buildInvestorContext(profile: any, investorProfile: any) {
   };
 }
 
-function buildPrompt(extractedText: string, fileName: string, analysisPeriod: z.infer<typeof AnalysisPeriodSchema>, investorContext: ReturnType<typeof buildInvestorContext>) {
+function buildPrompt(extractedText: string, fileName: string, analysisPeriod: z.infer<typeof AnalysisPeriodSchema>, investorContext: ReturnType<typeof buildInvestorContext>, userName?: string) {
+  const nameInstruction = userName
+    ? `O nome do usuário é "${userName}". Chame-o pelo nome quando apropriado.`
+    : `NÃO use nenhum nome próprio para se referir ao usuário. Use apenas "você" ou "seu/sua". NUNCA invente um nome como "Camila", "João" etc.`;
   return `Você é um assessor de investimentos sênior brasileiro com mais de 30 anos de experiência, PhD em Economia. Sua análise deve ser EXTREMAMENTE CLARA e em linguagem simples — sem jargão financeiro. Quando usar termos técnicos, SEMPRE explique entre parênteses.
+
+REGRA DE IDENTIDADE DO USUÁRIO: ${nameInstruction}
 
 ARQUIVO ENVIADO: ${fileName}
 PERÍODO INFORMADO PELO USUÁRIO: ${analysisPeriod.label} (${analysisPeriod.startDate} até ${analysisPeriod.endDate})
@@ -268,7 +273,7 @@ serve(async (req) => {
       { data: wallet, error: walletError },
     ] = await Promise.all([
       supabase.from("portfolios").select("id").eq("user_id", user.id).limit(1).maybeSingle(),
-      supabase.from("profiles").select("onboarding_completed").eq("user_id", user.id).maybeSingle(),
+      supabase.from("profiles").select("onboarding_completed, full_name").eq("user_id", user.id).maybeSingle(),
       supabase.from("investor_profiles").select("*").eq("user_id", user.id).maybeSingle(),
       supabase.from("credit_wallets").select("id, balance").eq("user_id", user.id).maybeSingle(),
     ]);
@@ -320,7 +325,8 @@ serve(async (req) => {
       extractedText,
       fileName,
       analysisPeriod,
-      buildInvestorContext(profile, investorProfile)
+      buildInvestorContext(profile, investorProfile),
+      profile?.full_name || undefined
     );
 
     log("Calling AI...");
