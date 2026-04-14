@@ -265,6 +265,9 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
+                {plan.note && (
+                  <p className="text-[11px] text-muted-foreground mb-4 text-center">{plan.note}</p>
+                )}
                 <Link to={plan.href}>
                   <Button variant={plan.highlight ? "hero" : "default"} className="w-full">
                     {plan.cta}

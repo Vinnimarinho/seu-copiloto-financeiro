@@ -111,7 +111,7 @@ export default function Pricing() {
                 {plan.note && (
                   <p className="text-[11px] text-muted-foreground mb-4 text-center">{plan.note}</p>
                 )}
-
+                {isCurrent && currentPlan !== "free" ? (
                   <Button variant="outline" className="w-full" onClick={handleManage} disabled={loadingPlan === "manage"}>
                     {loadingPlan === "manage" ? <Loader2 className="w-4 h-4 animate-spin" /> : <><ExternalLink className="w-4 h-4" /> Gerenciar assinatura</>}
                   </Button>
