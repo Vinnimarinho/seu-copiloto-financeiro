@@ -7,8 +7,8 @@ export const PLANS = {
   free: { name: "Gratuito", product_id: null, price_id: null },
   essencial: {
     name: "Essencial",
-    product_id: "prod_UJJIkBiF5fqTIf",
-    price_id: "price_1TKgfkGlgACWhSKn1LpI4AFn",
+    product_id: "prod_UKvbpwN51mHV2B",
+    price_id: "price_1TMFkWGlgACWhSKnOIdAPcmq",
   },
   pro: {
     name: "Pro",
