@@ -288,8 +288,10 @@ export default function LandingPage() {
               <ArrowRight className="w-5 h-5" />
             </Button>
           </Link>
-          <p className="text-xs text-sidebar-foreground/40 mt-6">
-            Análise assistida — não é recomendação de investimento nem execução automática de ordens.
+          <p className="text-xs text-sidebar-foreground/40 mt-6 max-w-xl mx-auto">
+            Ferramenta educacional de análise assistida. Não constitui consultoria, recomendação de investimento 
+            ou oferta de valores mobiliários. Não somos registrados na CVM (Res. 19/2021, Res. 20/2021). 
+            Rentabilidade passada não é garantia de resultados futuros.
           </p>
         </div>
       </section>
@@ -299,10 +301,15 @@ export default function LandingPage() {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <Logo size="sm" variant="light" />
-            <div className="flex items-center gap-6 text-xs text-sidebar-foreground/50">
-              <Link to="/terms" className="hover:text-sidebar-foreground transition-colors">Termos de Uso</Link>
-              <Link to="/privacy" className="hover:text-sidebar-foreground transition-colors">Privacidade</Link>
-              <span>© 2026 Lucius. Todos os direitos reservados.</span>
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-xs text-sidebar-foreground/50">
+              <div className="flex items-center gap-6">
+                <Link to="/terms" className="hover:text-sidebar-foreground transition-colors">Termos de Uso</Link>
+                <Link to="/privacy" className="hover:text-sidebar-foreground transition-colors">Privacidade</Link>
+                <span>© 2026 Lucius</span>
+              </div>
+              <p className="text-[10px] text-sidebar-foreground/30 text-center md:text-left max-w-lg">
+                O Lucius não é registrado na CVM, ANBIMA ou APIMEC. Ferramenta educacional — não constitui consultoria de investimentos (Res. CVM 19/2021).
+              </p>
             </div>
           </div>
         </div>
