@@ -11,18 +11,20 @@ const plans = [
     key: "free" as const,
     name: "Gratuito",
     price: "R$ 0",
-    period: "/mês",
+    period: "",
     desc: "Para conhecer a plataforma",
-    features: ["1 carteira", "Diagnóstico básico", "3 créditos de análise/mês", "Sem relatórios PDF"],
+    features: ["1 carteira", "1 crédito de análise", "Diagnóstico básico", "Sem download de relatórios"],
+    note: "Experimente grátis — sem compromisso",
   },
   {
     key: "essencial" as const,
     name: "Essencial",
-    price: "R$ 39",
+    price: "R$ 39,99",
     period: "/mês",
     desc: "Para investidores ativos",
     features: ["3 carteiras", "Diagnóstico completo", "20 créditos de análise/mês", "Relatórios PDF", "Oportunidades de melhoria", "Histórico 12 meses"],
     highlight: true,
+    note: "Assinatura anual com pagamento mensal (12x de R$ 39,99)",
   },
   {
     key: "pro" as const,
@@ -31,6 +33,7 @@ const plans = [
     period: "/mês",
     desc: "Para quem leva a sério",
     features: ["Carteiras ilimitadas", "Diagnóstico avançado", "100 créditos de análise/mês", "Relatórios completos", "Oportunidades prioritárias", "Histórico completo", "Suporte prioritário"],
+    note: "Assinatura anual com pagamento mensal (12x de R$ 89)",
   },
 ];
 
