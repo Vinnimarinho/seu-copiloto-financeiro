@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import PortfolioTracker from "@/components/PortfolioTracker";
 import { getInvestorCategory } from "@/lib/investorProfile";
+import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 
 function StatValue({ label, value, sub, trend }: { label: string; value: string; sub?: string; trend?: "up" | "down" }) {
   return (
@@ -160,9 +161,12 @@ export default function Dashboard() {
   return (
     <AppSidebar>
       <div className="space-y-4">
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Visão geral da sua carteira de investimentos</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-heading text-2xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Visão geral da sua carteira de investimentos</p>
+          </div>
+          <SubscriptionBadge />
         </div>
 
         {/* Investor profile badge */}
