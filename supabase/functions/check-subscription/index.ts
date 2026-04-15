@@ -40,7 +40,7 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
     if (customers.data.length === 0) {
-      return new Response(JSON.stringify({ subscribed: false }), {
+      return new Response(JSON.stringify({ subscribed: false, product_id: null, subscription_end: null }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -53,13 +53,27 @@ serve(async (req) => {
     });
 
     const hasActiveSub = subscriptions.data.length > 0;
-    let productId = null;
-    let subscriptionEnd = null;
+    let productId: string | null = null;
+    let subscriptionEnd: string | null = null;
 
     if (hasActiveSub) {
       const sub = subscriptions.data[0];
-      subscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
-      productId = sub.items.data[0].price.product;
+      logStep("Raw subscription data", {
+        current_period_end: sub.current_period_end,
+        type: typeof sub.current_period_end,
+        items: sub.items?.data?.[0]?.price?.product,
+      });
+
+      // Handle current_period_end safely - it could be a number (unix) or string (ISO)
+      const periodEnd = sub.current_period_end;
+      if (typeof periodEnd === "number" && periodEnd > 0) {
+        subscriptionEnd = new Date(periodEnd * 1000).toISOString();
+      } else if (typeof periodEnd === "string") {
+        subscriptionEnd = periodEnd;
+      }
+
+      const product = sub.items?.data?.[0]?.price?.product;
+      productId = typeof product === "string" ? product : (product as any)?.id ?? null;
       logStep("Active subscription", { productId, subscriptionEnd });
     }
 
