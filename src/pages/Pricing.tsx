@@ -29,11 +29,11 @@ const plans = [
   {
     key: "pro" as const,
     name: "Pro",
-    price: "R$ 89",
+    price: "R$ 89,99",
     period: "/mês",
     desc: "Para quem leva a sério",
     features: ["Carteiras ilimitadas", "Diagnóstico avançado", "100 créditos de análise/mês", "Relatórios completos", "Oportunidades prioritárias", "Histórico completo", "Suporte prioritário"],
-    note: "Assinatura anual com pagamento mensal (12x de R$ 89)",
+    note: "Assinatura anual com pagamento mensal (12x de R$ 89,99)",
   },
 ];
 
