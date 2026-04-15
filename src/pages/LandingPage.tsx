@@ -14,19 +14,19 @@ const fadeUp = {
 };
 
 const features = [
-  { icon: <Target className="w-6 h-6" />, title: "Visão completa da carteira", desc: "Alocação, concentração, liquidez e exposição em um único painel claro e intuitivo." },
-  { icon: <ShieldCheck className="w-6 h-6" />, title: "Diagnóstico inteligente", desc: "Riscos ocultos, custos elevados e oportunidades de melhoria com explicações simples." },
-  { icon: <Zap className="w-6 h-6" />, title: "Oportunidades de melhoria", desc: "Identificamos pontos de otimização com impacto estimado. Você decide — sempre no controle." },
-  { icon: <FileText className="w-6 h-6" />, title: "Relatórios profissionais", desc: "Resumo executivo, diagnóstico e plano de ação exportáveis em PDF." },
+  { icon: <Target className="w-6 h-6" />, title: "Linguagem acessível", desc: "Traduzimos termos técnicos do mercado financeiro para uma linguagem clara, acessível a todos os níveis de investidores pessoa física." },
+  { icon: <ShieldCheck className="w-6 h-6" />, title: "Diagnóstico educacional", desc: "Entenda riscos, custos e pontos de atenção da sua carteira com explicações simples — sem jargão e sem indicação de ativos específicos." },
+  { icon: <Zap className="w-6 h-6" />, title: "Sugestões, não ordens", desc: "Receba sugestões gerais de melhoria que você pode aceitar ou ignorar livremente. A decisão é sempre sua — autonomia total." },
+  { icon: <FileText className="w-6 h-6" />, title: "IA de última geração", desc: "Motor inteligente baseado em modelos Google Gemini e OpenAI GPT, focado exclusivamente em educação financeira." },
 ];
 
 const benefits = [
   "Importação via CSV, XLSX, OFX e PDF",
-  "Análise por perfil de investidor",
-  "Alertas de concentração e risco",
-  "Histórico de evolução da carteira",
-  "Sem promessas de rentabilidade",
-  "Seus dados são seus — sempre",
+  "Linguagem clara para todos os perfis de investidor",
+  "Sugestões gerais — sem indicar fundos ou ações específicas",
+  "Você decide aceitar ou não cada sugestão",
+  "Sem promessas de rentabilidade — foco educacional",
+  "Seus dados são seus — nunca compartilhados",
 ];
 
 const pricingPlans = [
@@ -102,17 +102,17 @@ export default function LandingPage() {
                 <svg viewBox="0 0 16 16" fill="none" className="w-4 h-4">
                   <path d="M8 2C5.5 2 4 3.5 4 5.5S5.5 8 7 8.5s3 1 3 3S8.5 14 6 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
-                Análise assistida por IA
+                Educação financeira assistida por IA de última geração
               </span>
             </motion.div>
             
             <motion.h1 variants={fadeUp} custom={1} className="font-heading text-4xl md:text-6xl font-bold leading-tight mb-6 text-balance text-sidebar-foreground">
-              Lucidez e controle sobre seus
-              <span className="text-sidebar-primary"> investimentos</span>
+              Educação financeira com
+              <span className="text-sidebar-primary"> clareza e autonomia</span>
             </motion.h1>
 
             <motion.p variants={fadeUp} custom={2} className="text-lg md:text-xl text-sidebar-foreground/60 mb-10 max-w-2xl mx-auto text-balance">
-              Importe sua carteira, entenda seus riscos e descubra oportunidades de melhoria — sem economês. Você sempre no comando.
+              Traduzimos a linguagem técnica dos investimentos para que você entenda sua carteira, avalie sugestões de melhoria e tome suas próprias decisões — sem economês, sem pressão.
             </motion.p>
 
             <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -143,10 +143,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-14">
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-              O poder de uma análise profissional
+              Educação financeira com tecnologia de ponta
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Ferramentas sofisticadas com linguagem acessível. Precisão sem complicação.
+              Aplicativo de consultoria educacional assistido por IA (Google Gemini + OpenAI GPT) que traduz o mercado financeiro para você.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
@@ -176,10 +176,10 @@ export default function LandingPage() {
           <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-12">
             <div className="flex-1">
               <h2 className="font-heading text-3xl font-bold text-foreground mb-6">
-                Investir com clareza, não com medo
+                Entenda seus investimentos, decida com autonomia
               </h2>
               <p className="text-muted-foreground mb-8">
-                O Lucius analisa sua carteira e traduz informações complexas em linguagem simples. Sem jargão, sem pressão, sem execução automática.
+                O Lucius é um app de educação financeira assistido por IA de última geração. Traduzimos a linguagem técnica em linguagem acessível para todos os níveis de investidores, para que você gerencie sua carteira de forma autônoma — sem indicação de ativos específicos.
               </p>
               <ul className="space-y-3">
                 {benefits.map((b, i) => (
@@ -295,9 +295,10 @@ export default function LandingPage() {
             </Button>
           </Link>
           <p className="text-xs text-sidebar-foreground/40 mt-6 max-w-xl mx-auto">
-            Ferramenta educacional de análise assistida. Não constitui consultoria, recomendação de investimento 
-            ou oferta de valores mobiliários. Não somos registrados na CVM (Res. 19/2021, Res. 20/2021). 
-            Rentabilidade passada não é garantia de resultados futuros.
+            O Lucius é um aplicativo de educação financeira assistido por inteligência artificial. Não constitui consultoria de investimentos, 
+            recomendação de compra/venda de ativos ou oferta de valores mobiliários. Não somos registrados na CVM como consultores (Res. 19/2021) 
+            ou analistas de valores mobiliários (Res. 20/2021). Não indicamos fundos, ações ou ativos específicos. 
+            As sugestões são educacionais e a decisão de investimento é exclusivamente do usuário. Rentabilidade passada não é garantia de resultados futuros.
           </p>
         </div>
       </section>
