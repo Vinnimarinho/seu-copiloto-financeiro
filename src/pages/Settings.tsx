@@ -1,9 +1,10 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { User, Shield, Trash2, Download, Loader2 } from "lucide-react";
+import { User, Shield, Trash2, Download, Loader2, Crown } from "lucide-react";
 import { useProfile, useUpdateProfile, useInvestorProfile, useUpdateInvestorProfile } from "@/hooks/usePortfolio";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
+import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 
 const profileOptions = [
   { value: "conservador" as const, label: "Conservador" },
@@ -54,7 +55,10 @@ export default function SettingsPage() {
   return (
     <AppSidebar>
       <div className="max-w-2xl mx-auto space-y-6">
-        <h1 className="font-heading text-2xl font-bold text-foreground">Configurações</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="font-heading text-2xl font-bold text-foreground">Configurações</h1>
+          <SubscriptionBadge />
+        </div>
 
         <div className="bg-card border border-border rounded-xl p-6 shadow-card space-y-4">
           <h2 className="font-heading font-semibold text-foreground flex items-center gap-2">
