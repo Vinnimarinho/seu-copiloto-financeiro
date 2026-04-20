@@ -45,9 +45,11 @@ export function useSubscription() {
   });
 }
 
-export async function startCheckout(priceId: string) {
+export type Currency = "brl" | "usd" | "eur" | "auto";
+
+export async function startCheckout(priceId: string, currency: Currency = "brl") {
   const { data, error } = await supabase.functions.invoke("create-checkout", {
-    body: { priceId },
+    body: { priceId, currency },
   });
   if (error) throw error;
   if (data?.url) {
