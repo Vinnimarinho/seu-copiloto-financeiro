@@ -3,6 +3,7 @@ import { Target, ShieldCheck, ArrowRight, CheckCircle2, Zap, Lock, FileText, Che
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Logo } from "@/components/Logo";
+import { Testimonials } from "@/components/Testimonials";
 import { cn } from "@/lib/utils";
 
 const fadeUp = {
@@ -222,8 +223,11 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <Testimonials />
+
       {/* Pricing */}
-      <section id="pricing" className="py-20 bg-background scroll-mt-16">
+      <section id="pricing" className="py-20 bg-secondary/30 scroll-mt-16">
         <div className="container mx-auto px-6">
           <div className="text-center mb-14">
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
