@@ -1,12 +1,13 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Upload, FileSpreadsheet, FileText, File, CheckCircle2, Loader2, X, Sparkles, ArrowRight, CalendarRange } from "lucide-react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { Upload, FileSpreadsheet, FileText, File, CheckCircle2, Loader2, X, Sparkles, CalendarRange } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useInvestorProfile, useProfile, useUploadPortfolioFile } from "@/hooks/usePortfolio";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useRunPortfolioDiagnosis } from "@/hooks/usePortfolioAnalysis";
+import { AnalysisLoading } from "@/components/AnalysisLoading";
 
 const formats = [
   { icon: <FileSpreadsheet className="w-8 h-8" />, name: "CSV", desc: "Extrato de corretora em CSV" },
@@ -87,7 +88,7 @@ export default function PortfolioImport() {
     try {
       const path = await uploadMutation.mutateAsync(file);
       setFiles([{ file, status: "uploaded", path }]);
-      toast.info("Arquivo pronto para análise. Agora clique em Executar diagnóstico completo.");
+      toast.info("Arquivo pronto. Configure o período e inicie a análise da performance da carteira.");
     } catch (e) {
       setFiles([{ file, status: "error", error: (e as Error).message }]);
       toast.error(`Erro: ${(e as Error).message}`);
@@ -96,7 +97,7 @@ export default function PortfolioImport() {
 
   const handleRunDiagnosis = useCallback(async () => {
     if (!uploadedFile?.path) {
-      toast.error("Envie um arquivo antes de iniciar o diagnóstico.");
+      toast.error("Envie um arquivo antes de iniciar a análise.");
       return;
     }
 
@@ -112,7 +113,6 @@ export default function PortfolioImport() {
 
     setFiles((current) => current.map((file) => file.file === uploadedFile.file ? { ...file, status: "processing", error: undefined } : file));
     setProcessResult(null);
-    toast.info("Diagnóstico iniciado. Estamos cruzando arquivo, período e perfil do investidor.");
 
     try {
       const result = await diagnosisMutation.mutateAsync({
@@ -132,7 +132,7 @@ export default function PortfolioImport() {
         analysisId: result.analysisId,
         periodLabel,
       });
-      toast.success(`Pronto! ${result.positionsCount} posições e ${result.recommendationsCount} recomendações foram geradas.`);
+      toast.success("Diagnóstico pronto! Redirecionando...");
     } catch (e) {
       setFiles((current) => current.map((file) => file.file === uploadedFile.file ? { ...file, status: "error", error: (e as Error).message } : file));
       toast.error(`Erro: ${(e as Error).message}`);
@@ -141,11 +141,21 @@ export default function PortfolioImport() {
 
   const removeFile = (file: File) => setFiles(prev => prev.filter(f => f.file !== file));
 
+  const isProcessing = diagnosisMutation.isPending || files.some((f) => f.status === "processing");
+  const analysisDone = !!processResult && processResult.positionsCount > 0;
+
+  // Redirect automático para diagnóstico ao concluir
+  useEffect(() => {
+    if (!analysisDone) return;
+    const t = setTimeout(() => navigate("/diagnosis"), 1500);
+    return () => clearTimeout(t);
+  }, [analysisDone, navigate]);
+
   const statusLabel: Record<FileStatus, string> = {
     uploading: "Enviando...",
-    uploaded: "Pronto para diagnóstico",
-    processing: "Analisando com IA...",
-    done: "Análise completa",
+    uploaded: "Pronto para análise",
+    processing: "Analisando performance da carteira...",
+    done: "Análise concluída",
     error: "Erro",
   };
 
@@ -153,9 +163,14 @@ export default function PortfolioImport() {
     <AppSidebar>
       <div className="max-w-2xl mx-auto space-y-8">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-foreground">Importar Carteira</h1>
+          <h1 className="font-heading text-2xl font-bold text-foreground">Importar performance da carteira</h1>
           <p className="text-sm text-muted-foreground mt-1">Envie seus extratos e posições para análise automática com IA</p>
         </div>
+
+        {/* Loading screen full ao processar */}
+        {isProcessing && (
+          <AnalysisLoading subtitle="Estamos cruzando arquivo, período e seu perfil de investidor." />
+        )}
 
         <div
           className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors cursor-pointer bg-card ${dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
@@ -169,8 +184,8 @@ export default function PortfolioImport() {
           }}
         >
           <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-4" />
-          <p className="font-heading font-semibold text-foreground mb-1">Envie o arquivo que será a base do diagnóstico</p>
-          <p className="text-sm text-muted-foreground mb-4">Após o upload, você escolhe o período e aciona manualmente a inteligência do sistema</p>
+          <p className="font-heading font-semibold text-foreground mb-1">Insira a performance da carteira</p>
+          <p className="text-sm text-muted-foreground mb-4">Após o upload, escolha o período e inicie a análise da performance da carteira</p>
           <Button variant="outline" size="sm" type="button" disabled={isBusy}>Selecionar arquivo</Button>
           <input
             ref={inputRef}
@@ -184,10 +199,10 @@ export default function PortfolioImport() {
         <div className="bg-card border border-border rounded-xl p-6 space-y-4 shadow-card">
           <div>
             <h2 className="font-heading font-semibold text-foreground flex items-center gap-2">
-              <CalendarRange className="w-4 h-4 text-primary" /> Configurar diagnóstico
+              <CalendarRange className="w-4 h-4 text-primary" /> Configurar análise
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              O sistema vai cruzar o arquivo enviado com o período analisado e seu perfil de investidor para montar diagnóstico e recomendações.
+              O sistema vai cruzar o arquivo enviado com o período analisado e seu perfil de investidor para gerar o diagnóstico e identificar oportunidades.
             </p>
           </div>
 
@@ -204,8 +219,8 @@ export default function PortfolioImport() {
 
           <div className="rounded-lg border border-border bg-secondary/40 p-4 text-sm text-muted-foreground">
             {profile?.onboarding_completed
-              ? "Seu perfil investidor já será usado como contexto para personalizar as recomendações." 
-              : "Antes do diagnóstico, complete o perfil do investidor para liberar recomendações personalizadas."}
+              ? "Seu perfil de investidor será usado como contexto para personalizar as oportunidades sugeridas."
+              : "Antes da análise, complete o perfil do investidor para liberar oportunidades personalizadas."}
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -216,7 +231,7 @@ export default function PortfolioImport() {
             )}
             <Button onClick={handleRunDiagnosis} disabled={!canAnalyze} className="gap-2 sm:min-w-[260px]">
               {diagnosisMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              Executar diagnóstico completo
+              Analisar performance da carteira
             </Button>
           </div>
 
@@ -280,30 +295,20 @@ export default function PortfolioImport() {
           </div>
         )}
 
-        {/* Result + navigation */}
+        {/* Resultado: redireciona automaticamente em 1.5s */}
         {processResult && processResult.positionsCount > 0 && (
-          <div className="bg-primary/10 border border-primary/30 rounded-xl p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-8 h-8 text-primary" />
-              <div>
-                <h3 className="font-heading font-bold text-foreground">Análise concluída!</h3>
-                <p className="text-sm text-muted-foreground">
-                  {processResult.positionsCount} posições identificadas · {processResult.recommendationsCount} recomendações geradas
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">Período analisado: {processResult.periodLabel}</p>
-              </div>
+          <div className="bg-primary/10 border border-primary/30 rounded-xl p-6 space-y-3 text-center">
+            <CheckCircle2 className="w-10 h-10 text-primary mx-auto" />
+            <div>
+              <h3 className="font-heading font-bold text-foreground">Análise concluída</h3>
+              <p className="text-sm text-muted-foreground">
+                {processResult.positionsCount} posições identificadas · {processResult.recommendationsCount} oportunidades geradas
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">Período: {processResult.periodLabel}</p>
             </div>
-            <div className="flex gap-3">
-              <Button onClick={() => navigate("/diagnosis")} size="sm" className="gap-1">
-                Ver Diagnóstico <ArrowRight className="w-4 h-4" />
-              </Button>
-              <Button onClick={() => navigate("/dashboard")} variant="outline" size="sm">
-                Ver Dashboard
-              </Button>
-              <Button onClick={() => navigate("/recommendations")} variant="outline" size="sm">
-                Ver Recomendações
-              </Button>
-            </div>
+            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+              <Loader2 className="w-3 h-3 animate-spin" /> Abrindo seu diagnóstico...
+            </p>
           </div>
         )}
 
@@ -322,7 +327,7 @@ export default function PortfolioImport() {
         </div>
 
         <p className="text-xs text-muted-foreground text-center">
-          Seus dados são criptografados e nunca compartilhados. Usados exclusivamente para análise da sua carteira.
+          Seus dados são criptografados e nunca compartilhados. Usados exclusivamente para a análise da performance da sua carteira.
         </p>
       </div>
     </AppSidebar>

@@ -100,8 +100,8 @@ export default function Diagnosis() {
       <AppSidebar>
         <div className="max-w-lg mx-auto text-center space-y-3 py-16">
           <h1 className="font-heading text-2xl font-bold text-foreground">Nenhum diagnóstico ainda</h1>
-          <p className="text-muted-foreground text-sm">Importe sua carteira para gerar o diagnóstico automático com IA.</p>
-          <Button onClick={() => navigate("/portfolio/import")}>Importar Carteira</Button>
+          <p className="text-muted-foreground text-sm">Envie a performance da sua carteira para gerar o diagnóstico automático com IA.</p>
+          <Button onClick={() => navigate("/portfolio/import")}>Importar performance da carteira</Button>
         </div>
       </AppSidebar>
     );
@@ -124,7 +124,7 @@ export default function Diagnosis() {
     <AppSidebar>
       <div className="space-y-4 max-w-4xl">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-foreground">Diagnóstico da Carteira</h1>
+          <h1 className="font-heading text-2xl font-bold text-foreground">Diagnóstico da performance da carteira</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Análise gerada por IA com base nos seus investimentos</p>
         </div>
 
