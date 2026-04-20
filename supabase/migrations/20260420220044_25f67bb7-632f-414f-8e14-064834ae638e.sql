@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS data_consent_accepted_at TIMESTAMPTZ;

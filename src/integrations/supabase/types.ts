@@ -380,6 +380,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          data_consent_accepted_at: string | null
           full_name: string | null
           id: string
           onboarding_completed: boolean
@@ -390,6 +391,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          data_consent_accepted_at?: string | null
           full_name?: string | null
           id?: string
           onboarding_completed?: boolean
@@ -400,6 +402,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          data_consent_accepted_at?: string | null
           full_name?: string | null
           id?: string
           onboarding_completed?: boolean
