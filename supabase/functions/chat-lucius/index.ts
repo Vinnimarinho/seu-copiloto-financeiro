@@ -138,6 +138,19 @@ serve(async (req) => {
       });
     }
 
+    // Deduct 1 credit for this chat turn (service-role bypasses RLS).
+    const newBalance = wallet.balance - 1;
+    await supabase.from("credit_wallets").update({ balance: newBalance }).eq("id", wallet.id);
+    await supabase.from("credit_transactions").insert({
+      user_id: userId,
+      wallet_id: wallet.id,
+      amount: -1,
+      resulting_balance: newBalance,
+      type: "usage",
+      reference_type: "chat_lucius",
+      description: "Mensagem ao LUCIUS",
+    });
+
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
