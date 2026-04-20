@@ -327,7 +327,7 @@ export default function PortfolioImport() {
         </div>
 
         <p className="text-xs text-muted-foreground text-center">
-          Seus dados são criptografados e nunca compartilhados. Usados exclusivamente para análise da sua carteira.
+          Seus dados são criptografados e nunca compartilhados. Usados exclusivamente para a análise da performance da sua carteira.
         </p>
       </div>
     </AppSidebar>
