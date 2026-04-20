@@ -141,11 +141,21 @@ export default function PortfolioImport() {
 
   const removeFile = (file: File) => setFiles(prev => prev.filter(f => f.file !== file));
 
+  const isProcessing = diagnosisMutation.isPending || files.some((f) => f.status === "processing");
+  const analysisDone = !!processResult && processResult.positionsCount > 0;
+
+  // Redirect automático para diagnóstico ao concluir
+  useEffect(() => {
+    if (!analysisDone) return;
+    const t = setTimeout(() => navigate("/diagnosis"), 1500);
+    return () => clearTimeout(t);
+  }, [analysisDone, navigate]);
+
   const statusLabel: Record<FileStatus, string> = {
     uploading: "Enviando...",
-    uploaded: "Pronto para diagnóstico",
-    processing: "Analisando com IA...",
-    done: "Análise completa",
+    uploaded: "Pronto para análise",
+    processing: "Analisando performance da carteira...",
+    done: "Análise concluída",
     error: "Erro",
   };
 
@@ -153,9 +163,14 @@ export default function PortfolioImport() {
     <AppSidebar>
       <div className="max-w-2xl mx-auto space-y-8">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-foreground">Importar Carteira</h1>
+          <h1 className="font-heading text-2xl font-bold text-foreground">Importar performance da carteira</h1>
           <p className="text-sm text-muted-foreground mt-1">Envie seus extratos e posições para análise automática com IA</p>
         </div>
+
+        {/* Loading screen full ao processar */}
+        {isProcessing && (
+          <AnalysisLoading subtitle="Estamos cruzando arquivo, período e seu perfil de investidor." />
+        )}
 
         <div
           className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors cursor-pointer bg-card ${dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
