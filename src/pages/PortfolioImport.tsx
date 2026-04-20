@@ -184,8 +184,8 @@ export default function PortfolioImport() {
           }}
         >
           <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-4" />
-          <p className="font-heading font-semibold text-foreground mb-1">Envie o arquivo que será a base do diagnóstico</p>
-          <p className="text-sm text-muted-foreground mb-4">Após o upload, você escolhe o período e aciona manualmente a inteligência do sistema</p>
+          <p className="font-heading font-semibold text-foreground mb-1">Insira a performance da carteira</p>
+          <p className="text-sm text-muted-foreground mb-4">Após o upload, escolha o período e inicie a análise da performance da carteira</p>
           <Button variant="outline" size="sm" type="button" disabled={isBusy}>Selecionar arquivo</Button>
           <input
             ref={inputRef}
@@ -199,10 +199,10 @@ export default function PortfolioImport() {
         <div className="bg-card border border-border rounded-xl p-6 space-y-4 shadow-card">
           <div>
             <h2 className="font-heading font-semibold text-foreground flex items-center gap-2">
-              <CalendarRange className="w-4 h-4 text-primary" /> Configurar diagnóstico
+              <CalendarRange className="w-4 h-4 text-primary" /> Configurar análise
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              O sistema vai cruzar o arquivo enviado com o período analisado e seu perfil de investidor para montar diagnóstico e recomendações.
+              O sistema vai cruzar o arquivo enviado com o período analisado e seu perfil de investidor para gerar o diagnóstico e identificar oportunidades.
             </p>
           </div>
 
@@ -219,8 +219,8 @@ export default function PortfolioImport() {
 
           <div className="rounded-lg border border-border bg-secondary/40 p-4 text-sm text-muted-foreground">
             {profile?.onboarding_completed
-              ? "Seu perfil investidor já será usado como contexto para personalizar as recomendações." 
-              : "Antes do diagnóstico, complete o perfil do investidor para liberar recomendações personalizadas."}
+              ? "Seu perfil de investidor será usado como contexto para personalizar as oportunidades sugeridas."
+              : "Antes da análise, complete o perfil do investidor para liberar oportunidades personalizadas."}
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -231,7 +231,7 @@ export default function PortfolioImport() {
             )}
             <Button onClick={handleRunDiagnosis} disabled={!canAnalyze} className="gap-2 sm:min-w-[260px]">
               {diagnosisMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              Executar diagnóstico completo
+              Analisar performance da carteira
             </Button>
           </div>
 
@@ -295,30 +295,20 @@ export default function PortfolioImport() {
           </div>
         )}
 
-        {/* Result + navigation */}
+        {/* Resultado: redireciona automaticamente em 1.5s */}
         {processResult && processResult.positionsCount > 0 && (
-          <div className="bg-primary/10 border border-primary/30 rounded-xl p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-8 h-8 text-primary" />
-              <div>
-                <h3 className="font-heading font-bold text-foreground">Análise concluída!</h3>
-                <p className="text-sm text-muted-foreground">
-                  {processResult.positionsCount} posições identificadas · {processResult.recommendationsCount} recomendações geradas
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">Período analisado: {processResult.periodLabel}</p>
-              </div>
+          <div className="bg-primary/10 border border-primary/30 rounded-xl p-6 space-y-3 text-center">
+            <CheckCircle2 className="w-10 h-10 text-primary mx-auto" />
+            <div>
+              <h3 className="font-heading font-bold text-foreground">Análise concluída</h3>
+              <p className="text-sm text-muted-foreground">
+                {processResult.positionsCount} posições identificadas · {processResult.recommendationsCount} oportunidades geradas
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">Período: {processResult.periodLabel}</p>
             </div>
-            <div className="flex gap-3">
-              <Button onClick={() => navigate("/diagnosis")} size="sm" className="gap-1">
-                Ver Diagnóstico <ArrowRight className="w-4 h-4" />
-              </Button>
-              <Button onClick={() => navigate("/dashboard")} variant="outline" size="sm">
-                Ver Dashboard
-              </Button>
-              <Button onClick={() => navigate("/recommendations")} variant="outline" size="sm">
-                Ver Recomendações
-              </Button>
-            </div>
+            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+              <Loader2 className="w-3 h-3 animate-spin" /> Abrindo seu diagnóstico...
+            </p>
           </div>
         )}
 
