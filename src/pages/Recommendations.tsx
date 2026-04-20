@@ -1,10 +1,11 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useRecommendations, useUpdateRecommendation } from "@/hooks/usePortfolio";
-import { CheckCircle2, Clock, X, Loader2, ListChecks, ArrowRight } from "lucide-react";
+import { CheckCircle2, Clock, X, Loader2, ListChecks, Lock, Sparkles } from "lucide-react";
 import { RegulatoryDisclaimer } from "@/components/RegulatoryDisclaimer";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 
 const ACTION_STEPS: Record<string, string[]> = {
   rebalance: [
@@ -45,6 +46,7 @@ function getSteps(recType: string): string[] {
 
 export default function Recommendations() {
   const navigate = useNavigate();
+  const { canAccessOpportunities, isLoading: planLoading } = usePlanAccess();
   const { data: dbRecs = [], isLoading } = useRecommendations();
   const updateRec = useUpdateRecommendation();
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set());
@@ -56,6 +58,30 @@ export default function Recommendations() {
       return next;
     });
   };
+
+  // Gating: plano gratuito não acessa Oportunidades
+  if (!planLoading && !canAccessOpportunities) {
+    return (
+      <AppSidebar>
+        <div className="max-w-lg mx-auto py-12">
+          <div className="bg-card border border-border rounded-xl p-8 text-center space-y-4">
+            <div className="w-14 h-14 rounded-full bg-primary/10 mx-auto flex items-center justify-center">
+              <Lock className="w-6 h-6 text-primary" />
+            </div>
+            <div className="space-y-1">
+              <h1 className="font-heading text-xl font-bold text-foreground">Oportunidades disponíveis nos planos pagos</h1>
+              <p className="text-sm text-muted-foreground">
+                Faça upgrade para liberar oportunidades personalizadas e o passo a passo de cada ação sugerida.
+              </p>
+            </div>
+            <Button onClick={() => navigate("/pricing")} className="gap-2">
+              <Sparkles className="w-4 h-4" /> Ver planos
+            </Button>
+          </div>
+        </div>
+      </AppSidebar>
+    );
+  }
 
   const recs = dbRecs.map((r) => ({
     id: r.id,
@@ -71,7 +97,7 @@ export default function Recommendations() {
       <div className="max-w-3xl mx-auto space-y-4">
         <div>
           <h1 className="font-heading text-2xl font-bold text-foreground">Oportunidades de Melhoria</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Oportunidades identificadas para otimizar sua carteira — você decide o que fazer</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Oportunidades identificadas para otimizar a performance da sua carteira — você decide o que fazer</p>
         </div>
 
         {isLoading ? (
@@ -79,8 +105,8 @@ export default function Recommendations() {
         ) : recs.length === 0 ? (
           <div className="bg-card border border-border rounded-xl p-6 text-center space-y-3">
             <h2 className="font-heading text-lg font-semibold text-foreground">Nenhuma oportunidade identificada ainda</h2>
-            <p className="text-sm text-muted-foreground">Envie sua carteira e rode o diagnóstico para identificar oportunidades de melhoria.</p>
-            <Button onClick={() => navigate("/portfolio/import")} size="sm">Importar carteira</Button>
+            <p className="text-sm text-muted-foreground">Envie a performance da sua carteira e rode o diagnóstico para identificar oportunidades de melhoria.</p>
+            <Button onClick={() => navigate("/portfolio/import")} size="sm">Importar performance da carteira</Button>
           </div>
         ) : (
           <div className="space-y-3">
