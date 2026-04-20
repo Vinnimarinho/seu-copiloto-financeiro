@@ -1,7 +1,7 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useRecommendations, useUpdateRecommendation } from "@/hooks/usePortfolio";
-import { CheckCircle2, Clock, X, Loader2, ListChecks, Lock, Sparkles } from "lucide-react";
+import { CheckCircle2, Clock, X, Loader2, ListChecks, Lock, Sparkles, ArrowRight } from "lucide-react";
 import { RegulatoryDisclaimer } from "@/components/RegulatoryDisclaimer";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
