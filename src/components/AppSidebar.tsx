@@ -11,6 +11,7 @@ import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RegulatoryDisclaimer } from "@/components/RegulatoryDisclaimer";
 import { LuciusFloatingChat } from "@/components/LuciusFloatingChat";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 interface NavItem {
   label: string;
@@ -131,6 +132,7 @@ export function AppSidebar({ children }: { children: ReactNode }) {
           <div className="md:hidden"><Logo size="sm" /></div>
           <div className="hidden md:block" />
           <div className="flex items-center gap-3">
+            <LanguageSelector />
             <Popover>
               <PopoverTrigger asChild>
                 <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">

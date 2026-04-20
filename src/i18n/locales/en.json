@@ -1,0 +1,70 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "search": "Search",
+    "credits": "credits",
+    "free": "Free",
+    "logout": "Sign out",
+    "language": "Language"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "import": "Import Portfolio",
+    "diagnosis": "Diagnosis",
+    "opportunities": "Opportunities",
+    "reports": "Reports",
+    "history": "History",
+    "subscription": "Subscription",
+    "settings": "Settings",
+    "admin": "Admin"
+  },
+  "credits": {
+    "title": "What are credits?",
+    "description": "Credits are used to generate AI-powered portfolio analyses and diagnoses.",
+    "diagnosis": "Full diagnosis",
+    "report": "PDF report",
+    "chat": "Chat with LUCIUS",
+    "getMore": "Get more credits →"
+  },
+  "diagnosis": {
+    "title": "Portfolio Diagnosis",
+    "overallScore": "Overall Score",
+    "risk": "Risk",
+    "diversification": "Diversification",
+    "liquidity": "Liquidity",
+    "summary": "Summary",
+    "insights": "AI Insights"
+  },
+  "scores": {
+    "bad": "Poor",
+    "warning": "Warning",
+    "good": "Good",
+    "excellent": "Excellent"
+  },
+  "pricing": {
+    "title": "Choose your plan",
+    "subtitle": "Clarity over your investments, at your pace",
+    "perMonth": "/month",
+    "currency": "Currency",
+    "subscribe": "Subscribe",
+    "currentPlan": "Current plan",
+    "free": "Free",
+    "essential": "Essential",
+    "pro": "Pro"
+  },
+  "reports": {
+    "title": "Reports",
+    "generate": "Generate PDF",
+    "download": "Download",
+    "empty": "No reports generated yet",
+    "generating": "Generating report..."
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "back": "Volver",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "search": "Buscar",
+    "credits": "créditos",
+    "free": "Gratis",
+    "logout": "Salir",
+    "language": "Idioma"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "import": "Importar Cartera",
+    "diagnosis": "Diagnóstico",
+    "opportunities": "Oportunidades",
+    "reports": "Informes",
+    "history": "Historial",
+    "subscription": "Suscripción",
+    "settings": "Configuración",
+    "admin": "Admin"
+  },
+  "credits": {
+    "title": "¿Qué son los créditos?",
+    "description": "Los créditos se usan para generar análisis y diagnósticos de tu cartera con IA.",
+    "diagnosis": "Diagnóstico completo",
+    "report": "Informe PDF",
+    "chat": "Hablar con LUCIUS",
+    "getMore": "Obtener más créditos →"
+  },
+  "diagnosis": {
+    "title": "Diagnóstico de Cartera",
+    "overallScore": "Puntuación General",
+    "risk": "Riesgo",
+    "diversification": "Diversificación",
+    "liquidity": "Liquidez",
+    "summary": "Resumen",
+    "insights": "Insights de IA"
+  },
+  "scores": {
+    "bad": "Malo",
+    "warning": "Atención",
+    "good": "Bueno",
+    "excellent": "Excelente"
+  },
+  "pricing": {
+    "title": "Elige tu plan",
+    "subtitle": "Claridad sobre tus inversiones, a tu ritmo",
+    "perMonth": "/mes",
+    "currency": "Moneda",
+    "subscribe": "Suscribir",
+    "currentPlan": "Plan actual",
+    "free": "Gratis",
+    "essential": "Esencial",
+    "pro": "Pro"
+  },
+  "reports": {
+    "title": "Informes",
+    "generate": "Generar PDF",
+    "download": "Descargar",
+    "empty": "Aún no hay informes generados",
+    "generating": "Generando informe..."
+  }
+}

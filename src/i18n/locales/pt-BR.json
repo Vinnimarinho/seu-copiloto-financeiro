@@ -1,0 +1,70 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "back": "Voltar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "close": "Fechar",
+    "confirm": "Confirmar",
+    "search": "Pesquisar",
+    "credits": "créditos",
+    "free": "Gratuito",
+    "logout": "Sair",
+    "language": "Idioma"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "import": "Importar Carteira",
+    "diagnosis": "Diagnóstico",
+    "opportunities": "Oportunidades",
+    "reports": "Relatórios",
+    "history": "Histórico",
+    "subscription": "Assinatura",
+    "settings": "Configurações",
+    "admin": "Admin"
+  },
+  "credits": {
+    "title": "O que são créditos?",
+    "description": "Créditos são usados para gerar análises e diagnósticos da sua carteira com IA.",
+    "diagnosis": "Diagnóstico completo",
+    "report": "Relatório PDF",
+    "chat": "Falar com o LUCIUS",
+    "getMore": "Obter mais créditos →"
+  },
+  "diagnosis": {
+    "title": "Diagnóstico da Carteira",
+    "overallScore": "Score Geral",
+    "risk": "Risco",
+    "diversification": "Diversificação",
+    "liquidity": "Liquidez",
+    "summary": "Resumo",
+    "insights": "Insights da IA"
+  },
+  "scores": {
+    "bad": "Ruim",
+    "warning": "Atenção",
+    "good": "Bom",
+    "excellent": "Excelente"
+  },
+  "pricing": {
+    "title": "Escolha seu plano",
+    "subtitle": "Lucidez sobre seus investimentos, no seu ritmo",
+    "perMonth": "/mês",
+    "currency": "Moeda",
+    "subscribe": "Assinar",
+    "currentPlan": "Plano atual",
+    "free": "Gratuito",
+    "essential": "Essencial",
+    "pro": "Pro"
+  },
+  "reports": {
+    "title": "Relatórios",
+    "generate": "Gerar PDF",
+    "download": "Baixar",
+    "empty": "Nenhum relatório gerado ainda",
+    "generating": "Gerando relatório..."
+  }
+}
