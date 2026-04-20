@@ -253,6 +253,16 @@ serve(async (req) => {
     const { filePath, fileName, analysisPeriod } = parsedBody.data;
     log("Processing file", { filePath, fileName, analysisPeriod });
 
+    // SECURITY: prevent IDOR — service-role bypasses RLS, so we must enforce
+    // that the requested file path belongs to the authenticated user.
+    if (!filePath.startsWith(`${user.id}/`)) {
+      log("Forbidden file path", { filePath, userId: user.id });
+      return new Response(
+        JSON.stringify({ error: "Acesso negado ao arquivo solicitado." }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+      );
+    }
+
     const { data: fileData, error: downloadErr } = await supabase.storage
       .from("portfolio-files")
       .download(filePath);

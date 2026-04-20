@@ -65,8 +65,24 @@ serve(async (req) => {
       });
     }
 
-    // Get user context (portfolio, profile) for personalized answers
     const userId = userData.user.id;
+
+    // SECURITY: ensure the user has credits before consuming AI gateway tokens.
+    // Prevents denial-of-wallet abuse on an authenticated endpoint.
+    const { data: wallet, error: walletError } = await supabase
+      .from("credit_wallets")
+      .select("id, balance")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (walletError) throw new Error(`Erro ao consultar créditos: ${walletError.message}`);
+    if (!wallet || wallet.balance <= 0) {
+      return new Response(
+        JSON.stringify({ error: "Você não tem créditos suficientes para conversar com o LUCIUS." }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Get user context (portfolio, profile) for personalized answers
     const [{ data: investorProfile }, { data: latestAnalysis }, { data: positions }] = await Promise.all([
       supabase.from("investor_profiles").select("*").eq("user_id", userId).maybeSingle(),
       supabase.from("analyses").select("summary, ai_insights, risk_score, diversification_score, liquidity_score").eq("user_id", userId).order("created_at", { ascending: false }).limit(1).maybeSingle(),
@@ -121,6 +137,19 @@ serve(async (req) => {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Deduct 1 credit for this chat turn (service-role bypasses RLS).
+    const newBalance = wallet.balance - 1;
+    await supabase.from("credit_wallets").update({ balance: newBalance }).eq("id", wallet.id);
+    await supabase.from("credit_transactions").insert({
+      user_id: userId,
+      wallet_id: wallet.id,
+      amount: -1,
+      resulting_balance: newBalance,
+      type: "usage",
+      reference_type: "chat_lucius",
+      description: "Mensagem ao LUCIUS",
+    });
 
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
