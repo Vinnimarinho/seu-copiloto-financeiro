@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation } from "react-router-dom";
 import { useProfile } from "@/hooks/usePortfolio";
+import { DataConsentDialog } from "@/components/DataConsentDialog";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const { data: profile, isLoading: profileLoading, isError } = useProfile();
   const location = useLocation();
+  const [consentJustAccepted, setConsentJustAccepted] = useState(false);
 
   if (loading || (profileLoading && !isError)) {
     return (
@@ -22,5 +25,19 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     return <Navigate to="/onboarding" replace />;
   }
 
-  return <>{children}</>;
+  // Require data consent before any protected access (after onboarding)
+  const needsConsent =
+    profile &&
+    profile.onboarding_completed &&
+    !(profile as { data_consent_accepted_at?: string | null }).data_consent_accepted_at &&
+    !consentJustAccepted;
+
+  return (
+    <>
+      {needsConsent && (
+        <DataConsentDialog open={true} onAccepted={() => setConsentJustAccepted(true)} />
+      )}
+      {children}
+    </>
+  );
 }
