@@ -1,12 +1,14 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { BentoCard, BentoGrid } from "@/components/BentoGrid";
-import { CheckCircle2, AlertTriangle, XCircle, Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { RegulatoryDisclaimer } from "@/components/RegulatoryDisclaimer";
 import { useLatestAnalysis, usePortfolios, usePositions, useProfile } from "@/hooks/usePortfolio";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/data/mockData";
 import { useMemo } from "react";
+import { getScoreClass, getScoreLabel } from "@/lib/scoreClassification";
+import { LiquidityBreakdown } from "@/components/LiquidityBreakdown";
 
 const TERM_GLOSSARY: Record<string, string> = {
   "Risco": "Chance de perder dinheiro — quanto maior, mais volátil o investimento",
@@ -14,33 +16,13 @@ const TERM_GLOSSARY: Record<string, string> = {
   "Liquidez": "Facilidade de transformar o investimento de volta em dinheiro quando precisar",
 };
 
-function ScoreBadge({ score, status }: { score: number; status: "good" | "warning" | "bad" }) {
-  const config = {
-    good: { bg: "bg-success/10", text: "text-success", icon: <CheckCircle2 className="w-4 h-4" /> },
-    warning: { bg: "bg-warning/10", text: "text-warning", icon: <AlertTriangle className="w-4 h-4" /> },
-    bad: { bg: "bg-destructive/10", text: "text-destructive", icon: <XCircle className="w-4 h-4" /> },
-  };
-  const c = config[status];
+function ScoreBadge({ score }: { score: number }) {
+  const cls = getScoreClass(score);
   return (
-    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${c.bg}`}>
-      <span className={c.text}>{c.icon}</span>
-      <span className={`font-heading font-bold text-lg ${c.text}`}>{score}</span>
+    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${cls.bgClass}`}>
+      <span className={`font-heading font-bold text-lg ${cls.textClass}`}>{score}</span>
     </div>
   );
-}
-
-function getStatus(score: number): "good" | "warning" | "bad" {
-  if (score >= 75) return "good";
-  if (score >= 50) return "warning";
-  return "bad";
-}
-
-function getScoreLabel(score: number): string {
-  if (score >= 80) return "Excelente";
-  if (score >= 65) return "Bom";
-  if (score >= 50) return "Atenção";
-  if (score >= 30) return "Preocupante";
-  return "Crítico";
 }
 
 /** Replace any hardcoded name in AI text with the user's actual name */
@@ -159,23 +141,31 @@ export default function Diagnosis() {
           </div>
         )}
 
-        {/* Scores */}
+        {/* Scores — todos seguem a régua única 0–100 (Ruim/Atenção/Bom/Excelente) */}
         <BentoGrid columns={3}>
-          {diagnosisItems.map((item) => (
-            <BentoCard key={item.label} title={item.label} subtitle={TERM_GLOSSARY[item.label]}>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs text-muted-foreground font-medium">{getScoreLabel(item.score)}</span>
-                <ScoreBadge score={item.score} status={getStatus(item.score)} />
-              </div>
-              <div className="mt-2 h-1.5 bg-secondary rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${getStatus(item.score) === "good" ? "bg-success" : getStatus(item.score) === "warning" ? "bg-warning" : "bg-destructive"}`}
-                  style={{ width: `${item.score}%` }}
-                />
-              </div>
-            </BentoCard>
-          ))}
+          {diagnosisItems.map((item) => {
+            const cls = getScoreClass(item.score);
+            return (
+              <BentoCard key={item.label} title={item.label} subtitle={TERM_GLOSSARY[item.label]}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`text-xs font-medium ${cls.textClass}`}>{getScoreLabel(item.score)}</span>
+                  <ScoreBadge score={item.score} />
+                </div>
+                <div className="mt-2 h-1.5 bg-secondary rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${cls.solidBgClass}`}
+                    style={{ width: `${item.score}%` }}
+                  />
+                </div>
+              </BentoCard>
+            );
+          })}
         </BentoGrid>
+
+        {/* Liquidez detalhada por posição */}
+        {positions && positions.length > 0 && (
+          <LiquidityBreakdown positions={positions as any} />
+        )}
 
         {/* Allocation */}
         {Object.keys(allocation).length > 0 && (
