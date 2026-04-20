@@ -108,6 +108,39 @@ export function useReports() {
   });
 }
 
+export function useGenerateReport() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("generate-report");
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      return data as { report_id: string; url: string | null };
+    },
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ["reports"] });
+      toast.success("Relatório PDF gerado!");
+      if (res.url) window.open(res.url, "_blank", "noopener");
+    },
+    onError: (e) => toast.error((e as Error).message || "Erro ao gerar relatório"),
+  });
+}
+
+export function useReportDownload() {
+  return useMutation({
+    mutationFn: async (reportId: string) => {
+      const { data, error } = await supabase.functions.invoke("report-download-url", {
+        body: { report_id: reportId },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      return (data as { url: string }).url;
+    },
+    onSuccess: (url) => window.open(url, "_blank", "noopener"),
+    onError: (e) => toast.error((e as Error).message || "Erro ao baixar relatório"),
+  });
+}
+
 export function useUserCredits() {
   const { user } = useAuth();
   return useQuery({
