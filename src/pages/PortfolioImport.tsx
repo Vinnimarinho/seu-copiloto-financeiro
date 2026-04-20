@@ -1,12 +1,13 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Upload, FileSpreadsheet, FileText, File, CheckCircle2, Loader2, X, Sparkles, ArrowRight, CalendarRange } from "lucide-react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { Upload, FileSpreadsheet, FileText, File, CheckCircle2, Loader2, X, Sparkles, CalendarRange } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useInvestorProfile, useProfile, useUploadPortfolioFile } from "@/hooks/usePortfolio";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useRunPortfolioDiagnosis } from "@/hooks/usePortfolioAnalysis";
+import { AnalysisLoading } from "@/components/AnalysisLoading";
 
 const formats = [
   { icon: <FileSpreadsheet className="w-8 h-8" />, name: "CSV", desc: "Extrato de corretora em CSV" },
@@ -87,7 +88,7 @@ export default function PortfolioImport() {
     try {
       const path = await uploadMutation.mutateAsync(file);
       setFiles([{ file, status: "uploaded", path }]);
-      toast.info("Arquivo pronto para análise. Agora clique em Executar diagnóstico completo.");
+      toast.info("Arquivo pronto. Configure o período e inicie a análise da performance da carteira.");
     } catch (e) {
       setFiles([{ file, status: "error", error: (e as Error).message }]);
       toast.error(`Erro: ${(e as Error).message}`);
@@ -96,7 +97,7 @@ export default function PortfolioImport() {
 
   const handleRunDiagnosis = useCallback(async () => {
     if (!uploadedFile?.path) {
-      toast.error("Envie um arquivo antes de iniciar o diagnóstico.");
+      toast.error("Envie um arquivo antes de iniciar a análise.");
       return;
     }
 
@@ -112,7 +113,6 @@ export default function PortfolioImport() {
 
     setFiles((current) => current.map((file) => file.file === uploadedFile.file ? { ...file, status: "processing", error: undefined } : file));
     setProcessResult(null);
-    toast.info("Diagnóstico iniciado. Estamos cruzando arquivo, período e perfil do investidor.");
 
     try {
       const result = await diagnosisMutation.mutateAsync({
@@ -132,7 +132,7 @@ export default function PortfolioImport() {
         analysisId: result.analysisId,
         periodLabel,
       });
-      toast.success(`Pronto! ${result.positionsCount} posições e ${result.recommendationsCount} recomendações foram geradas.`);
+      toast.success("Diagnóstico pronto! Redirecionando...");
     } catch (e) {
       setFiles((current) => current.map((file) => file.file === uploadedFile.file ? { ...file, status: "error", error: (e as Error).message } : file));
       toast.error(`Erro: ${(e as Error).message}`);
