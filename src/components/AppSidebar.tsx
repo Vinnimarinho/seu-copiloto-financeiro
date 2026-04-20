@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Target, ShieldCheck, Upload, FileText, History, Settings, CreditCard, LayoutDashboard, ChevronLeft, ChevronRight, LogOut, Shield, MessageCircle, HelpCircle } from "lucide-react";
+import { Target, ShieldCheck, Upload, FileText, History, Settings, CreditCard, LayoutDashboard, ChevronLeft, ChevronRight, LogOut, Shield, HelpCircle, Lock } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -7,22 +7,24 @@ import { Logo } from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserCredits } from "@/hooks/usePortfolio";
 import { useIsAdmin } from "@/hooks/useAdmin";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RegulatoryDisclaimer } from "@/components/RegulatoryDisclaimer";
+import { LuciusFloatingChat } from "@/components/LuciusFloatingChat";
 
 interface NavItem {
   label: string;
   href: string;
   icon: ReactNode;
   badge?: string;
+  locked?: boolean;
 }
 
-const mainNav: NavItem[] = [
+const baseNav: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
   { label: "Importar Carteira", href: "/portfolio/import", icon: <Upload className="w-5 h-5" /> },
   { label: "Diagnóstico", href: "/diagnosis", icon: <Target className="w-5 h-5" /> },
   { label: "Oportunidades", href: "/recommendations", icon: <ShieldCheck className="w-5 h-5" /> },
-  { label: "Falar com Lucius", href: "/chat", icon: <MessageCircle className="w-5 h-5" /> },
   { label: "Relatórios", href: "/reports", icon: <FileText className="w-5 h-5" /> },
   { label: "Histórico", href: "/history", icon: <History className="w-5 h-5" /> },
 ];
@@ -38,7 +40,13 @@ export function AppSidebar({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
   const { data: credits } = useUserCredits();
   const { data: isAdmin } = useIsAdmin();
+  const { canAccessOpportunities } = usePlanAccess();
   const [collapsed, setCollapsed] = useState(false);
+
+  // Plano gratuito não vê "Oportunidades" no menu
+  const mainNav: NavItem[] = baseNav.filter(
+    (item) => item.href !== "/recommendations" || canAccessOpportunities,
+  );
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -167,6 +175,9 @@ export function AppSidebar({ children }: { children: ReactNode }) {
           <RegulatoryDisclaimer compact />
         </footer>
       </main>
+
+      {/* Balão global Fale com o LUCIUS */}
+      <LuciusFloatingChat />
     </div>
   );
 }
