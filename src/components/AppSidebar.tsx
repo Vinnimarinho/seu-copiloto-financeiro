@@ -153,7 +153,7 @@ export function AppSidebar({ children }: { children: ReactNode }) {
                     <span className="font-medium text-foreground">1 crédito</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Chat com Lucius</span>
+                    <span className="text-muted-foreground">Falar com o LUCIUS</span>
                     <span className="font-medium text-foreground">Gratuito</span>
                   </div>
                 </div>
