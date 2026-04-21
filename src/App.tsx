@@ -23,6 +23,7 @@ import PrivacyPage from "./pages/Privacy";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import Compliance from "./pages/Compliance";
 import ChatLucius from "./pages/ChatLucius";
 import PaymentSuccess from "./pages/PaymentSuccess";
 
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+            <Route path="/compliance" element={<ProtectedRoute><Compliance /></ProtectedRoute>} />
             <Route path="/payment/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
 
             {/* Redirects */}
