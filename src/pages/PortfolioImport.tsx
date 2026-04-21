@@ -137,7 +137,7 @@ export default function PortfolioImport() {
       setFiles((current) => current.map((file) => file.file === uploadedFile.file ? { ...file, status: "error", error: (e as Error).message } : file));
       toast.error(`Erro: ${(e as Error).message}`);
     }
-  }, [diagnosisMutation, isPeriodValid, periodEnd, periodLabel, periodStart, profile?.onboarding_completed, uploadedFile, uploadedFile?.path]);
+  }, [diagnosisMutation, isPeriodValid, periodEnd, periodLabel, periodStart, profile?.onboarding_completed, uploadedFile]);
 
   const removeFile = (file: File) => setFiles(prev => prev.filter(f => f.file !== file));
 
