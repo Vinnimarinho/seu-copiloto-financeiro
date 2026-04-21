@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://luciuscopiloto.lovable.app/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://luciuscopiloto.lovable.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://luciuscopiloto.lovable.app/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://luciuscopiloto.lovable.app/?lang=es" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://luciuscopiloto.lovable.app/" />
+  </url>
+  <url>
+    <loc>https://luciuscopiloto.lovable.app/pricing</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://luciuscopiloto.lovable.app/login</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://luciuscopiloto.lovable.app/signup</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://luciuscopiloto.lovable.app/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://luciuscopiloto.lovable.app/privacy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>

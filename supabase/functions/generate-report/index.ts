@@ -75,7 +75,7 @@ function buildPdf(opts: {
     doc.text(`Página ${pageNum} de ${total}`, pageW - margin, pageH - 7, { align: "right" });
     doc.setFontSize(6);
     doc.text(
-      "Conteúdo informativo. Não constitui recomendação personalizada de investimento (CVM 592/17).",
+      "Software de apoio à análise da performance da carteira. Não constitui consultoria, oferta de valores mobiliários ou execução de ordens.",
       pageW / 2,
       pageH - 4,
       { align: "center" }

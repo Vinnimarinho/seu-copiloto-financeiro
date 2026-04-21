@@ -1,14 +1,17 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /portfolio/
+Disallow: /diagnosis
+Disallow: /recommendations
+Disallow: /reports
+Disallow: /history
+Disallow: /settings
+Disallow: /admin
+Disallow: /chat
+Disallow: /onboarding
+Disallow: /payment/
+Disallow: /reset-password
+
+Sitemap: https://luciuscopiloto.lovable.app/sitemap.xml
