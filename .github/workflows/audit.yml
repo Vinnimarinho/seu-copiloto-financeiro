@@ -1,0 +1,30 @@
+name: Security Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Toda segunda-feira às 09:00 UTC
+    - cron: "0 9 * * 1"
+
+jobs:
+  npm-audit:
+    name: npm audit (high+critical)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies (no scripts)
+        run: npm ci --ignore-scripts
+
+      - name: Run npm audit
+        # Falha apenas em vulnerabilidades high ou critical.
+        # Moderate/low aparecem no log mas não bloqueiam o build.
+        run: npm audit --audit-level=high
