@@ -1,1 +1,6 @@
 project_id = "oindqzfotybzlmcwcfcp"
+
+# Webhook do Stripe: NÃO valida JWT (chamado pelo Stripe, não pelo cliente).
+# A autenticidade é validada via assinatura HMAC com STRIPE_WEBHOOK_SECRET.
+[functions.stripe-webhook]
+verify_jwt = false
