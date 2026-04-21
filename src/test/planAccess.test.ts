@@ -30,7 +30,7 @@ describe("Plano gratuito — bloqueio de features pagas", () => {
   });
 
   it("essencial acessa oportunidades e PDF, mas não unlimited portfolios", () => {
-    const plan: "free" | "essencial" | "pro" = "essencial";
+    const plan = "essencial" as "free" | "essencial" | "pro";
     const isPaid = plan !== "free";
     const isPro = plan === "pro";
     expect(isPaid).toBe(true);
@@ -38,7 +38,7 @@ describe("Plano gratuito — bloqueio de features pagas", () => {
   });
 
   it("pro acessa tudo", () => {
-    const plan: "free" | "essencial" | "pro" = "pro";
+    const plan = "pro" as "free" | "essencial" | "pro";
     const isPaid = plan !== "free";
     const isPro = plan === "pro";
     expect(isPaid).toBe(true);
