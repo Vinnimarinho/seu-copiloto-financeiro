@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNoIndex } from "@/hooks/useNoIndex";
 
 interface StepOption {
   value: string;
@@ -121,6 +122,7 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [saving, setSaving] = useState(false);
+  useNoIndex();
 
   const step = steps[currentStep];
   const isLast = currentStep === steps.length - 1;
