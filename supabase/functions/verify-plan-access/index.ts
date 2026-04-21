@@ -52,27 +52,49 @@ serve(async (req) => {
     }
     const { feature } = parsed.data;
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY ausente");
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-
-    const customers = await stripe.customers.list({ email: u.user.email, limit: 1 });
+    // Fonte de verdade: tabela local (atualizada pelo webhook do Stripe).
+    // Stripe é fallback caso a tabela esteja vazia.
     let productId: string | null = null;
+    let isPaid = false;
+    let isPro = false;
 
-    if (customers.data.length > 0) {
-      const subs = await stripe.subscriptions.list({
-        customer: customers.data[0].id,
-        status: "active",
-        limit: 1,
-      });
-      if (subs.data.length > 0) {
-        const product = subs.data[0].items?.data?.[0]?.price?.product;
-        productId = typeof product === "string" ? product : (product as any)?.id ?? null;
+    const { data: localSub } = await supabase
+      .from("billing_subscriptions")
+      .select("plan_code, status, price_id, current_period_end")
+      .eq("user_id", u.user.id)
+      .maybeSingle();
+
+    if (localSub && (localSub.status === "active" || localSub.status === "trialing")) {
+      const notExpired =
+        !localSub.current_period_end || new Date(localSub.current_period_end) > new Date();
+      if (notExpired) {
+        isPaid = localSub.plan_code === "essencial" || localSub.plan_code === "pro";
+        isPro = localSub.plan_code === "pro";
+        productId = isPro ? PRO_PRODUCT_ID : isPaid ? "prod_UKvbpwN51mHV2B" : null;
       }
     }
 
-    const isPaid = productId ? PAID_PRODUCT_IDS.has(productId) : false;
-    const isPro = productId === PRO_PRODUCT_ID;
+    // Fallback Stripe se não houver registro local
+    if (!isPaid) {
+      const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+      if (stripeKey) {
+        const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+        const customers = await stripe.customers.list({ email: u.user.email, limit: 1 });
+        if (customers.data.length > 0) {
+          const subs = await stripe.subscriptions.list({
+            customer: customers.data[0].id,
+            status: "active",
+            limit: 1,
+          });
+          if (subs.data.length > 0) {
+            const product = subs.data[0].items?.data?.[0]?.price?.product;
+            productId = typeof product === "string" ? product : (product as any)?.id ?? null;
+            isPaid = productId ? PAID_PRODUCT_IDS.has(productId) : false;
+            isPro = productId === PRO_PRODUCT_ID;
+          }
+        }
+      }
+    }
 
     let allowed = false;
     if (feature === FEATURES.opportunities) allowed = isPaid;
