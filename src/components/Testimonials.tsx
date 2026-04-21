@@ -32,7 +32,7 @@ const testimonials = [
   },
   {
     name: "Felipe Tavares",
-    role: "Consultor, DF",
+    role: "Investidor pessoa física, DF",
     avatar: "FT",
     text: "Uso para conferir minhas próprias decisões. O score de diversificação me alertou sobre uma sobreposição setorial que eu não tinha notado.",
     rating: 5,

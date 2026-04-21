@@ -144,10 +144,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-14">
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Educação financeira com tecnologia de ponta
+              Lucidez sobre a performance da sua carteira
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Aplicativo de consultoria educacional assistido por IA (Google Gemini + OpenAI GPT) que traduz o mercado financeiro para você.
+              Software de apoio à análise da performance da carteira, assistido por IA (Google Gemini + OpenAI GPT). Traduz o mercado financeiro em linguagem simples — sem economês.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
@@ -299,10 +299,11 @@ export default function LandingPage() {
             </Button>
           </Link>
           <p className="text-xs text-sidebar-foreground/40 mt-6 max-w-xl mx-auto">
-            O Lucius é um aplicativo de educação financeira assistido por inteligência artificial. Não constitui consultoria de investimentos, 
-            recomendação de compra/venda de ativos ou oferta de valores mobiliários. Não somos registrados na CVM como consultores (Res. 19/2021) 
-            ou analistas de valores mobiliários (Res. 20/2021). Não indicamos fundos, ações ou ativos específicos. 
-            As sugestões são educacionais e a decisão de investimento é exclusivamente do usuário. Rentabilidade passada não é garantia de resultados futuros.
+            O Lucius é um software de apoio à análise da performance da carteira e à compreensão do
+            investidor. Conteúdo informativo e educacional — não constitui consultoria, oferta de
+            valores mobiliários ou execução de ordens. Não somos registrados na CVM, ANBIMA ou
+            APIMEC. Não indicamos fundos, ações ou ativos específicos. A decisão final é
+            exclusivamente sua. Rentabilidade passada não garante resultados futuros.
           </p>
         </div>
       </section>
@@ -319,7 +320,7 @@ export default function LandingPage() {
                 <span>© 2026 Lucius</span>
               </div>
               <p className="text-[10px] text-sidebar-foreground/30 text-center md:text-left max-w-lg">
-                O Lucius não é registrado na CVM, ANBIMA ou APIMEC. Ferramenta educacional — não constitui consultoria de investimentos (Res. CVM 19/2021).
+                Software de apoio à análise da performance da carteira. Não constitui consultoria, oferta de valores mobiliários ou execução de ordens.
               </p>
             </div>
           </div>

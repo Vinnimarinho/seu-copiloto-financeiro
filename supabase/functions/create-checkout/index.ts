@@ -53,11 +53,14 @@ serve(async (req) => {
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
+      // Vincula a sessão ao user_id do Supabase — webhook usa para resolver owner
+      client_reference_id: user.id,
+      metadata: { user_id: user.id },
+      subscription_data: { metadata: { user_id: user.id } },
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
       success_url: `${req.headers.get("origin")}/payment/success`,
       cancel_url: `${req.headers.get("origin")}/pricing`,
-      // BRL/USD/EUR aceitos — Stripe rejeita silenciosamente se a price não suportar.
       ...(currency !== "auto" ? { currency } : {}),
       automatic_tax: { enabled: false },
       allow_promotion_codes: true,

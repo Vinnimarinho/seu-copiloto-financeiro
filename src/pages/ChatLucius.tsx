@@ -187,8 +187,8 @@ export default function ChatLucius() {
             <Bot className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="font-heading text-lg font-bold text-foreground">Lucius — Assessor IA</h1>
-            <p className="text-xs text-muted-foreground">Assessor sênior em investimentos · Sempre disponível</p>
+            <h1 className="font-heading text-lg font-bold text-foreground">Lucius — Copiloto educacional</h1>
+            <p className="text-xs text-muted-foreground">Apoio à compreensão da performance da sua carteira · Sempre disponível</p>
           </div>
         </div>
 
@@ -287,7 +287,7 @@ export default function ChatLucius() {
             </Button>
           </form>
           <p className="text-[10px] text-muted-foreground text-center mt-2">
-            Lucius é um assistente educacional. Não constitui recomendação de investimento.
+            Lucius é um copiloto educacional de apoio à compreensão da performance da carteira. Não constitui consultoria nem execução de ordens.
           </p>
         </div>
       </div>
