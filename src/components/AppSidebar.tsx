@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { RegulatoryDisclaimer } from "@/components/RegulatoryDisclaimer";
 import { LuciusFloatingChat } from "@/components/LuciusFloatingChat";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { useNoIndex } from "@/hooks/useNoIndex";
 
 interface NavItem {
   label: string;
@@ -43,6 +44,7 @@ export function AppSidebar({ children }: { children: ReactNode }) {
   const { data: isAdmin } = useIsAdmin();
   const { canAccessOpportunities } = usePlanAccess();
   const [collapsed, setCollapsed] = useState(false);
+  useNoIndex();
 
   // Plano gratuito não vê "Oportunidades" no menu
   const mainNav: NavItem[] = baseNav.filter(
