@@ -274,24 +274,43 @@ serve(async (req) => {
     const user = u.user;
     if (!user?.email) throw new Error("Não autenticado");
 
-    // Gating server-side via Stripe
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY ausente");
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    let productId: string | null = null;
-    if (customers.data.length > 0) {
-      const subs = await stripe.subscriptions.list({
-        customer: customers.data[0].id,
-        status: "active",
-        limit: 1,
-      });
-      if (subs.data.length > 0) {
-        const product = subs.data[0].items?.data?.[0]?.price?.product;
-        productId = typeof product === "string" ? product : (product as any)?.id ?? null;
+    // Gating server-side: lê primeiro a tabela local (fonte de verdade via webhook),
+    // com fallback para Stripe caso ainda não tenha sincronizado.
+    let allowed = false;
+    const { data: localSub } = await supabase
+      .from("billing_subscriptions")
+      .select("plan_code, status, current_period_end")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (localSub && (localSub.status === "active" || localSub.status === "trialing")) {
+      const notExpired =
+        !localSub.current_period_end || new Date(localSub.current_period_end) > new Date();
+      allowed = notExpired && (localSub.plan_code === "essencial" || localSub.plan_code === "pro");
+    }
+
+    if (!allowed) {
+      // Fallback Stripe (caso webhook ainda não tenha rodado)
+      const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+      if (stripeKey) {
+        const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+        const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+        if (customers.data.length > 0) {
+          const subs = await stripe.subscriptions.list({
+            customer: customers.data[0].id,
+            status: "active",
+            limit: 1,
+          });
+          if (subs.data.length > 0) {
+            const product = subs.data[0].items?.data?.[0]?.price?.product;
+            const productId = typeof product === "string" ? product : (product as any)?.id ?? null;
+            allowed = !!productId && PAID_PRODUCT_IDS.has(productId);
+          }
+        }
       }
     }
-    if (!productId || !PAID_PRODUCT_IDS.has(productId)) {
+
+    if (!allowed) {
       return new Response(
         JSON.stringify({ error: "Geração de PDF disponível apenas em planos pagos." }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -322,7 +341,8 @@ serve(async (req) => {
         .from("recommendations")
         .select("*")
         .eq("analysis_id", analysis.id)
-        .order("created_at", { ascending: false }),
+        .eq("status", "accepted") // PDF inclui APENAS oportunidades aceitas pelo usuário
+        .order("decided_at", { ascending: false }),
     ]);
 
     // Cria registro pending
