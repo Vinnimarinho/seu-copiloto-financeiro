@@ -1,16 +1,31 @@
 // verify-plan-access — gating server-side de features pagas.
 // Fonte primária: tabela local billing_subscriptions (sincronizada via webhook).
-// Stripe é fallback defensivo, com prioridade de lookup por customer_id local.
+// Stripe é fallback defensivo APENAS via stripe_customer_id já persistido.
+// Lookup por email foi REMOVIDO para eliminar risco cross-account.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { z } from "npm:zod@3.25.76";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS: (string | RegExp)[] = [
+  "https://luciuscopiloto.lovable.app",
+  /^https:\/\/.*\.lovable\.app$/,
+  /^https:\/\/.*\.lovable\.dev$/,
+  "http://localhost:8080",
+  "http://localhost:5173",
+];
+function corsFor(req: Request): Record<string, string> {
+  const origin = req.headers.get("Origin") ?? "";
+  const allowed = ALLOWED_ORIGINS.some((r) => (typeof r === "string" ? r === origin : r.test(origin)));
+  return {
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
+    ...(allowed ? { "Access-Control-Allow-Origin": origin } : {}),
+  };
+}
 
 const PAID_PRODUCT_IDS = new Set(["prod_UKvbpwN51mHV2B", "prod_UL9kxDPtv9xpCp"]);
 const PRO_PRODUCT_ID = "prod_UL9kxDPtv9xpCp";
@@ -25,10 +40,8 @@ const BodySchema = z.object({
   feature: z.enum(["opportunities", "reports_pdf", "unlimited_portfolios"]),
 });
 
-const log = (step: string, details?: unknown) =>
-  console.log(`[VERIFY-PLAN] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
-
 serve(async (req) => {
+  const corsHeaders = corsFor(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
@@ -77,29 +90,22 @@ serve(async (req) => {
       }
     }
 
-    // 2) Fallback Stripe — só se a tabela local não confirmou plano pago
-    if (!isPaid) {
+    // 2) Fallback Stripe — APENAS via stripe_customer_id já persistido.
+    //    Sem lookup por email.
+    if (!isPaid && stripeCustomerId) {
       const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
       if (stripeKey) {
         const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-        let customerId = stripeCustomerId;
-        if (!customerId && u.user.email) {
-          log("FALLBACK: customer lookup by email", { email: u.user.email });
-          const customers = await stripe.customers.list({ email: u.user.email, limit: 1 });
-          customerId = customers.data[0]?.id ?? null;
-        }
-        if (customerId) {
-          const subs = await stripe.subscriptions.list({
-            customer: customerId,
-            status: "active",
-            limit: 1,
-          });
-          if (subs.data.length > 0) {
-            const product = subs.data[0].items?.data?.[0]?.price?.product;
-            productId = typeof product === "string" ? product : (product as { id?: string })?.id ?? null;
-            isPaid = productId ? PAID_PRODUCT_IDS.has(productId) : false;
-            isPro = productId === PRO_PRODUCT_ID;
-          }
+        const subs = await stripe.subscriptions.list({
+          customer: stripeCustomerId,
+          status: "active",
+          limit: 1,
+        });
+        if (subs.data.length > 0) {
+          const product = subs.data[0].items?.data?.[0]?.price?.product;
+          productId = typeof product === "string" ? product : (product as { id?: string })?.id ?? null;
+          isPaid = productId ? PAID_PRODUCT_IDS.has(productId) : false;
+          isPro = productId === PRO_PRODUCT_ID;
         }
       }
     }
