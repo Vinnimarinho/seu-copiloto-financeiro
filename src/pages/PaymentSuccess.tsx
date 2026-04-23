@@ -20,8 +20,10 @@ export default function PaymentSuccess() {
     if (!user?.id) return;
     let cancelled = false;
     let attempts = 0;
-    const maxAttempts = 15;
+    const maxAttempts = 10; // ~20s — webhook normalmente sincroniza em <5s
 
+    // Fonte de verdade: webhook escreve em billing_subscriptions; check-subscription
+    // lê primeiro essa tabela. Pollamos só para confirmar a propagação no front.
     const poll = async () => {
       while (!cancelled && attempts < maxAttempts) {
         attempts++;
@@ -34,7 +36,9 @@ export default function PaymentSuccess() {
             queryClient.invalidateQueries({ queryKey: ["subscription"] });
             return;
           }
-        } catch {}
+        } catch {
+          // Ignora erro transitório — próxima iteração tenta de novo
+        }
         if (!cancelled && attempts < maxAttempts) {
           await new Promise(r => setTimeout(r, 2000));
         }

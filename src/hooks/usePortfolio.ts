@@ -108,19 +108,27 @@ export function useReports() {
   });
 }
 
+type GenerateReportResponse = { report_id: string; url: string | null };
+
+// Navega no mesmo contexto da aplicação para evitar pop-up bloqueado pelo navegador.
+function navigateToFile(url: string) {
+  window.location.assign(url);
+}
+
 export function useGenerateReport() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke("generate-report");
       if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
-      return data as { report_id: string; url: string | null };
+      const payload = data as GenerateReportResponse & { error?: string };
+      if (payload?.error) throw new Error(payload.error);
+      return payload;
     },
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["reports"] });
       toast.success("Relatório PDF gerado!");
-      if (res.url) window.open(res.url, "_blank", "noopener");
+      if (res.url) navigateToFile(res.url);
     },
     onError: (e) => toast.error((e as Error).message || "Erro ao gerar relatório"),
   });
@@ -133,10 +141,12 @@ export function useReportDownload() {
         body: { report_id: reportId },
       });
       if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
-      return (data as { url: string }).url;
+      const payload = data as { url?: string; error?: string };
+      if (payload?.error) throw new Error(payload.error);
+      if (!payload?.url) throw new Error("URL do relatório indisponível");
+      return payload.url;
     },
-    onSuccess: (url) => window.open(url, "_blank", "noopener"),
+    onSuccess: (url) => navigateToFile(url),
     onError: (e) => toast.error((e as Error).message || "Erro ao baixar relatório"),
   });
 }

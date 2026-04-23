@@ -679,6 +679,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_user_account: { Args: never; Returns: undefined }
+      export_user_data: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
