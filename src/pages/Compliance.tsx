@@ -21,7 +21,7 @@ interface CheckItem {
   evidence?: string;
 }
 
-const LAST_REVIEW = "2026-04-21";
+const LAST_REVIEW = "2026-04-23";
 
 const CHECKLIST: CheckItem[] = [
   // ─── Auth ───────────────────────────────────────────────
@@ -71,17 +71,32 @@ const CHECKLIST: CheckItem[] = [
     category: "Billing",
     name: "Fonte de verdade local de assinatura",
     status: "ok",
-    detail: "billing_subscriptions é consultada em verify-plan-access; Stripe é fallback.",
+    detail: "billing_subscriptions é a fonte primária; Stripe é fallback via customer_id local (sem lookup por email).",
     validatedAt: LAST_REVIEW,
-    evidence: "billing_subscriptions + verify-plan-access",
+    evidence: "billing_subscriptions + verify-plan-access + check-subscription",
   },
   {
     category: "Billing",
     name: "Gating do plano gratuito",
     status: "ok",
-    detail: "Oportunidades e funções premium bloqueadas no front e no backend.",
+    detail: "Oportunidades e funções premium bloqueadas no front (usePlanAccess) e backend (verify-plan-access).",
     validatedAt: LAST_REVIEW,
     evidence: "usePlanAccess + verify-plan-access",
+  },
+  {
+    category: "Billing",
+    name: "Multimoeda (USD/EUR)",
+    status: "warn",
+    detail: "USD/EUR ocultos na UI até validação ponta a ponta. Apenas BRL ativo no lançamento.",
+    validatedAt: LAST_REVIEW,
+    evidence: "Pricing.tsx + create-checkout",
+  },
+  {
+    category: "Billing",
+    name: "Stripe live mode",
+    status: "warn",
+    detail: "Conta Stripe em modo teste. Antes do GO-LIVE: completar KYC, trocar STRIPE_SECRET_KEY/STRIPE_WEBHOOK_SECRET para live e recriar prices live.",
+    validatedAt: LAST_REVIEW,
   },
 
   // ─── RLS / Banco ────────────────────────────────────────
@@ -89,7 +104,7 @@ const CHECKLIST: CheckItem[] = [
     category: "RLS",
     name: "RLS habilitado em todas as tabelas",
     status: "ok",
-    detail: "16 tabelas com RLS, incluindo billing_subscriptions e stripe_events_processed.",
+    detail: "Todas as tabelas públicas com RLS, incluindo billing_subscriptions e stripe_events_processed.",
     validatedAt: LAST_REVIEW,
   },
   {
@@ -110,7 +125,7 @@ const CHECKLIST: CheckItem[] = [
     category: "RLS",
     name: "Buckets privados para arquivos sensíveis",
     status: "ok",
-    detail: "Relatórios PDF acessíveis apenas via signed URL com TTL curto.",
+    detail: "Relatórios PDF acessíveis apenas via signed URL com TTL curto (10 min).",
     validatedAt: LAST_REVIEW,
     evidence: "report-download-url edge fn",
   },
@@ -127,8 +142,8 @@ const CHECKLIST: CheckItem[] = [
   {
     category: "SEO",
     name: "robots.txt e sitemap.xml publicados",
-    status: "ok",
-    detail: "Sitemap com hreflang pt-BR / en / es.",
+    status: "warn",
+    detail: "Sitemap inclui hreflang en/es mas i18n EN/ES está oculto no app. Validar antes do GO-LIVE.",
     validatedAt: LAST_REVIEW,
     evidence: "public/robots.txt + public/sitemap.xml",
   },
@@ -181,43 +196,75 @@ const CHECKLIST: CheckItem[] = [
     detail: "CookieConsent exibido no primeiro acesso.",
     validatedAt: LAST_REVIEW,
   },
+  {
+    category: "Compliance",
+    name: "Exportar dados (LGPD Art. 18)",
+    status: "ok",
+    detail: "RPC export_user_data com auditoria. UI em Settings.",
+    validatedAt: LAST_REVIEW,
+    evidence: "delete_user_account + export_user_data RPCs",
+  },
+  {
+    category: "Compliance",
+    name: "Excluir conta (LGPD Art. 18)",
+    status: "ok",
+    detail: "RPC delete_user_account. billing_subscriptions retida 5 anos (retenção fiscal).",
+    validatedAt: LAST_REVIEW,
+    evidence: "delete_user_account RPC",
+  },
 
   // ─── Build / Qualidade ──────────────────────────────────
   {
     category: "Build",
-    name: "npm ci sem erros",
-    status: "ok",
-    detail: "package.json e lockfile sincronizados.",
-    validatedAt: LAST_REVIEW,
-  },
-  {
-    category: "Build",
-    name: "Lint limpo (0 erros / 0 warnings)",
+    name: "Lint clean (0 erros / 0 warnings)",
     status: "ok",
     detail: "ESLint sem ocorrências em src/.",
     validatedAt: LAST_REVIEW,
   },
   {
     category: "Build",
-    name: "Build otimizado",
+    name: "Build de produção",
     status: "ok",
-    detail: "Bundle principal 267 kB (71 kB gzip) com code-splitting.",
+    detail: "vite build conclui com code-splitting; ver bundle no log do CI.",
     validatedAt: LAST_REVIEW,
     evidence: "vite.config.ts manualChunks",
   },
   {
     category: "Build",
-    name: "Suite de testes",
+    name: "Suite de testes vitest",
     status: "ok",
-    detail: "20/20 testes passando (score, planAccess, i18n, webhook idempotency).",
+    detail: "score, planAccess, i18n e webhook idempotency.",
     validatedAt: LAST_REVIEW,
   },
   {
     category: "Build",
     name: "npm audit (high/critical)",
     status: "warn",
-    detail: "Endpoint indisponível no sandbox — validar localmente antes do release.",
+    detail: "Não validado neste ambiente. Rodar 'npm audit --omit=dev --audit-level=high' no CI antes do release.",
     validatedAt: LAST_REVIEW,
+  },
+  {
+    category: "Build",
+    name: "Reprodutibilidade (npm ci ambiente limpo)",
+    status: "warn",
+    detail: "Sandbox usa bun. Validar 'npm ci && npm run build' em runner CI/CD limpo antes do GO-LIVE.",
+    validatedAt: LAST_REVIEW,
+  },
+  {
+    category: "Build",
+    name: "CORS por domínio nas edge functions",
+    status: "ok",
+    detail: "Allowlist (luciuscopiloto.lovable.app + *.lovable.app/dev). Origin não-permitido recebe resposta sem header CORS.",
+    validatedAt: LAST_REVIEW,
+    evidence: "corsFor() inline em cada função",
+  },
+  {
+    category: "Build",
+    name: "Admin hardcoded em migration",
+    status: "warn",
+    detail: "Migration antiga (20260413115641) faz seed de role admin por email. Ambientes novos devem rodar migration de revogação ou promoção manual via script.",
+    validatedAt: LAST_REVIEW,
+    evidence: "20260423xxxxx_revoke_seed_admin.sql",
   },
 ];
 
