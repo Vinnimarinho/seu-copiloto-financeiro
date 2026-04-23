@@ -8,7 +8,6 @@ import {
   startCheckout,
   openCustomerPortal,
   PLANS,
-  type Currency,
 } from "@/hooks/useSubscription";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -44,24 +43,20 @@ const plans = [
   },
 ];
 
-const CURRENCIES: { key: Currency; label: string }[] = [
-  { key: "brl", label: "BRL" },
-  { key: "usd", label: "USD" },
-  { key: "eur", label: "EUR" },
-];
+// USD/EUR ocultos até validação Stripe ponta a ponta (price em multimoeda + KYC live).
+// Para reativar: criar prices multimoeda no Stripe, validar checkout/webhook em cada moeda.
 
 export default function Pricing() {
   const { data: subscription, isLoading } = useSubscription();
   const currentPlan = getPlanByProductId(subscription?.product_id ?? null);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const [currency, setCurrency] = useState<Currency>("brl");
 
   const handleSubscribe = async (planKey: string) => {
     const plan = PLANS[planKey as keyof typeof PLANS];
     if (!plan?.price_id) return;
     setLoadingPlan(planKey);
     try {
-      await startCheckout(plan.price_id, currency);
+      await startCheckout(plan.price_id);
     } catch (e) {
       toast.error("Erro ao iniciar checkout");
     } finally {
@@ -86,24 +81,8 @@ export default function Pricing() {
         <div className="text-center space-y-3">
           <h1 className="font-heading text-2xl font-bold text-foreground">Planos e Preços</h1>
           <p className="text-sm text-muted-foreground">Escolha o plano ideal para suas necessidades</p>
-          <div className="inline-flex items-center gap-1 p-1 bg-secondary rounded-lg">
-            {CURRENCIES.map((c) => (
-              <button
-                key={c.key}
-                onClick={() => setCurrency(c.key)}
-                className={cn(
-                  "px-3 py-1 rounded-md text-xs font-medium transition-colors",
-                  currency === c.key
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
           <p className="text-[11px] text-muted-foreground">
-            Preços exibidos em BRL. Pagamento processado pelo Stripe na moeda escolhida — conversão automática quando aplicável.
+            Cobrança em BRL. Pagamento processado pelo Stripe.
           </p>
         </div>
 
