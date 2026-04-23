@@ -1,20 +1,33 @@
 // customer-portal — abre portal Stripe para a assinatura do usuário.
-// Fonte primária do customer_id: tabela local billing_subscriptions.
-// Lookup por email só ocorre como fallback defensivo.
+// Fonte ÚNICA do customer_id: tabela local billing_subscriptions.
+// Sem fallback por email: se o webhook ainda não escreveu, devolve erro
+// claro pedindo retry. Isso elimina ambiguidade de cross-account.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
-
-const log = (step: string, details?: unknown) =>
-  console.log(`[CUSTOMER-PORTAL] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
+const ALLOWED_ORIGINS: (string | RegExp)[] = [
+  "https://luciuscopiloto.lovable.app",
+  /^https:\/\/.*\.lovable\.app$/,
+  /^https:\/\/.*\.lovable\.dev$/,
+  "http://localhost:8080",
+  "http://localhost:5173",
+];
+function corsFor(req: Request): Record<string, string> {
+  const origin = req.headers.get("Origin") ?? "";
+  const allowed = ALLOWED_ORIGINS.some((r) => (typeof r === "string" ? r === origin : r.test(origin)));
+  return {
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
+    ...(allowed ? { "Access-Control-Allow-Origin": origin } : {}),
+  };
+}
 
 serve(async (req) => {
+  const corsHeaders = corsFor(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
@@ -37,26 +50,24 @@ serve(async (req) => {
     const user = userData.user;
     if (!user) throw new Error("User not authenticated");
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-
-    // Fonte primária: tabela local
     const { data: localSub } = await supabase
       .from("billing_subscriptions")
       .select("stripe_customer_id")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    let customerId = localSub?.stripe_customer_id ?? null;
-
-    if (!customerId && user.email) {
-      log("FALLBACK: customer lookup by email", { email: user.email });
-      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-      customerId = customers.data[0]?.id ?? null;
+    const customerId = localSub?.stripe_customer_id ?? null;
+    if (!customerId) {
+      return new Response(
+        JSON.stringify({
+          error: "Nenhuma assinatura encontrada para esta conta. Se você acabou de assinar, aguarde alguns segundos e tente novamente.",
+        }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
-    if (!customerId) throw new Error("Nenhuma assinatura ativa encontrada para esta conta");
-
-    const origin = req.headers.get("origin") || "http://localhost:3000";
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const origin = req.headers.get("origin") || "https://luciuscopiloto.lovable.app";
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: `${origin}/pricing`,

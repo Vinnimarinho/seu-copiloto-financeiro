@@ -1,15 +1,29 @@
 // check-subscription — fonte primária: tabela local billing_subscriptions
-// (sincronizada pelo webhook do Stripe). Stripe é apenas fallback defensivo
-// quando o webhook ainda não escreveu nada para esse usuário.
+// (sincronizada pelo webhook do Stripe). Lookup por email REMOVIDO; fallback
+// só usa stripe_customer_id já persistido. Se não há registro local, retorna free.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS: (string | RegExp)[] = [
+  "https://luciuscopiloto.lovable.app",
+  /^https:\/\/.*\.lovable\.app$/,
+  /^https:\/\/.*\.lovable\.dev$/,
+  "http://localhost:8080",
+  "http://localhost:5173",
+];
+function corsFor(req: Request): Record<string, string> {
+  const origin = req.headers.get("Origin") ?? "";
+  const allowed = ALLOWED_ORIGINS.some((r) => (typeof r === "string" ? r === origin : r.test(origin)));
+  return {
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
+    ...(allowed ? { "Access-Control-Allow-Origin": origin } : {}),
+  };
+}
 
 const PRODUCT_BY_PLAN: Record<string, string> = {
   essencial: "prod_UKvbpwN51mHV2B",
@@ -20,6 +34,7 @@ const log = (step: string, details?: unknown) =>
   console.log(`[CHECK-SUBSCRIPTION] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
 
 serve(async (req) => {
+  const corsHeaders = corsFor(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   const supabase = createClient(
@@ -62,32 +77,24 @@ serve(async (req) => {
       }
     }
 
-    // 2) Fallback Stripe — apenas se a tabela local ainda não foi populada.
-    //    Tenta primeiro pelo customer_id local; só recorre a busca por email
-    //    como último recurso, com logging explícito.
+    // 2) Fallback Stripe — APENAS via stripe_customer_id já persistido localmente.
+    //    Sem lookup por email (cross-account risk).
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) {
+    const customerId = localSub?.stripe_customer_id ?? null;
+
+    if (!stripeKey || !customerId) {
       return new Response(
-        JSON.stringify({ subscribed: false, product_id: null, subscription_end: null, source: "local-empty" }),
+        JSON.stringify({
+          subscribed: false,
+          product_id: null,
+          subscription_end: null,
+          source: customerId ? "no-stripe-key" : "local-empty",
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-
-    let customerId = localSub?.stripe_customer_id ?? null;
-    if (!customerId && user.email) {
-      log("FALLBACK: customer lookup by email", { email: user.email });
-      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-      customerId = customers.data[0]?.id ?? null;
-    }
-
-    if (!customerId) {
-      return new Response(
-        JSON.stringify({ subscribed: false, product_id: null, subscription_end: null, source: "no-customer" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-
     const subs = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
@@ -115,7 +122,7 @@ serve(async (req) => {
         subscribed: true,
         product_id: productId,
         subscription_end: subscriptionEnd,
-        source: "stripe",
+        source: "stripe-by-customer-id",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );

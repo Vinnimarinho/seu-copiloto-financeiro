@@ -45,16 +45,13 @@ export function useSubscription() {
   });
 }
 
-export type Currency = "brl" | "usd" | "eur" | "auto";
-
 /**
  * Inicia o checkout Stripe redirecionando o usuário na MESMA aba.
- * Evita pop-ups e mantém continuidade do funil; ao concluir o pagamento
- * o Stripe redireciona para /payment/success.
+ * Cobrança em BRL — multimoeda desativada até validação Stripe ponta a ponta.
  */
-export async function startCheckout(priceId: string, currency: Currency = "brl") {
+export async function startCheckout(priceId: string) {
   const { data, error } = await supabase.functions.invoke("create-checkout", {
-    body: { priceId, currency },
+    body: { priceId },
   });
   if (error) throw error;
   if (data?.url) {
