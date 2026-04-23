@@ -235,6 +235,7 @@ LEMBRETE FINAL: avg_price NUNCA pode ser 0 se o investidor tem dinheiro aplicado
 }
 
 serve(async (req) => {
+  const corsHeaders = corsFor(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }

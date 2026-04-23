@@ -55,6 +55,7 @@ FORMATO:
 - Sempre em português do Brasil`;
 
 serve(async (req) => {
+  const corsHeaders = corsFor(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }

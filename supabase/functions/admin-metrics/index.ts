@@ -22,6 +22,7 @@ function corsFor(req: Request): Record<string, string> {
 }
 
 serve(async (req) => {
+  const corsHeaders = corsFor(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }

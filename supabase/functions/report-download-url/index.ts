@@ -26,6 +26,7 @@ function corsFor(req: Request): Record<string, string> {
 const BodySchema = z.object({ report_id: z.string().uuid() });
 
 serve(async (req) => {
+  const corsHeaders = corsFor(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   const supabase = createClient(
