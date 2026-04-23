@@ -1,42 +1,45 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useRecommendations, useUpdateRecommendation } from "@/hooks/usePortfolio";
-import { CheckCircle2, Clock, X, Loader2, ListChecks, Lock, Sparkles, ArrowRight } from "lucide-react";
+import { CheckCircle2, Clock, X, Loader2, ListChecks, Lock, Sparkles, MessageCircle } from "lucide-react";
 import { RegulatoryDisclaimer } from "@/components/RegulatoryDisclaimer";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 
+// Linguagem ajustada para evitar termos com conotação operacional/regulada
+// ("execute a ordem", "ordem de compra/venda"). Tudo aqui é caminho sugerido —
+// a decisão final é sempre do usuário.
 const ACTION_STEPS: Record<string, string[]> = {
   rebalance: [
     "Acesse sua corretora ou banco de investimentos",
     "Vá até a seção de 'Carteira' ou 'Posições'",
     "Identifique o ativo mencionado na oportunidade",
-    "Avalie se deseja vender parte ou todo o ativo",
+    "Avalie se faz sentido reduzir parte ou todo o ativo",
     "Se for realocar, escolha ativos da classe sugerida",
-    "Execute a ordem de venda/compra na plataforma",
+    "Ajuste a posição na sua plataforma se decidir prosseguir",
     "Aguarde a liquidação (prazo varia: D+0 a D+3)",
   ],
   diversify: [
-    "Defina o valor que deseja investir na nova classe",
+    "Defina o valor que deseja destinar à nova classe",
     "Pesquise ativos da classe sugerida na sua corretora",
     "Compare taxas, liquidez e histórico dos ativos",
-    "Faça a aplicação pelo home broker ou app",
+    "Faça a aplicação pelo home broker ou app, se decidir prosseguir",
     "Registre a operação para acompanhamento futuro",
   ],
   reduce_risk: [
     "Identifique os ativos de maior risco na carteira",
-    "Avalie o quanto deseja migrar para renda fixa",
+    "Avalie o quanto faria sentido migrar para renda fixa",
     "Pesquise opções como Tesouro Selic, CDB ou LCI/LCA",
-    "Execute a migração gradualmente, não tudo de uma vez",
+    "Considere uma migração gradual em vez de fazer tudo de uma vez",
     "Acompanhe a nova composição no próximo diagnóstico",
   ],
   general: [
     "Analise a sugestão com calma antes de agir",
     "Acesse sua corretora ou banco de investimentos",
     "Localize os ativos mencionados na sugestão",
-    "Simule a operação antes de executar",
-    "Execute a ação e acompanhe os resultados",
+    "Simule a operação antes de tomar qualquer decisão",
+    "Se decidir prosseguir, acompanhe os resultados ao longo do tempo",
   ],
 };
 
@@ -54,7 +57,7 @@ export default function Recommendations() {
   const toggleSteps = (id: string) => {
     setExpandedSteps(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   };
@@ -71,7 +74,7 @@ export default function Recommendations() {
             <div className="space-y-1">
               <h1 className="font-heading text-xl font-bold text-foreground">Oportunidades disponíveis nos planos pagos</h1>
               <p className="text-sm text-muted-foreground">
-                Faça upgrade para liberar oportunidades personalizadas e o passo a passo de cada ação sugerida.
+                Faça upgrade para liberar oportunidades personalizadas e o passo a passo de cada sugestão.
               </p>
             </div>
             <Button onClick={() => navigate("/pricing")} className="gap-2">
@@ -97,7 +100,9 @@ export default function Recommendations() {
       <div className="max-w-3xl mx-auto space-y-4">
         <div>
           <h1 className="font-heading text-2xl font-bold text-foreground">Oportunidades de Melhoria</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Oportunidades identificadas para otimizar a performance da sua carteira — você decide o que fazer</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Caminhos sugeridos para otimizar a performance da sua carteira — você decide o que fazer.
+          </p>
         </div>
 
         {isLoading ? (
@@ -105,7 +110,9 @@ export default function Recommendations() {
         ) : recs.length === 0 ? (
           <div className="bg-card border border-border rounded-xl p-6 text-center space-y-3">
             <h2 className="font-heading text-lg font-semibold text-foreground">Nenhuma oportunidade identificada ainda</h2>
-            <p className="text-sm text-muted-foreground">Envie a performance da sua carteira e rode o diagnóstico para identificar oportunidades de melhoria.</p>
+            <p className="text-sm text-muted-foreground">
+              Envie a performance da sua carteira e rode o diagnóstico para identificar oportunidades.
+            </p>
             <Button onClick={() => navigate("/portfolio/import")} size="sm">Importar performance da carteira</Button>
           </div>
         ) : (
@@ -130,21 +137,23 @@ export default function Recommendations() {
                     <p className="text-sm text-muted-foreground mb-1">{rec.reason}</p>
                   )}
                   {rec.impact && (
-                    <p className="text-xs text-foreground/70"><strong>Impacto:</strong> {rec.impact}</p>
+                    <p className="text-xs text-foreground/70"><strong>Impacto possível:</strong> {rec.impact}</p>
                   )}
 
-                  {/* Action steps */}
+                  {/* Caminho sugerido — sem CTA isolado para o LUCIUS dentro do card */}
                   <button
                     onClick={() => toggleSteps(rec.id)}
                     className="flex items-center gap-1.5 text-xs text-primary font-medium mt-2 hover:underline"
                   >
                     <ListChecks className="w-3.5 h-3.5" />
-                    {showSteps ? "Ocultar passo a passo" : "Como aplicar na prática?"}
+                    {showSteps ? "Ocultar caminho sugerido" : "Como aplicar na prática?"}
                   </button>
 
                   {showSteps && (
                     <div className="mt-2 bg-secondary/50 rounded-lg p-3">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium mb-2">Passo a passo para executar</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium mb-2">
+                        Caminho sugerido
+                      </p>
                       <ol className="space-y-1.5">
                         {steps.map((step, i) => (
                           <li key={i} className="flex items-start gap-2 text-xs text-foreground">
@@ -155,12 +164,6 @@ export default function Recommendations() {
                           </li>
                         ))}
                       </ol>
-                      <p className="text-[10px] text-muted-foreground mt-2 italic">
-                        Dúvidas sobre como executar? Converse com o Lucius para orientação personalizada.
-                      </p>
-                      <Button variant="ghost" size="sm" className="mt-1 h-7 text-xs gap-1" onClick={() => navigate("/chat")}>
-                        Perguntar ao Lucius <ArrowRight className="w-3 h-3" />
-                      </Button>
                     </div>
                   )}
 
@@ -180,6 +183,22 @@ export default function Recommendations() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* CTA único ao LUCIUS — apenas no final da página */}
+        {recs.length > 0 && (
+          <div className="bg-card border border-primary/30 rounded-xl p-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <MessageCircle className="w-4 h-4" />
+              </div>
+              <div className="text-sm">
+                <p className="font-medium text-foreground">Dúvidas sobre alguma oportunidade?</p>
+                <p className="text-xs text-muted-foreground">Converse com o LUCIUS para entender melhor cada sugestão.</p>
+              </div>
+            </div>
+            <Button size="sm" onClick={() => navigate("/chat")}>Fale com o LUCIUS</Button>
           </div>
         )}
 

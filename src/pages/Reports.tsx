@@ -51,12 +51,19 @@ export default function Reports() {
             </div>
             <h2 className="font-heading text-lg font-semibold text-foreground">Relatórios PDF estão nos planos pagos</h2>
             <p className="text-sm text-muted-foreground">
-              Faça upgrade para gerar relatórios PDF com a identidade do LUCIUS, contendo diagnóstico, posições e oportunidades.
+              Faça upgrade para gerar relatórios PDF com a identidade do LUCIUS, contendo diagnóstico,
+              posições e somente as oportunidades que você aceitou.
             </p>
             <Button onClick={() => navigate("/pricing")} className="gap-2">
               <Sparkles className="w-4 h-4" /> Ver planos
             </Button>
           </div>
+        )}
+
+        {canGenerateReports && (
+          <p className="text-[11px] text-muted-foreground -mt-2">
+            O PDF inclui apenas as oportunidades que você marcou como aceitas.
+          </p>
         )}
 
         {canGenerateReports && !hasAnalysis && (

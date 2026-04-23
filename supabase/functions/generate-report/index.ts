@@ -272,14 +272,14 @@ serve(async (req) => {
     if (!auth) throw new Error("Sem autorização");
     const { data: u } = await supabase.auth.getUser(auth.replace("Bearer ", ""));
     const user = u.user;
-    if (!user?.email) throw new Error("Não autenticado");
+    if (!user) throw new Error("Não autenticado");
 
-    // Gating server-side: lê primeiro a tabela local (fonte de verdade via webhook),
-    // com fallback para Stripe caso ainda não tenha sincronizado.
+    // Gating server-side: tabela local é a fonte de verdade (sync via webhook).
+    // Fallback Stripe usa primeiro stripe_customer_id local; email só em último caso.
     let allowed = false;
     const { data: localSub } = await supabase
       .from("billing_subscriptions")
-      .select("plan_code, status, current_period_end")
+      .select("plan_code, status, current_period_end, stripe_customer_id")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -290,20 +290,24 @@ serve(async (req) => {
     }
 
     if (!allowed) {
-      // Fallback Stripe (caso webhook ainda não tenha rodado)
       const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
       if (stripeKey) {
         const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-        const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-        if (customers.data.length > 0) {
+        let customerId = localSub?.stripe_customer_id ?? null;
+        if (!customerId && user.email) {
+          console.log("[GENERATE-REPORT] FALLBACK: customer lookup by email");
+          const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+          customerId = customers.data[0]?.id ?? null;
+        }
+        if (customerId) {
           const subs = await stripe.subscriptions.list({
-            customer: customers.data[0].id,
+            customer: customerId,
             status: "active",
             limit: 1,
           });
           if (subs.data.length > 0) {
             const product = subs.data[0].items?.data?.[0]?.price?.product;
-            const productId = typeof product === "string" ? product : (product as any)?.id ?? null;
+            const productId = typeof product === "string" ? product : (product as { id?: string })?.id ?? null;
             allowed = !!productId && PAID_PRODUCT_IDS.has(productId);
           }
         }

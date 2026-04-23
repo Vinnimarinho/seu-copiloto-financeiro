@@ -36,12 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
+    // Após confirmar email, redireciona o usuário direto para a área autenticada;
+    // ProtectedRoute leva ao onboarding caso o profile ainda esteja incompleto.
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: fullName },
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: `${window.location.origin}/dashboard`,
       },
     });
     return { error: error as Error | null };
@@ -70,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within AuthProvider");

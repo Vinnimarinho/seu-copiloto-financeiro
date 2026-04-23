@@ -1,34 +1,23 @@
+// i18n inicializado apenas em PT-BR para o lançamento oficial.
+// Os JSONs de en/es são mantidos para evolução futura e cobertos em testes
+// (paridade de chaves), mas não são oferecidos ao usuário enquanto a tradução
+// real das telas principais não estiver completa.
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
 import ptBR from "./locales/pt-BR.json";
-import en from "./locales/en.json";
-import es from "./locales/es.json";
 
 export const SUPPORTED_LANGS = [
   { code: "pt-BR", label: "Português", flag: "🇧🇷" },
-  { code: "en", label: "English", flag: "🇺🇸" },
-  { code: "es", label: "Español", flag: "🇪🇸" },
 ] as const;
 
-i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    resources: {
-      "pt-BR": { translation: ptBR },
-      en: { translation: en },
-      es: { translation: es },
-    },
-    fallbackLng: "pt-BR",
-    supportedLngs: ["pt-BR", "en", "es"],
-    nonExplicitSupportedLngs: true,
-    interpolation: { escapeValue: false },
-    detection: {
-      order: ["localStorage", "navigator", "htmlTag"],
-      lookupLocalStorage: "lucius_lang",
-      caches: ["localStorage"],
-    },
-  });
+i18n.use(initReactI18next).init({
+  resources: {
+    "pt-BR": { translation: ptBR },
+  },
+  lng: "pt-BR",
+  fallbackLng: "pt-BR",
+  supportedLngs: ["pt-BR"],
+  interpolation: { escapeValue: false },
+});
 
 export default i18n;

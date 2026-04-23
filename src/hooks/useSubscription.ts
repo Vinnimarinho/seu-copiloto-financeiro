@@ -47,20 +47,29 @@ export function useSubscription() {
 
 export type Currency = "brl" | "usd" | "eur" | "auto";
 
+/**
+ * Inicia o checkout Stripe redirecionando o usuário na MESMA aba.
+ * Evita pop-ups e mantém continuidade do funil; ao concluir o pagamento
+ * o Stripe redireciona para /payment/success.
+ */
 export async function startCheckout(priceId: string, currency: Currency = "brl") {
   const { data, error } = await supabase.functions.invoke("create-checkout", {
     body: { priceId, currency },
   });
   if (error) throw error;
   if (data?.url) {
-    window.open(data.url, "_blank");
+    window.location.assign(data.url);
   }
 }
 
+/**
+ * Abre o portal de assinatura Stripe na MESMA aba. O return_url da sessão
+ * já aponta para /pricing, então o usuário volta naturalmente.
+ */
 export async function openCustomerPortal() {
   const { data, error } = await supabase.functions.invoke("customer-portal");
   if (error) throw error;
   if (data?.url) {
-    window.open(data.url, "_blank");
+    window.location.assign(data.url);
   }
 }

@@ -1,10 +1,23 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { User, Shield, Trash2, Download, Loader2, Crown } from "lucide-react";
+import { User, Shield, Trash2, Download, Loader2 } from "lucide-react";
 import { useProfile, useUpdateProfile, useInvestorProfile, useUpdateInvestorProfile } from "@/hooks/usePortfolio";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useNavigate } from "react-router-dom";
 
 const profileOptions = [
   { value: "conservador" as const, label: "Conservador" },
@@ -13,7 +26,8 @@ const profileOptions = [
 ];
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const { data: profile, isLoading } = useProfile();
   const { data: investorData } = useInvestorProfile();
   const updateProfile = useUpdateProfile();
@@ -21,6 +35,10 @@ export default function SettingsPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [riskTolerance, setRiskTolerance] = useState<"conservador" | "moderado" | "arrojado">("moderado");
+  const [exporting, setExporting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -38,6 +56,42 @@ export default function SettingsPage() {
   const handleSave = () => {
     updateProfile.mutate({ full_name: name, phone });
     updateInvestor.mutate({ risk_tolerance: riskTolerance });
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const { data, error } = await supabase.rpc("export_user_data");
+      if (error) throw error;
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `lucius-meus-dados-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success("Dados exportados com sucesso");
+    } catch (e) {
+      toast.error(`Erro ao exportar dados: ${(e as Error).message}`);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const { error } = await supabase.rpc("delete_user_account");
+      if (error) throw error;
+      toast.success("Conta excluída. Encerrando sessão...");
+      await signOut();
+      navigate("/", { replace: true });
+    } catch (e) {
+      toast.error(`Erro ao excluir conta: ${(e as Error).message}`);
+      setDeleting(false);
+    }
   };
 
   const isSaving = updateProfile.isPending || updateInvestor.isPending;
@@ -113,14 +167,63 @@ export default function SettingsPage() {
             <Shield className="w-5 h-5" /> Privacidade e dados
           </h2>
           <p className="text-sm text-muted-foreground">
-            Seus dados são protegidos e nunca usados para treinar modelos de IA. Você pode exportar ou excluir seus dados a qualquer momento.
+            Seus dados são protegidos e nunca usados para treinar modelos de IA. Você pode exportar
+            uma cópia completa em JSON ou excluir permanentemente sua conta a qualquer momento.
           </p>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm"><Download className="w-4 h-4" /> Exportar dados</Button>
-            <Button variant="ghost" size="sm" className="text-destructive"><Trash2 className="w-4 h-4" /> Excluir conta</Button>
+          <p className="text-xs text-muted-foreground">
+            Por obrigação fiscal e contábil, registros essenciais de cobrança ficam retidos por até 5 anos
+            (sem vínculo direto à sua identidade após exclusão).
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting}>
+              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              Exportar meus dados
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-destructive hover:text-destructive"
+              onClick={() => { setConfirmText(""); setShowDeleteDialog(true); }}
+            >
+              <Trash2 className="w-4 h-4" /> Excluir conta
+            </Button>
           </div>
         </div>
       </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir sua conta?</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <span className="block">
+                Esta ação é <strong>permanente</strong>. Todos os seus dados pessoais, carteiras,
+                análises, oportunidades e relatórios serão excluídos. Registros de cobrança são
+                mantidos por obrigação legal e desvinculados da sua identidade.
+              </span>
+              <span className="block">
+                Para confirmar, digite <strong>EXCLUIR</strong> abaixo:
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <input
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="EXCLUIR"
+            className="w-full h-10 px-3 rounded-lg border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={confirmText !== "EXCLUIR" || deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Excluir definitivamente"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppSidebar>
   );
 }

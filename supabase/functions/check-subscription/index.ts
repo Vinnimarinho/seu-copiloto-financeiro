@@ -1,92 +1,127 @@
+// check-subscription — fonte primária: tabela local billing_subscriptions
+// (sincronizada pelo webhook do Stripe). Stripe é apenas fallback defensivo
+// quando o webhook ainda não escreveu nada para esse usuário.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const logStep = (step: string, details?: any) => {
-  console.log(`[CHECK-SUBSCRIPTION] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`);
+const PRODUCT_BY_PLAN: Record<string, string> = {
+  essencial: "prod_UKvbpwN51mHV2B",
+  pro: "prod_UL9kxDPtv9xpCp",
 };
+
+const log = (step: string, details?: unknown) =>
+  console.log(`[CHECK-SUBSCRIPTION] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  const supabaseClient = createClient(
+  const supabase = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    { auth: { persistSession: false } }
+    { auth: { persistSession: false } },
   );
 
   try {
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header");
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    const { data: userData, error: userError } = await supabase.auth.getUser(
+      authHeader.replace("Bearer ", ""),
+    );
     if (userError) throw new Error(`Auth error: ${userError.message}`);
     const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated");
-    logStep("User authenticated", { email: user.email });
+    if (!user) throw new Error("User not authenticated");
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    // 1) Fonte primária: tabela local
+    const { data: localSub } = await supabase
+      .from("billing_subscriptions")
+      .select("plan_code, status, current_period_end, stripe_customer_id, stripe_subscription_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-    if (customers.data.length === 0) {
-      return new Response(JSON.stringify({ subscribed: false, product_id: null, subscription_end: null }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (localSub && (localSub.status === "active" || localSub.status === "trialing")) {
+      const notExpired =
+        !localSub.current_period_end || new Date(localSub.current_period_end) > new Date();
+      if (notExpired && localSub.plan_code && localSub.plan_code !== "free") {
+        const productId = PRODUCT_BY_PLAN[localSub.plan_code] ?? null;
+        return new Response(
+          JSON.stringify({
+            subscribed: true,
+            product_id: productId,
+            subscription_end: localSub.current_period_end,
+            source: "local",
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
     }
 
-    const customerId = customers.data[0].id;
-    const subscriptions = await stripe.subscriptions.list({
+    // 2) Fallback Stripe — apenas se a tabela local ainda não foi populada.
+    //    Tenta primeiro pelo customer_id local; só recorre a busca por email
+    //    como último recurso, com logging explícito.
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      return new Response(
+        JSON.stringify({ subscribed: false, product_id: null, subscription_end: null, source: "local-empty" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+
+    let customerId = localSub?.stripe_customer_id ?? null;
+    if (!customerId && user.email) {
+      log("FALLBACK: customer lookup by email", { email: user.email });
+      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+      customerId = customers.data[0]?.id ?? null;
+    }
+
+    if (!customerId) {
+      return new Response(
+        JSON.stringify({ subscribed: false, product_id: null, subscription_end: null, source: "no-customer" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    const subs = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
       limit: 1,
     });
 
-    const hasActiveSub = subscriptions.data.length > 0;
-    let productId: string | null = null;
-    let subscriptionEnd: string | null = null;
-
-    if (hasActiveSub) {
-      const sub = subscriptions.data[0];
-      logStep("Raw subscription data", {
-        current_period_end: sub.current_period_end,
-        type: typeof sub.current_period_end,
-        items: sub.items?.data?.[0]?.price?.product,
-      });
-
-      // Handle current_period_end safely - it could be a number (unix) or string (ISO)
-      const periodEnd = sub.current_period_end;
-      if (typeof periodEnd === "number" && periodEnd > 0) {
-        subscriptionEnd = new Date(periodEnd * 1000).toISOString();
-      } else if (typeof periodEnd === "string") {
-        subscriptionEnd = periodEnd;
-      }
-
-      const product = sub.items?.data?.[0]?.price?.product;
-      productId = typeof product === "string" ? product : (product as any)?.id ?? null;
-      logStep("Active subscription", { productId, subscriptionEnd });
+    if (subs.data.length === 0) {
+      return new Response(
+        JSON.stringify({ subscribed: false, product_id: null, subscription_end: null, source: "stripe" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
-    return new Response(JSON.stringify({
-      subscribed: hasActiveSub,
-      product_id: productId,
-      subscription_end: subscriptionEnd,
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    const sub = subs.data[0];
+    const periodEnd = sub.current_period_end as unknown as number;
+    const subscriptionEnd =
+      typeof periodEnd === "number" && periodEnd > 0
+        ? new Date(periodEnd * 1000).toISOString()
+        : null;
+    const product = sub.items?.data?.[0]?.price?.product;
+    const productId = typeof product === "string" ? product : (product as { id?: string })?.id ?? null;
+
+    return new Response(
+      JSON.stringify({
+        subscribed: true,
+        product_id: productId,
+        subscription_end: subscriptionEnd,
+        source: "stripe",
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
   } catch (error) {
-    logStep("ERROR", { message: error.message });
-    return new Response(JSON.stringify({ error: error.message }), {
+    log("ERROR", { message: (error as Error).message });
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
