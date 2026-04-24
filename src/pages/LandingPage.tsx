@@ -168,6 +168,7 @@ const pricingPlans = [
       "Diagnóstico avançado",
       "100 créditos de análise/mês",
       "Relatórios completos",
+      "Calculadora de aposentadoria passiva",
       "Simulações de cenário",
       "Histórico completo",
       "Suporte prioritário",
