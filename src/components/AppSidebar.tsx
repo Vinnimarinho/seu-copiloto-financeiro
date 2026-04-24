@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Target, ShieldCheck, Upload, FileText, History, Settings, CreditCard, LayoutDashboard, ChevronLeft, ChevronRight, LogOut, Shield, HelpCircle, Lock } from "lucide-react";
+import { Target, ShieldCheck, Upload, FileText, History, Settings, CreditCard, LayoutDashboard, ChevronLeft, ChevronRight, LogOut, Shield, HelpCircle, Lock, FlaskConical } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -27,6 +27,7 @@ const baseNav: NavItem[] = [
   { label: "Importar Carteira", href: "/portfolio/import", icon: <Upload className="w-5 h-5" /> },
   { label: "Diagnóstico", href: "/diagnosis", icon: <Target className="w-5 h-5" /> },
   { label: "Oportunidades", href: "/recommendations", icon: <ShieldCheck className="w-5 h-5" /> },
+  { label: "Simulações", href: "/simulations", icon: <FlaskConical className="w-5 h-5" />, badge: "PRO" },
   { label: "Relatórios", href: "/reports", icon: <FileText className="w-5 h-5" /> },
   { label: "Histórico", href: "/history", icon: <History className="w-5 h-5" /> },
 ];
