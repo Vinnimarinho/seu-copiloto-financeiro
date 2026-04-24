@@ -27,8 +27,10 @@ function corsFor(req: Request): Record<string, string> {
   };
 }
 
-const PAID_PRODUCT_IDS = new Set(["prod_UKvbpwN51mHV2B", "prod_UL9kxDPtv9xpCp"]);
-const PRO_PRODUCT_ID = "prod_UL9kxDPtv9xpCp";
+// Em LIVE, defina STRIPE_PRODUCT_ESSENCIAL e STRIPE_PRODUCT_PRO.
+const ESSENCIAL_PRODUCT_ID = Deno.env.get("STRIPE_PRODUCT_ESSENCIAL") || "prod_UKvbpwN51mHV2B";
+const PRO_PRODUCT_ID = Deno.env.get("STRIPE_PRODUCT_PRO") || "prod_UL9kxDPtv9xpCp";
+const PAID_PRODUCT_IDS = new Set([ESSENCIAL_PRODUCT_ID, PRO_PRODUCT_ID]);
 
 const FEATURES = {
   opportunities: "opportunities",
@@ -85,7 +87,7 @@ serve(async (req) => {
         if (notExpired) {
           isPaid = localSub.plan_code === "essencial" || localSub.plan_code === "pro";
           isPro = localSub.plan_code === "pro";
-          productId = isPro ? PRO_PRODUCT_ID : isPaid ? "prod_UKvbpwN51mHV2B" : null;
+          productId = isPro ? PRO_PRODUCT_ID : isPaid ? ESSENCIAL_PRODUCT_ID : null;
         }
       }
     }
