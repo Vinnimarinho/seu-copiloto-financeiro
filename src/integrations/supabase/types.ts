@@ -337,6 +337,7 @@ export type Database = {
           annual_rate: number
           code: string
           created_at: string
+          frequency: string
           id: string
           label: string
           metadata: Json
@@ -348,6 +349,7 @@ export type Database = {
           annual_rate: number
           code: string
           created_at?: string
+          frequency?: string
           id?: string
           label: string
           metadata?: Json
@@ -359,6 +361,7 @@ export type Database = {
           annual_rate?: number
           code?: string
           created_at?: string
+          frequency?: string
           id?: string
           label?: string
           metadata?: Json
