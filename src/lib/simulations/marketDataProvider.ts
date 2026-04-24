@@ -6,17 +6,16 @@
  *   - hipótese do usuário (vem do form)
  *   - premissas da simulação (geradas pelo motor)
  *
- * Hoje o provider padrão lê da tabela `market_reference_rates` (seed mockado
- * realista). Para plugar uma API externa real (BCB, B3, etc.) basta criar uma
- * nova implementação de `MarketDataProvider` e injetá-la em `getMarketProvider()`.
+ * Hoje rodamos um provider HÍBRIDO:
+ *   - SELIC e IPCA  → API pública do BCB (SGS 1178 e 433)
+ *   - CDI, TESOURO_POS, TESOURO_PRE, TESOURO_IPCA → tabela `market_reference_rates`
  *
- * 🔌 PONTO DE INTEGRAÇÃO API REAL:
- *   - Implementar `BcbMarketDataProvider` (ou similar) chamando a API
- *     pública do BCB / B3 e mapeando os mesmos `code` da tabela.
- *   - Trocar a constante `ACTIVE_PROVIDER` abaixo.
+ * Se o BCB falhar, o provider híbrido devolve apenas as taxas locais. Se o
+ * Supabase também falhar, caímos no STATIC_FALLBACK abaixo.
  */
 import { supabase } from "@/integrations/supabase/client";
 import type { MarketRate } from "./types";
+import { HybridMarketDataProvider } from "./HybridMarketDataProvider";
 
 export interface MarketDataProvider {
   name: string;
@@ -44,7 +43,7 @@ class SupabaseMockProvider implements MarketDataProvider {
   }
 }
 
-/** Fallback estático — usado se o Supabase falhar. */
+/** Fallback estático — usado se Supabase E BCB falharem. */
 const STATIC_FALLBACK: MarketRate[] = [
   { code: "CDI",          label: "CDI",                        annualRate: 0.1115, source: "fallback", referenceDate: "", metadata: {} },
   { code: "SELIC",        label: "Selic Meta",                 annualRate: 0.1125, source: "fallback", referenceDate: "", metadata: {} },
@@ -54,7 +53,9 @@ const STATIC_FALLBACK: MarketRate[] = [
   { code: "TESOURO_IPCA", label: "Tesouro IPCA+",              annualRate: 0.0625, source: "fallback", referenceDate: "", metadata: {} },
 ];
 
-const ACTIVE_PROVIDER: MarketDataProvider = new SupabaseMockProvider();
+const ACTIVE_PROVIDER: MarketDataProvider = new HybridMarketDataProvider(
+  new SupabaseMockProvider(),
+);
 
 export async function fetchMarketRates(): Promise<MarketRate[]> {
   try {
