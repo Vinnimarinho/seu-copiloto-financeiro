@@ -129,7 +129,7 @@ export default function Simulations() {
 
   const metrics: ComparisonMetric[] = useMemo(() => {
     if (!computed) return [];
-    const { baseline, scenario, delta } = computed;
+    const { baseline, scenario, delta } = computed.result;
     const fmtPct = (n: number) => `${(n * 100).toFixed(2)}%`;
     const fmtPP = (n: number) =>
       `${n > 0 ? "+" : ""}${n.toFixed(2)} pp`;
