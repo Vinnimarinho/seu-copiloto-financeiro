@@ -168,6 +168,7 @@ const pricingPlans = [
       "Diagnóstico avançado",
       "100 créditos de análise/mês",
       "Relatórios completos",
+      "Oportunidades de melhoria",
       "Calculadora de aposentadoria passiva",
       "Simulações de cenário",
       "Histórico completo",
@@ -530,11 +531,11 @@ export default function LandingPage() {
                   {plan.name}
                 </h3>
                 <p className="text-xs text-sidebar-foreground/55 mb-5">{plan.desc}</p>
-                <div className="mb-6 flex items-baseline gap-1">
-                  <span className="font-heading text-4xl font-bold text-sidebar-foreground">
+                <div className="mb-6 flex items-baseline gap-1 whitespace-nowrap">
+                  <span className="font-heading text-3xl font-bold text-sidebar-foreground">
                     {plan.price}
                   </span>
-                  <span className="text-sm text-sidebar-foreground/50">{plan.period}</span>
+                  <span className="text-xs text-sidebar-foreground/50">{plan.period}</span>
                 </div>
                 <ul className="space-y-2.5 mb-7 flex-1">
                   {plan.features.map((f) => (
