@@ -1,17 +1,17 @@
 // Edge Function: sync-cdi-tesouro-rates
 //
 // Atualiza CDI e TESOURO_{POS,PRE,IPCA} na tabela `market_reference_rates`
-// a partir de fontes oficiais:
-//   - CDI: SGS 12 (CDI diário) → anualizado em 252 dias úteis.
-//          Fallback: SGS 1178 (Selic Meta) - 0.10 p.p.
-//   - Tesouro Direto: API pública oficial
-//          https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json
+// usando fontes OFICIAIS:
+//   - CDI:     SGS 12 (CDI diário) → anualizado em 252 dias úteis.
+//              Fallback: SGS 1178 (Selic Meta) - 0.10 p.p.
+//   - Tesouro: CSV oficial do Tesouro Transparente (Tesouro Nacional)
+//              https://www.tesourotransparente.gov.br/ → "PrecoTaxaTesouroDireto.csv"
+//              Lido em streaming, mantendo apenas o registro mais recente por tipo.
 //
-// Princípios:
-//   - Se a fonte externa falhar, NÃO sobrescreve o valor existente.
-//   - Cada código é tratado de forma independente (uma falha não derruba os outros).
-//   - SELIC e IPCA NÃO são tocados aqui (são responsabilidade da função
-//     sync-market-reference-rates).
+// SELIC e IPCA NÃO são tocados aqui (são responsabilidade da função
+// sync-market-reference-rates).
+//
+// Resiliência: se uma fonte falhar, NÃO sobrescreve o valor existente na tabela.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -21,11 +21,11 @@ const corsHeaders = {
 };
 
 const BCB_BASE = "https://api.bcb.gov.br/dados/serie/bcdata.sgs";
-const TESOURO_URL =
-  "https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json";
+const TESOURO_CSV_URL =
+  "https://www.tesourotransparente.gov.br/ckan/dataset/df56aa42-484a-4a59-8184-7676580c81e3/resource/796d2059-14e9-44e3-80c9-2d9e30b405c1/download/PrecoTaxaTesouroDireto.csv";
 
 interface BcbPoint {
-  data: string; // dd/MM/yyyy
+  data: string;
   valor: string;
 }
 
@@ -38,7 +38,6 @@ function parseBcbDateToISO(ddmmyyyy: string): string {
 async function fetchBcbLast(sgsId: number, signal: AbortSignal): Promise<BcbPoint | null> {
   const url = `${BCB_BASE}.${sgsId}/dados/ultimos/1?formato=json`;
   const res = await fetch(url, {
-    method: "GET",
     headers: { Accept: "application/json" },
     signal,
   });
@@ -47,11 +46,6 @@ async function fetchBcbLast(sgsId: number, signal: AbortSignal): Promise<BcbPoin
   return Array.isArray(json) && json[0] ? json[0] : null;
 }
 
-/**
- * Calcula o CDI anualizado.
- * Tenta SGS 12 (CDI diário em %) → (1 + d/100)^252 - 1.
- * Se falhar, usa Selic Meta (SGS 1178) menos 0,10 p.p.
- */
 async function computeCdi(signal: AbortSignal): Promise<{
   annual_rate: number;
   reference_date: string;
@@ -71,14 +65,12 @@ async function computeCdi(signal: AbortSignal): Promise<{
       metadata: { sgs: 12, basis: "diario->anual-252", rawDailyPercent: daily },
     };
   } catch (e) {
-    // Fallback: Selic Meta - 0.10 p.p.
     const selicPoint = await fetchBcbLast(1178, signal);
     if (!selicPoint) throw new Error(`CDI fallback Selic indisponível (${(e as Error).message})`);
     const selicPct = Number(String(selicPoint.valor).replace(",", "."));
     if (!Number.isFinite(selicPct)) throw new Error("CDI fallback: Selic inválida");
-    const annual = (selicPct - 0.1) / 100;
     return {
-      annual_rate: annual,
+      annual_rate: (selicPct - 0.1) / 100,
       reference_date: parseBcbDateToISO(selicPoint.data),
       source: "derived-selic-minus-0.10",
       metadata: {
@@ -91,99 +83,148 @@ async function computeCdi(signal: AbortSignal): Promise<{
   }
 }
 
-interface TesouroBond {
-  TrsrBd?: {
-    nm?: string;          // ex.: "Tesouro Selic 2027"
-    featrs?: string;      // descrição
-    anulInvstmtRate?: number; // taxa anual de compra (%)
-    anulRedRate?: number;     // taxa anual de venda (%)
-    mtrtyDt?: string;     // ISO date vencimento
-  };
-}
+// ---------- Tesouro Direto via CSV oficial ----------
 
-interface TesouroResponse {
-  response?: {
-    TrsrBdTradgList?: TesouroBond[];
-    BizSts?: { dtTm?: string };
-  };
-}
+type TesouroCode = "TESOURO_POS" | "TESOURO_PRE" | "TESOURO_IPCA";
 
-interface TesouroNormalized {
-  code: "TESOURO_POS" | "TESOURO_PRE" | "TESOURO_IPCA";
-  annual_rate: number; // decimal
-  reference_date: string;
-  source: string;
+interface TesouroPick {
+  code: TesouroCode;
+  annual_rate: number;     // decimal
+  reference_date: string;  // ISO
   metadata: Record<string, unknown>;
 }
 
 /**
- * Classifica um título do Tesouro Direto pelo nome.
- * Usa a taxa de COMPRA (anulInvstmtRate) — é a que o investidor "trava" ao comprar.
+ * Normaliza "Tipo Titulo" para nosso código interno.
+ * Foco apenas nos títulos PUROS (sem "Juros Semestrais"), que são os
+ * representativos para investidor pessoa física padrão.
  */
-function classifyBond(name: string): TesouroNormalized["code"] | null {
-  const n = name.toLowerCase();
-  if (n.includes("selic")) return "TESOURO_POS";
-  if (n.includes("ipca")) return "TESOURO_IPCA";
-  if (n.includes("prefixado") || n.includes("prefixed")) return "TESOURO_PRE";
+function classifyTesouroType(tipo: string): TesouroCode | null {
+  const t = tipo.trim();
+  if (t === "Tesouro Selic") return "TESOURO_POS";
+  if (t === "Tesouro Prefixado") return "TESOURO_PRE";
+  if (t === "Tesouro IPCA+") return "TESOURO_IPCA";
   return null;
 }
 
-async function fetchTesouroRates(signal: AbortSignal): Promise<{
-  rates: TesouroNormalized[];
-  fetchedAt: string;
-}> {
-  const res = await fetch(TESOURO_URL, {
-    method: "GET",
-    headers: { Accept: "application/json" },
+/** dd/MM/yyyy → ISO yyyy-MM-dd. Retorna "" se inválido. */
+function brDateToIso(s: string): string {
+  const [d, m, y] = s.split("/");
+  if (!d || !m || !y) return "";
+  return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+}
+
+/**
+ * Faz streaming do CSV grande do Tesouro Transparente e mantém em memória
+ * APENAS o registro com Data Base mais recente para cada tipo, e dentro do
+ * mesmo dia, o de maior vencimento (mais "longo").
+ */
+async function fetchTesouroRates(signal: AbortSignal): Promise<TesouroPick[]> {
+  const res = await fetch(TESOURO_CSV_URL, {
+    headers: { Accept: "text/csv" },
     signal,
   });
-  if (!res.ok) throw new Error(`Tesouro HTTP ${res.status}`);
-  const json = (await res.json()) as TesouroResponse;
-  const list = json?.response?.TrsrBdTradgList ?? [];
-  if (list.length === 0) throw new Error("Tesouro: lista vazia");
+  if (!res.ok) throw new Error(`Tesouro CSV HTTP ${res.status}`);
+  if (!res.body) throw new Error("Tesouro CSV: body vazio");
 
-  // Para cada categoria, escolhe o título com MAIOR vencimento (mais "longo"),
-  // que costuma ser o mais ofertado/representativo.
-  type Bucket = { rate: number; maturity: string; name: string };
-  const buckets: Partial<Record<TesouroNormalized["code"], Bucket>> = {};
+  type Best = {
+    rate: number;
+    refDateIso: string;     // Data Base
+    maturityIso: string;    // Data Vencimento
+    rawRow: string;
+  };
+  const best: Partial<Record<TesouroCode, Best>> = {};
 
-  for (const item of list) {
-    const bond = item?.TrsrBd;
-    if (!bond?.nm) continue;
-    const rate = Number(bond.anulInvstmtRate);
-    if (!Number.isFinite(rate) || rate <= 0) continue;
-    const code = classifyBond(bond.nm);
-    if (!code) continue;
-    const maturity = String(bond.mtrtyDt ?? "").slice(0, 10);
-    const cur = buckets[code];
-    if (!cur || maturity > cur.maturity) {
-      buckets[code] = { rate, maturity, name: bond.nm };
+  const reader = res.body
+    .pipeThrough(new TextDecoderStream("utf-8"))
+    .getReader();
+
+  let buffer = "";
+  let headerSeen = false;
+  let colTipo = -1;
+  let colVenc = -1;
+  let colDataBase = -1;
+  let colTaxaVenda = -1;
+
+  const processLine = (line: string) => {
+    if (!line) return;
+    if (!headerSeen) {
+      const headers = line.split(";").map((h) => h.trim());
+      colTipo = headers.indexOf("Tipo Titulo");
+      colVenc = headers.indexOf("Data Vencimento");
+      colDataBase = headers.indexOf("Data Base");
+      colTaxaVenda = headers.indexOf("Taxa Venda Manha");
+      if ([colTipo, colVenc, colDataBase, colTaxaVenda].some((i) => i < 0)) {
+        throw new Error("Tesouro CSV: cabeçalho inesperado");
+      }
+      headerSeen = true;
+      return;
     }
+    const cols = line.split(";");
+    if (cols.length < 5) return;
+    const code = classifyTesouroType(cols[colTipo] ?? "");
+    if (!code) return;
+    const refDateIso = brDateToIso(cols[colDataBase] ?? "");
+    if (!refDateIso) return;
+    const maturityIso = brDateToIso(cols[colVenc] ?? "");
+    const rate = Number(String(cols[colTaxaVenda] ?? "").replace(",", "."));
+    if (!Number.isFinite(rate)) return;
+
+    const cur = best[code];
+    if (
+      !cur ||
+      refDateIso > cur.refDateIso ||
+      (refDateIso === cur.refDateIso && maturityIso > cur.maturityIso)
+    ) {
+      best[code] = { rate, refDateIso, maturityIso, rawRow: line };
+    }
+  };
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += value;
+      let nl = buffer.indexOf("\n");
+      while (nl !== -1) {
+        const line = buffer.slice(0, nl).replace(/\r$/, "");
+        processLine(line);
+        buffer = buffer.slice(nl + 1);
+        nl = buffer.indexOf("\n");
+      }
+    }
+    if (buffer) processLine(buffer);
+  } finally {
+    try { await reader.cancel(); } catch { /* noop */ }
   }
 
-  const fetchedAtIso = (json?.response?.BizSts?.dtTm ?? new Date().toISOString()).slice(0, 10);
-
-  const out: TesouroNormalized[] = [];
-  (["TESOURO_POS", "TESOURO_PRE", "TESOURO_IPCA"] as const).forEach((code) => {
-    const b = buckets[code];
-    if (!b) return;
+  const out: TesouroPick[] = [];
+  for (const code of ["TESOURO_POS", "TESOURO_PRE", "TESOURO_IPCA"] as const) {
+    const b = best[code];
+    if (!b) continue;
     out.push({
       code,
       annual_rate: b.rate / 100,
-      reference_date: fetchedAtIso,
-      source: "tesouro-direto",
+      reference_date: b.refDateIso,
       metadata: {
-        bondName: b.name,
-        maturity: b.maturity,
+        maturity: b.maturityIso,
         rawAnnualPercent: b.rate,
-        basis: "anual_compra",
+        basis: "anual_taxa_venda_manha",
       },
     });
-  });
-
-  if (out.length === 0) throw new Error("Tesouro: nenhum título classificável");
-  return { rates: out, fetchedAt: fetchedAtIso };
+  }
+  if (out.length === 0) throw new Error("Tesouro CSV: nenhum título classificável");
+  return out;
 }
+
+// ---------- Upsert ----------
+
+const LABELS: Record<string, string> = {
+  CDI: "CDI",
+  TESOURO_POS: "Tesouro Selic (pós-fixado)",
+  TESOURO_PRE: "Tesouro Prefixado",
+  TESOURO_IPCA: "Tesouro IPCA+",
+};
 
 interface UpsertRow {
   code: string;
@@ -194,13 +235,6 @@ interface UpsertRow {
   frequency: string;
   metadata: Record<string, unknown>;
 }
-
-const LABELS: Record<string, string> = {
-  CDI: "CDI",
-  TESOURO_POS: "Tesouro Selic (pós-fixado)",
-  TESOURO_PRE: "Tesouro Prefixado",
-  TESOURO_IPCA: "Tesouro IPCA+",
-};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -220,18 +254,17 @@ Deno.serve(async (req) => {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  // Timeout generoso (CSV do Tesouro tem ~14MB).
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
+  const timeout = setTimeout(() => controller.abort(), 45000);
 
   const results: Array<
     | { code: string; status: "updated"; annual_rate: number; reference_date: string; source: string }
-    | { code: string; status: "skipped"; reason: string }
     | { code: string; status: "error"; error: string }
   > = [];
-
   const rowsToUpsert: UpsertRow[] = [];
 
-  // --- CDI ---
+  // CDI
   try {
     const cdi = await computeCdi(controller.signal);
     rowsToUpsert.push({
@@ -251,27 +284,27 @@ Deno.serve(async (req) => {
     });
   }
 
-  // --- TESOURO_* ---
+  // TESOURO_*
   try {
-    const { rates } = await fetchTesouroRates(controller.signal);
-    const got = new Set(rates.map((r) => r.code));
-    for (const r of rates) {
+    const picks = await fetchTesouroRates(controller.signal);
+    for (const p of picks) {
       rowsToUpsert.push({
-        code: r.code,
-        label: LABELS[r.code],
-        annual_rate: r.annual_rate,
-        source: r.source,
-        reference_date: r.reference_date,
+        code: p.code,
+        label: LABELS[p.code],
+        annual_rate: p.annual_rate,
+        source: "tesouro-transparente-csv",
+        reference_date: p.reference_date,
         frequency: "daily",
-        metadata: r.metadata,
+        metadata: p.metadata,
       });
     }
+    const got = new Set(picks.map((p) => p.code));
     for (const code of ["TESOURO_POS", "TESOURO_PRE", "TESOURO_IPCA"] as const) {
       if (!got.has(code)) {
         results.push({
           code,
-          status: "skipped",
-          reason: "título não retornado pelo Tesouro Direto hoje",
+          status: "error",
+          error: "título não encontrado no CSV oficial",
         });
       }
     }
@@ -285,8 +318,8 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Upsert apenas o que conseguimos coletar (preserva valores antigos para os
-  // códigos que falharam).
+  // Upsert apenas o que conseguimos coletar.
+  // Códigos que falharam mantêm o valor anterior na tabela (resiliência).
   for (const row of rowsToUpsert) {
     const { error } = await admin
       .from("market_reference_rates")
@@ -309,7 +342,7 @@ Deno.serve(async (req) => {
 
   clearTimeout(timeout);
 
-  const ok = results.every((r) => r.status === "updated" || r.status === "skipped");
+  const ok = results.every((r) => r.status === "updated");
   return new Response(
     JSON.stringify({ ok, results, ran_at: new Date().toISOString() }),
     {
