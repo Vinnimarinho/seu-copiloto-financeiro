@@ -150,6 +150,7 @@ const pricingPlans = [
       "20 créditos de análise/mês",
       "Relatórios em PDF",
       "Oportunidades de melhoria",
+      "Calculadora de aposentadoria passiva",
       "Histórico de 12 meses",
     ],
     cta: "Assinar Essencial",
