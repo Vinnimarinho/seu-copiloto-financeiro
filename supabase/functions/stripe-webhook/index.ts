@@ -5,9 +5,15 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
+// Mapeia productId Stripe -> plan_code interno.
+// Em LIVE, defina STRIPE_PRODUCT_ESSENCIAL e STRIPE_PRODUCT_PRO com os IDs
+// reais do ambiente live. Os defaults abaixo são os IDs históricos (test/legacy)
+// e existem só para não quebrar quando os envs ainda não estão preenchidos.
+const PROD_ESSENCIAL = Deno.env.get("STRIPE_PRODUCT_ESSENCIAL") || "prod_UKvbpwN51mHV2B";
+const PROD_PRO = Deno.env.get("STRIPE_PRODUCT_PRO") || "prod_UL9kxDPtv9xpCp";
 const PLAN_BY_PRODUCT: Record<string, string> = {
-  prod_UKvbpwN51mHV2B: "essencial",
-  prod_UL9kxDPtv9xpCp: "pro",
+  [PROD_ESSENCIAL]: "essencial",
+  [PROD_PRO]: "pro",
 };
 
 const log = (step: string, details?: unknown) =>
@@ -83,16 +89,13 @@ serve(async (req) => {
         userId = existing?.user_id ?? null;
       }
       if (!userId) {
-        // Fallback: lookup do customer no Stripe -> email -> auth user
-        const customer = await stripe.customers.retrieve(customerId);
-        const email = !("deleted" in customer) ? customer.email : null;
-        if (email) {
-          const { data: users } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-          userId = users?.users?.find((u) => u.email === email)?.id ?? null;
-        }
-      }
-      if (!userId) {
-        log("Could not resolve user_id for subscription", { sub: sub.id });
+        // LIVE: sem fallback por email. user_id deve vir do client_reference_id
+        // ou metadata.user_id setados pelo create-checkout. Se faltar, é bug
+        // de origem — registramos e abortamos sem corromper a tabela local.
+        log("Could not resolve user_id for subscription (no client_reference_id/metadata/local match)", {
+          sub: sub.id,
+          customer: customerId,
+        });
         return;
       }
 

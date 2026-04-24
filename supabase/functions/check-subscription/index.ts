@@ -25,9 +25,10 @@ function corsFor(req: Request): Record<string, string> {
   };
 }
 
+// Em LIVE, defina STRIPE_PRODUCT_ESSENCIAL/STRIPE_PRODUCT_PRO com os product IDs reais.
 const PRODUCT_BY_PLAN: Record<string, string> = {
-  essencial: "prod_UKvbpwN51mHV2B",
-  pro: "prod_UL9kxDPtv9xpCp",
+  essencial: Deno.env.get("STRIPE_PRODUCT_ESSENCIAL") || "prod_UKvbpwN51mHV2B",
+  pro: Deno.env.get("STRIPE_PRODUCT_PRO") || "prod_UL9kxDPtv9xpCp",
 };
 
 const log = (step: string, details?: unknown) =>
