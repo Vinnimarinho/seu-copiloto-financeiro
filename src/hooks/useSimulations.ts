@@ -53,21 +53,22 @@ export function useSaveSimulation() {
   return useMutation({
     mutationFn: async (input: SaveSimulationInput) => {
       if (!user) throw new Error("Not authenticated");
+      const payload = {
+        user_id: user.id,
+        portfolio_id: input.portfolio_id ?? null,
+        name: input.name,
+        mode: input.mode,
+        preset: input.preset ?? null,
+        user_inputs: input.user_inputs as unknown as Json,
+        assumptions: input.assumptions as unknown as Json,
+        baseline_snapshot: input.baseline_snapshot as unknown as Json,
+        scenario_snapshot: input.scenario_snapshot as unknown as Json,
+        results: input.results as unknown as Json,
+        notes: input.notes ?? null,
+      };
       const { data, error } = await supabase
         .from("scenario_simulations")
-        .insert({
-          user_id: user.id,
-          portfolio_id: input.portfolio_id ?? null,
-          name: input.name,
-          mode: input.mode,
-          preset: input.preset ?? null,
-          user_inputs: input.user_inputs as unknown as Record<string, unknown>,
-          assumptions: input.assumptions as unknown as Record<string, unknown>,
-          baseline_snapshot: input.baseline_snapshot as unknown as Record<string, unknown>,
-          scenario_snapshot: input.scenario_snapshot as unknown as Record<string, unknown>,
-          results: input.results as unknown as Record<string, unknown>,
-          notes: input.notes ?? null,
-        })
+        .insert(payload)
         .select("id")
         .single();
       if (error) throw error;
