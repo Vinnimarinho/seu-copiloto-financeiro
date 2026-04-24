@@ -48,18 +48,19 @@ const testimonials = [
 
 export function Testimonials() {
   return (
-    <section className="py-20 bg-background">
-      <div className="container mx-auto px-6">
+    <section className="py-24 md:py-32 bg-obsidian relative">
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] gradient-emerald-glow blur-3xl opacity-30 pointer-events-none" />
+      <div className="container mx-auto px-6 relative">
         <div className="text-center mb-14">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-4">
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-dark text-[11px] uppercase tracking-[0.18em] text-gold font-medium mb-5">
             <Star className="w-3 h-3 fill-current" />
             Avaliação média 4.9/5
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-            O que nossos usuários estão dizendo
+          <h2 className="font-heading text-3xl md:text-5xl font-bold text-sidebar-foreground mb-4 text-balance">
+            A leitura que <span className="text-gradient-emerald">eles esperavam</span>.
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Investidores reais usando o Lucius para entender e melhorar suas carteiras.
+          <p className="text-sidebar-foreground/60 text-base md:text-lg max-w-2xl mx-auto">
+            Investidores reais usando o LUCIUS para enxergar a própria carteira com clareza.
           </p>
         </div>
 
@@ -71,32 +72,31 @@ export function Testimonials() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: (i % 3) * 0.1, duration: 0.4 }}
-              className="bg-card rounded-xl border border-border p-6 shadow-card hover:shadow-card-hover transition-all duration-300 relative"
+              className="glass-dark rounded-xl border-emerald-subtle border p-6 hover:border-emerald-glow/40 hover:shadow-glow-emerald transition-all duration-300 relative"
             >
-              <Quote className="absolute top-4 right-4 w-6 h-6 text-primary/15" />
+              <Quote className="absolute top-4 right-4 w-6 h-6 text-emerald-glow/15" />
               <div className="flex gap-0.5 mb-3">
                 {Array.from({ length: t.rating }).map((_, idx) => (
-                  <Star key={idx} className="w-4 h-4 fill-primary text-primary" />
+                  <Star key={idx} className="w-3.5 h-3.5 fill-gold text-gold" />
                 ))}
               </div>
-              <p className="text-sm text-foreground leading-relaxed mb-5">
-                "{t.text}"
-              </p>
-              <div className="flex items-center gap-3 pt-4 border-t border-border">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-emerald-light flex items-center justify-center text-primary-foreground font-heading font-semibold text-sm">
+              <p className="text-sm text-sidebar-foreground/85 leading-relaxed mb-5">"{t.text}"</p>
+              <div className="flex items-center gap-3 pt-4 border-t border-emerald-subtle">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-brand to-emerald-glow flex items-center justify-center text-primary-foreground font-heading font-semibold text-sm">
                   {t.avatar}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                  <p className="text-sm font-semibold text-sidebar-foreground">{t.name}</p>
+                  <p className="text-xs text-sidebar-foreground/50">{t.role}</p>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
 
-        <p className="text-center text-xs text-muted-foreground/70 mt-10 max-w-xl mx-auto italic">
-          Depoimentos representativos de usuários reais. Resultados individuais variam — o Lucius é uma ferramenta educacional e não garante rentabilidade.
+        <p className="text-center text-[11px] text-sidebar-foreground/35 mt-12 max-w-xl mx-auto italic">
+          Depoimentos representativos de usuários reais. Resultados individuais variam — o LUCIUS é
+          uma ferramenta educacional e não garante rentabilidade.
         </p>
       </div>
     </section>

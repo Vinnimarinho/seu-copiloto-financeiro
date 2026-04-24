@@ -52,18 +52,29 @@
     --info: 200 70% 45%;
     --info-foreground: 0 0% 100%;
 
-    /* Slytherin-inspired */
+    /* Slytherin-inspired aristocratic palette */
     --silver: 160 8% 72%;
     --emerald: 153 60% 32%;
     --emerald-light: 153 45% 60%;
+    --emerald-glow: 153 70% 50%;
     --serpent: 153 70% 25%;
+    --gold: 42 55% 62%;
+    --gold-soft: 42 40% 50%;
+    --graphite: 160 12% 16%;
+    --obsidian: 160 18% 5%;
 
-    --gradient-primary: hsl(153, 60%, 32%);
-    --gradient-accent: hsl(45, 30%, 52%);
+    --gradient-primary: linear-gradient(135deg, hsl(153 70% 25%) 0%, hsl(153 60% 38%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(42 55% 62%) 0%, hsl(42 40% 45%) 100%);
+    --gradient-dark: linear-gradient(180deg, hsl(160 18% 5%) 0%, hsl(160 15% 8%) 100%);
+    --gradient-glass: linear-gradient(135deg, hsl(160 15% 10% / 0.6) 0%, hsl(160 18% 5% / 0.4) 100%);
+    --gradient-emerald-glow: radial-gradient(ellipse at center, hsl(153 70% 35% / 0.25) 0%, transparent 70%);
 
     --shadow-card: 0 1px 3px 0 hsl(160 20% 8% / 0.05), 0 1px 2px -1px hsl(160 20% 8% / 0.04);
     --shadow-card-hover: 0 4px 12px 0 hsl(153 60% 32% / 0.08), 0 2px 4px -2px hsl(160 20% 8% / 0.04);
     --shadow-elevated: 0 10px 30px -5px hsl(153 60% 32% / 0.15), 0 4px 8px -2px hsl(160 20% 8% / 0.06);
+    --shadow-premium: 0 20px 60px -20px hsl(153 70% 25% / 0.4), 0 8px 24px -8px hsl(160 18% 5% / 0.6);
+    --shadow-glow-emerald: 0 0 40px hsl(153 70% 40% / 0.25), 0 0 80px hsl(153 60% 30% / 0.15);
+    --shadow-glow-gold: 0 0 24px hsl(42 55% 62% / 0.25);
 
     --font-heading: 'Space Grotesk', system-ui, sans-serif;
     --font-body: 'DM Sans', system-ui, sans-serif;
@@ -147,5 +158,80 @@
 
   .text-emerald-brand {
     color: hsl(var(--emerald));
+  }
+
+  .text-gold {
+    color: hsl(var(--gold));
+  }
+
+  .bg-obsidian {
+    background-color: hsl(var(--obsidian));
+  }
+
+  .bg-graphite {
+    background-color: hsl(var(--graphite));
+  }
+
+  .gradient-dark {
+    background: var(--gradient-dark);
+  }
+
+  .gradient-glass {
+    background: var(--gradient-glass);
+  }
+
+  .gradient-emerald-glow {
+    background: var(--gradient-emerald-glow);
+  }
+
+  .shadow-premium {
+    box-shadow: var(--shadow-premium);
+  }
+
+  .shadow-glow-emerald {
+    box-shadow: var(--shadow-glow-emerald);
+  }
+
+  .shadow-glow-gold {
+    box-shadow: var(--shadow-glow-gold);
+  }
+
+  .glass-dark {
+    background: hsl(160 15% 8% / 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(160 12% 18% / 0.8);
+  }
+
+  .border-emerald-subtle {
+    border-color: hsl(153 40% 25% / 0.4);
+  }
+
+  .ring-gold-subtle {
+    box-shadow: inset 0 0 0 1px hsl(42 55% 62% / 0.2);
+  }
+
+  .text-gradient-emerald {
+    background: linear-gradient(135deg, hsl(153 55% 65%) 0%, hsl(153 70% 45%) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, hsl(42 65% 72%) 0%, hsl(42 55% 55%) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .noise-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    pointer-events: none;
+    mix-blend-mode: overlay;
   }
 }
