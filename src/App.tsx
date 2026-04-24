@@ -27,6 +27,7 @@ import Admin from "./pages/Admin";
 import Compliance from "./pages/Compliance";
 import ChatLucius from "./pages/ChatLucius";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import Simulations from "./pages/Simulations";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/recommendations" element={<ProtectedRoute><Recommendations /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><ChatLucius /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+            <Route path="/simulations" element={<ProtectedRoute><Simulations /></ProtectedRoute>} />
             <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />

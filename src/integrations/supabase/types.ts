@@ -332,6 +332,42 @@ export type Database = {
         }
         Relationships: []
       }
+      market_reference_rates: {
+        Row: {
+          annual_rate: number
+          code: string
+          created_at: string
+          id: string
+          label: string
+          metadata: Json
+          reference_date: string
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          annual_rate: number
+          code: string
+          created_at?: string
+          id?: string
+          label: string
+          metadata?: Json
+          reference_date?: string
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          annual_rate?: number
+          code?: string
+          created_at?: string
+          id?: string
+          label?: string
+          metadata?: Json
+          reference_date?: string
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portfolio_positions: {
         Row: {
           asset_class: string
@@ -587,6 +623,57 @@ export type Database = {
           },
         ]
       }
+      scenario_simulations: {
+        Row: {
+          assumptions: Json
+          baseline_snapshot: Json
+          created_at: string
+          id: string
+          mode: Database["public"]["Enums"]["simulation_mode"]
+          name: string
+          notes: string | null
+          portfolio_id: string | null
+          preset: string | null
+          results: Json
+          scenario_snapshot: Json
+          updated_at: string
+          user_id: string
+          user_inputs: Json
+        }
+        Insert: {
+          assumptions?: Json
+          baseline_snapshot?: Json
+          created_at?: string
+          id?: string
+          mode?: Database["public"]["Enums"]["simulation_mode"]
+          name?: string
+          notes?: string | null
+          portfolio_id?: string | null
+          preset?: string | null
+          results?: Json
+          scenario_snapshot?: Json
+          updated_at?: string
+          user_id: string
+          user_inputs?: Json
+        }
+        Update: {
+          assumptions?: Json
+          baseline_snapshot?: Json
+          created_at?: string
+          id?: string
+          mode?: Database["public"]["Enums"]["simulation_mode"]
+          name?: string
+          notes?: string | null
+          portfolio_id?: string | null
+          preset?: string | null
+          results?: Json
+          scenario_snapshot?: Json
+          updated_at?: string
+          user_id?: string
+          user_inputs?: Json
+        }
+        Relationships: []
+      }
       stripe_events_processed: {
         Row: {
           payload_hash: string | null
@@ -698,6 +785,7 @@ export type Database = {
       investor_risk_tolerance: "conservador" | "moderado" | "arrojado"
       recommendation_status: "pending" | "accepted" | "postponed" | "discarded"
       report_status: "generating" | "generated" | "error"
+      simulation_mode: "swap" | "rebalance" | "concentration"
       subscription_plan: "free" | "essencial" | "pro"
       subscription_status: "active" | "canceled" | "past_due" | "trialing"
     }
@@ -835,6 +923,7 @@ export const Constants = {
       investor_risk_tolerance: ["conservador", "moderado", "arrojado"],
       recommendation_status: ["pending", "accepted", "postponed", "discarded"],
       report_status: ["generating", "generated", "error"],
+      simulation_mode: ["swap", "rebalance", "concentration"],
       subscription_plan: ["free", "essencial", "pro"],
       subscription_status: ["active", "canceled", "past_due", "trialing"],
     },

@@ -1,0 +1,71 @@
+/**
+ * Provider-agnostic de dados de mercado.
+ *
+ * A intenção é separar claramente:
+ *   - dado real-time / referência (vem do provider)
+ *   - hipótese do usuário (vem do form)
+ *   - premissas da simulação (geradas pelo motor)
+ *
+ * Hoje o provider padrão lê da tabela `market_reference_rates` (seed mockado
+ * realista). Para plugar uma API externa real (BCB, B3, etc.) basta criar uma
+ * nova implementação de `MarketDataProvider` e injetá-la em `getMarketProvider()`.
+ *
+ * 🔌 PONTO DE INTEGRAÇÃO API REAL:
+ *   - Implementar `BcbMarketDataProvider` (ou similar) chamando a API
+ *     pública do BCB / B3 e mapeando os mesmos `code` da tabela.
+ *   - Trocar a constante `ACTIVE_PROVIDER` abaixo.
+ */
+import { supabase } from "@/integrations/supabase/client";
+import type { MarketRate } from "./types";
+
+export interface MarketDataProvider {
+  name: string;
+  fetchRates(): Promise<MarketRate[]>;
+}
+
+class SupabaseMockProvider implements MarketDataProvider {
+  name = "supabase-mock";
+
+  async fetchRates(): Promise<MarketRate[]> {
+    const { data, error } = await supabase
+      .from("market_reference_rates")
+      .select("code, label, annual_rate, source, reference_date, metadata");
+
+    if (error) throw error;
+
+    return (data ?? []).map((r) => ({
+      code: r.code,
+      label: r.label,
+      annualRate: Number(r.annual_rate),
+      source: r.source,
+      referenceDate: r.reference_date,
+      metadata: (r.metadata as Record<string, unknown>) ?? {},
+    }));
+  }
+}
+
+/** Fallback estático — usado se o Supabase falhar. */
+const STATIC_FALLBACK: MarketRate[] = [
+  { code: "CDI",          label: "CDI",                        annualRate: 0.1115, source: "fallback", referenceDate: "", metadata: {} },
+  { code: "SELIC",        label: "Selic Meta",                 annualRate: 0.1125, source: "fallback", referenceDate: "", metadata: {} },
+  { code: "IPCA",         label: "IPCA (12m)",                 annualRate: 0.0450, source: "fallback", referenceDate: "", metadata: {} },
+  { code: "TESOURO_POS",  label: "Tesouro Selic (pós-fixado)", annualRate: 0.1110, source: "fallback", referenceDate: "", metadata: {} },
+  { code: "TESOURO_PRE",  label: "Tesouro Prefixado",          annualRate: 0.1180, source: "fallback", referenceDate: "", metadata: {} },
+  { code: "TESOURO_IPCA", label: "Tesouro IPCA+",              annualRate: 0.0625, source: "fallback", referenceDate: "", metadata: {} },
+];
+
+const ACTIVE_PROVIDER: MarketDataProvider = new SupabaseMockProvider();
+
+export async function fetchMarketRates(): Promise<MarketRate[]> {
+  try {
+    const rates = await ACTIVE_PROVIDER.fetchRates();
+    if (rates.length > 0) return rates;
+    return STATIC_FALLBACK;
+  } catch {
+    return STATIC_FALLBACK;
+  }
+}
+
+export function getRate(rates: MarketRate[], code: string): MarketRate | undefined {
+  return rates.find((r) => r.code === code);
+}
