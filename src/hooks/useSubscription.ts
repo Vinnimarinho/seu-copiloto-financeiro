@@ -2,18 +2,26 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Stripe product/price mapping
+// Mapeamento Stripe product/price.
+// LIVE: defina VITE_STRIPE_PRODUCT_ESSENCIAL/_PRO e VITE_STRIPE_PRICE_ESSENCIAL_BRL/_PRO_BRL
+// no ambiente. Os defaults abaixo são os IDs históricos para retrocompatibilidade
+// e não devem ser tratados como verdade em produção.
+const PROD_ESSENCIAL = import.meta.env.VITE_STRIPE_PRODUCT_ESSENCIAL || "prod_UKvbpwN51mHV2B";
+const PROD_PRO = import.meta.env.VITE_STRIPE_PRODUCT_PRO || "prod_UL9kxDPtv9xpCp";
+const PRICE_ESSENCIAL = import.meta.env.VITE_STRIPE_PRICE_ESSENCIAL_BRL || "price_1TMFkWGlgACWhSKnOIdAPcmq";
+const PRICE_PRO = import.meta.env.VITE_STRIPE_PRICE_PRO_BRL || "price_1TMTQjGlgACWhSKnnSTH435t";
+
 export const PLANS = {
-  free: { name: "Gratuito", product_id: null, price_id: null },
+  free: { name: "Gratuito", product_id: null as string | null, price_id: null as string | null },
   essencial: {
     name: "Essencial",
-    product_id: "prod_UKvbpwN51mHV2B",
-    price_id: "price_1TMFkWGlgACWhSKnOIdAPcmq",
+    product_id: PROD_ESSENCIAL,
+    price_id: PRICE_ESSENCIAL,
   },
   pro: {
     name: "Pro",
-    product_id: "prod_UL9kxDPtv9xpCp",
-    price_id: "price_1TMTQjGlgACWhSKnnSTH435t",
+    product_id: PROD_PRO,
+    price_id: PRICE_PRO,
   },
 } as const;
 
