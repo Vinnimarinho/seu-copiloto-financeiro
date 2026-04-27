@@ -636,6 +636,14 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="flex items-center gap-6 text-xs text-sidebar-foreground/45">
+              <a
+                href="https://blog.luciusinvest.com.br"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-sidebar-foreground transition-colors"
+              >
+                Blog
+              </a>
               <Link to="/terms" className="hover:text-sidebar-foreground transition-colors">
                 Termos
               </Link>
