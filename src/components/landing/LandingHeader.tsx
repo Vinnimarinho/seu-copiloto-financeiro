@@ -22,7 +22,9 @@ export function LandingHeader() {
       )}
     >
       <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-        <Logo variant="light" />
+        <Link to="/" aria-label="Ir para a home">
+          <Logo variant="light" />
+        </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm text-sidebar-foreground/70">
           <a href="#why" className="hover:text-sidebar-foreground transition-colors">Por que</a>
           <a href="#how" className="hover:text-sidebar-foreground transition-colors">Como funciona</a>
