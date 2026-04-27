@@ -57,7 +57,7 @@ serve(async (req) => {
     // 1) Fonte primária: tabela local
     const { data: localSub } = await supabase
       .from("billing_subscriptions")
-      .select("plan_code, status, current_period_end, stripe_customer_id, stripe_subscription_id")
+      .select("plan_code, status, current_period_start, current_period_end, cancel_at_period_end, stripe_customer_id, stripe_subscription_id")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -70,7 +70,10 @@ serve(async (req) => {
           JSON.stringify({
             subscribed: true,
             product_id: productId,
+            status: localSub.status,
+            subscription_start: localSub.current_period_start,
             subscription_end: localSub.current_period_end,
+            cancel_at_period_end: localSub.cancel_at_period_end ?? false,
             source: "local",
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } },
