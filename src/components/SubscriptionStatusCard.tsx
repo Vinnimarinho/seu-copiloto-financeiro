@@ -98,7 +98,7 @@ export function SubscriptionStatusCard() {
         <Button
           size="sm"
           variant={isPaid ? "outline" : "default"}
-          onClick={() => navigate("/pricing")}
+          onClick={() => navigate(isPaid ? "/billing" : "/pricing")}
           className="flex-1"
         >
           {isPaid ? "Gerenciar assinatura" : "Fazer upgrade"}

@@ -1,16 +1,16 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { Check, Zap, Loader2, ExternalLink } from "lucide-react";
+import { Check, Zap, Loader2, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   useSubscription,
   getPlanByProductId,
   startCheckout,
-  openCustomerPortal,
   PLANS,
 } from "@/hooks/useSubscription";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const plans = [
   {
@@ -50,6 +50,7 @@ export default function Pricing() {
   const { data: subscription, isLoading } = useSubscription();
   const currentPlan = getPlanByProductId(subscription?.product_id ?? null);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleSubscribe = async (planKey: string) => {
     const plan = PLANS[planKey as keyof typeof PLANS];
@@ -64,16 +65,7 @@ export default function Pricing() {
     }
   };
 
-  const handleManage = async () => {
-    setLoadingPlan("manage");
-    try {
-      await openCustomerPortal();
-    } catch {
-      toast.error("Erro ao abrir portal de assinatura");
-    } finally {
-      setLoadingPlan(null);
-    }
-  };
+  const handleManage = () => navigate("/billing");
 
   return (
     <AppSidebar>
