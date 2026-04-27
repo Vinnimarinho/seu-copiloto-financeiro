@@ -117,7 +117,7 @@ export default function Pricing() {
                 )}
                 {isCurrent && currentPlan !== "free" ? (
                   <Button variant="outline" className="w-full" onClick={handleManage} disabled={loadingPlan === "manage"}>
-                    {loadingPlan === "manage" ? <Loader2 className="w-4 h-4 animate-spin" /> : <><ExternalLink className="w-4 h-4" /> Gerenciar assinatura</>}
+                    <Settings2 className="w-4 h-4" /> Gerenciar assinatura
                   </Button>
                 ) : isCurrent ? (
                   <Button variant="outline" className="w-full" disabled>Plano atual</Button>
