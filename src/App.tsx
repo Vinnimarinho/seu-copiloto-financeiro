@@ -28,6 +28,7 @@ import Compliance from "./pages/Compliance";
 import ChatLucius from "./pages/ChatLucius";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Simulations from "./pages/Simulations";
+import Billing from "./pages/Billing";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
             <Route path="/compliance" element={<ProtectedRoute><Compliance /></ProtectedRoute>} />
             <Route path="/payment/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
+            <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
 
             {/* Redirects */}
             <Route path="/analise" element={<Navigate to="/diagnosis" replace />} />
