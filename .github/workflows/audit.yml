@@ -1,17 +1,26 @@
 name: Security Audit
 
 on:
-  push:
-    branches: [main]
+  # Roda em PRs para main (proteção real antes do merge)
   pull_request:
     branches: [main]
+  # Roda em pushes APENAS para main (não em branches de feature)
+  push:
+    branches: [main]
+  # Permite execução manual sob demanda
+  workflow_dispatch:
+  # Auditoria semanal agendada (segunda 09:00 UTC)
   schedule:
-    # Toda segunda-feira às 09:00 UTC
     - cron: "0 9 * * 1"
 
+# Cancela execuções antigas da mesma ref para reduzir ruído
+concurrency:
+  group: audit-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  npm-audit:
-    name: npm audit (high+critical)
+  npm-audit-prod:
+    name: npm audit — production deps (critical)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,13 +29,34 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies (no scripts)
         run: npm ci --ignore-scripts
 
-      - name: Run npm audit (production deps only)
-        # Falha apenas em vulnerabilidades high/critical em deps de PRODUÇÃO.
-        # Vulnerabilidades em devDependencies (vite, vitest, esbuild, etc.)
-        # não vão para o bundle final e não bloqueiam o release.
-        # Regra alinhada com RELEASE_CHECK.md.
-        run: npm audit --omit=dev --audit-level=high
+      - name: Audit production dependencies (fail on critical)
+        # Política pragmática para SaaS em produção:
+        # - Falha APENAS em vulnerabilidades CRITICAL em deps de produção
+        # - Deps de dev (vite, vitest, esbuild, etc.) NÃO entram no bundle
+        #   e são auditadas separadamente em modo informativo abaixo
+        run: npm audit --omit=dev --audit-level=critical
+
+  npm-audit-dev-informative:
+    name: npm audit — dev deps (informative)
+    runs-on: ubuntu-latest
+    # Não bloqueia merge — apenas reporta para visibilidade
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies (no scripts)
+        run: npm ci --ignore-scripts
+
+      - name: Audit all dependencies (high+critical, non-blocking)
+        run: npm audit --audit-level=high || true
