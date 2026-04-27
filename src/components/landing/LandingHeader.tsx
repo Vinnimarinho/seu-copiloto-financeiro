@@ -27,6 +27,14 @@ export function LandingHeader() {
           <a href="#why" className="hover:text-sidebar-foreground transition-colors">Por que</a>
           <a href="#how" className="hover:text-sidebar-foreground transition-colors">Como funciona</a>
           <a href="#pricing" className="hover:text-sidebar-foreground transition-colors">Planos</a>
+          <a
+            href="https://blog.luciusinvest.com.br"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-sidebar-foreground transition-colors"
+          >
+            Blog
+          </a>
           <a href="#faq" className="hover:text-sidebar-foreground transition-colors">FAQ</a>
         </nav>
         <div className="flex items-center gap-2">
