@@ -57,7 +57,7 @@ serve(async (req) => {
     // 1) Fonte primária: tabela local
     const { data: localSub } = await supabase
       .from("billing_subscriptions")
-      .select("plan_code, status, current_period_end, stripe_customer_id, stripe_subscription_id")
+      .select("plan_code, status, current_period_start, current_period_end, cancel_at_period_end, stripe_customer_id, stripe_subscription_id")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -70,7 +70,10 @@ serve(async (req) => {
           JSON.stringify({
             subscribed: true,
             product_id: productId,
+            status: localSub.status,
+            subscription_start: localSub.current_period_start,
             subscription_end: localSub.current_period_end,
+            cancel_at_period_end: localSub.cancel_at_period_end ?? false,
             source: "local",
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -84,11 +87,22 @@ serve(async (req) => {
     const customerId = localSub?.stripe_customer_id ?? null;
 
     if (!stripeKey || !customerId) {
+      // Considera "expirada" se há sub local mas vencida/cancelada
+      const expired =
+        !!localSub &&
+        localSub.plan_code !== "free" &&
+        (localSub.status === "canceled" ||
+          localSub.status === "past_due" ||
+          localSub.status === "unpaid" ||
+          (!!localSub.current_period_end && new Date(localSub.current_period_end) <= new Date()));
       return new Response(
         JSON.stringify({
           subscribed: false,
-          product_id: null,
-          subscription_end: null,
+          product_id: expired ? PRODUCT_BY_PLAN[localSub!.plan_code] ?? null : null,
+          status: localSub?.status ?? "inactive",
+          subscription_start: localSub?.current_period_start ?? null,
+          subscription_end: localSub?.current_period_end ?? null,
+          cancel_at_period_end: localSub?.cancel_at_period_end ?? false,
           source: customerId ? "no-stripe-key" : "local-empty",
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -98,31 +112,48 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const subs = await stripe.subscriptions.list({
       customer: customerId,
-      status: "active",
+      status: "all",
       limit: 1,
     });
 
     if (subs.data.length === 0) {
       return new Response(
-        JSON.stringify({ subscribed: false, product_id: null, subscription_end: null, source: "stripe" }),
+        JSON.stringify({
+          subscribed: false,
+          product_id: null,
+          status: "inactive",
+          subscription_start: null,
+          subscription_end: null,
+          cancel_at_period_end: false,
+          source: "stripe",
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
     const sub = subs.data[0];
     const periodEnd = sub.current_period_end as unknown as number;
+    const periodStart = sub.current_period_start as unknown as number;
     const subscriptionEnd =
       typeof periodEnd === "number" && periodEnd > 0
         ? new Date(periodEnd * 1000).toISOString()
         : null;
+    const subscriptionStart =
+      typeof periodStart === "number" && periodStart > 0
+        ? new Date(periodStart * 1000).toISOString()
+        : null;
     const product = sub.items?.data?.[0]?.price?.product;
     const productId = typeof product === "string" ? product : (product as { id?: string })?.id ?? null;
+    const isActive = sub.status === "active" || sub.status === "trialing";
 
     return new Response(
       JSON.stringify({
-        subscribed: true,
+        subscribed: isActive,
         product_id: productId,
+        status: sub.status,
+        subscription_start: subscriptionStart,
         subscription_end: subscriptionEnd,
+        cancel_at_period_end: sub.cancel_at_period_end ?? false,
         source: "stripe-by-customer-id",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },

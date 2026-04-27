@@ -11,6 +11,7 @@ import { useMemo } from "react";
 import PortfolioTracker from "@/components/PortfolioTracker";
 import { getInvestorCategory } from "@/lib/investorProfile";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
+import { SubscriptionStatusCard } from "@/components/SubscriptionStatusCard";
 
 function StatValue({ label, value, sub, trend }: { label: string; value: string; sub?: string; trend?: "up" | "down" }) {
   return (
@@ -180,6 +181,8 @@ export default function Dashboard() {
             <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">{category.title}</span>
           </div>
         )}
+
+        <SubscriptionStatusCard />
 
         <BentoGrid columns={3}>
           <BentoCard title="Patrimônio Total">

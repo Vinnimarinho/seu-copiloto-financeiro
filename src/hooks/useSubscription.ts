@@ -34,21 +34,38 @@ export function getPlanByProductId(productId: string | null): PlanKey {
   return "free";
 }
 
+export type SubscriptionStatus =
+  | "active"
+  | "trialing"
+  | "past_due"
+  | "canceled"
+  | "unpaid"
+  | "incomplete"
+  | "incomplete_expired"
+  | "inactive"
+  | "deleted_account";
+
+export interface SubscriptionInfo {
+  subscribed: boolean;
+  product_id: string | null;
+  status: SubscriptionStatus;
+  subscription_start: string | null;
+  subscription_end: string | null;
+  cancel_at_period_end: boolean;
+  source?: string;
+}
+
 export function useSubscription() {
   const { user } = useAuth();
 
-  return useQuery({
+  return useQuery<SubscriptionInfo>({
     queryKey: ["subscription", user?.id],
     enabled: !!user,
     refetchInterval: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error) throw error;
-      return data as {
-        subscribed: boolean;
-        product_id: string | null;
-        subscription_end: string | null;
-      };
+      return data as SubscriptionInfo;
     },
   });
 }
