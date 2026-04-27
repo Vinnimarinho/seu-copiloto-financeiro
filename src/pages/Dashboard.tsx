@@ -182,6 +182,8 @@ export default function Dashboard() {
           </div>
         )}
 
+        <SubscriptionStatusCard />
+
         <BentoGrid columns={3}>
           <BentoCard title="Patrimônio Total">
             <StatValue label="" value={formatCurrency(stats.totalValue)} />
