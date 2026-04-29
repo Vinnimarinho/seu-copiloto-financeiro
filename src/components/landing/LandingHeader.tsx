@@ -38,6 +38,7 @@ export function LandingHeader() {
             Blog
           </a>
           <a href="#faq" className="hover:text-sidebar-foreground transition-colors">FAQ</a>
+          <Link to="/contato" className="hover:text-sidebar-foreground transition-colors">Contato</Link>
         </nav>
         <div className="flex items-center gap-2">
           <Link to="/login" className="hidden sm:inline-flex">
