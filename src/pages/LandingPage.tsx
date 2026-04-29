@@ -644,6 +644,9 @@ export default function LandingPage() {
               >
                 Blog
               </a>
+              <Link to="/contato" className="hover:text-sidebar-foreground transition-colors">
+                Contato
+              </Link>
               <Link to="/terms" className="hover:text-sidebar-foreground transition-colors">
                 Termos
               </Link>
