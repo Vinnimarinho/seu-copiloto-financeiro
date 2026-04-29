@@ -20,6 +20,7 @@ import HistoryPage from "./pages/History";
 import Pricing from "./pages/Pricing";
 import SettingsPage from "./pages/Settings";
 import TermsPage from "./pages/Terms";
+import Contact from "./pages/Contact";
 import PrivacyPage from "./pages/Privacy";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
@@ -50,6 +51,8 @@ const App = () => (
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/contato" element={<Contact />} />
+            <Route path="/contact" element={<Navigate to="/contato" replace />} />
 
             {/* Protected */}
             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
