@@ -413,7 +413,10 @@ export default function Simulations() {
                         <SelectContent>
                           {DESTINATION_ASSETS.map((d) => (
                             <SelectItem key={d.code} value={d.code}>
-                              {d.label}
+                              <span className="inline-flex items-center">
+                                {d.label}
+                                {d.isNew && <NewBadge />}
+                              </span>
                             </SelectItem>
                           ))}
                         </SelectContent>
