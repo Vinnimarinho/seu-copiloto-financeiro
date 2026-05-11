@@ -289,6 +289,19 @@ serve(async (req) => {
     const user = u.user;
     if (!user) throw new Error("Não autenticado");
 
+    // Gate anti-duplicidade: usuário precisa ter CPF cadastrado
+    const { data: cpfProfile } = await supabase
+      .from("profiles")
+      .select("cpf_hash")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!cpfProfile?.cpf_hash) {
+      return new Response(
+        JSON.stringify({ error: "cpf_required", message: "CPF é obrigatório para gerar relatórios." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     // Gating server-side: tabela local é a fonte de verdade (sync via webhook).
     // Fallback Stripe usa primeiro stripe_customer_id local; email só em último caso.
     let allowed = false;

@@ -84,6 +84,19 @@ serve(async (req) => {
 
     const userId = userData.user.id;
 
+    // Gate anti-duplicidade: usuário precisa ter CPF cadastrado
+    const { data: cpfProfile } = await supabase
+      .from("profiles")
+      .select("cpf_hash")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!cpfProfile?.cpf_hash) {
+      return new Response(
+        JSON.stringify({ error: "cpf_required", message: "CPF é obrigatório para conversar com o LUCIUS." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     // SECURITY: ensure the user has credits before consuming AI gateway tokens.
     // Prevents denial-of-wallet abuse on an authenticated endpoint.
     const { data: wallet, error: walletError } = await supabase
