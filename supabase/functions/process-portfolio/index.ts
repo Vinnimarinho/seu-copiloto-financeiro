@@ -316,7 +316,23 @@ serve(async (req) => {
       );
     }
     if (!wallet) throw new Error("Carteira de créditos não encontrada.");
-    if (wallet.balance <= 0) throw new Error("Você não tem créditos suficientes para rodar o diagnóstico.");
+
+    // Trial: plano gratuito só funciona por 10 dias após o cadastro
+    const { data: trial } = await supabase.rpc("user_trial_status", { _user_id: user.id });
+    const trialInfo = (trial ?? {}) as { is_paid?: boolean; trial_expired?: boolean };
+    if (!trialInfo.is_paid && trialInfo.trial_expired) {
+      return new Response(
+        JSON.stringify({ error: "trial_expired", message: "Seu período gratuito de 10 dias acabou. Assine um plano ou compre créditos." }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    if (wallet.balance <= 0) {
+      return new Response(
+        JSON.stringify({ error: "no_credits", message: "Você não tem créditos suficientes para rodar o diagnóstico." }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     let portfolioId: string;
     if (existingPortfolio) {
