@@ -51,14 +51,20 @@ const ASSET_CLASSES: AssetClassKey[] = [
   "Outros",
 ];
 
-const DESTINATION_ASSETS: { code: string; label: string; cls: AssetClassKey }[] = [
-  { code: "TESOURO_RESERVA", label: "Tesouro Reserva (24h, 100% Selic)", cls: "Caixa" },
+const DESTINATION_ASSETS: { code: string; label: string; cls: AssetClassKey; isNew?: boolean }[] = [
+  { code: "TESOURO_RESERVA", label: "Tesouro Reserva (24h, 100% Selic)", cls: "Caixa", isNew: true },
   { code: "TESOURO_POS",     label: "Tesouro Selic (pós)",                cls: "Tesouro" },
   { code: "TESOURO_PRE",     label: "Tesouro Prefixado",                  cls: "Tesouro" },
   { code: "TESOURO_IPCA",    label: "Tesouro IPCA+",                      cls: "Tesouro" },
   { code: "CDI",             label: "CDB / LCI / LCA",                    cls: "Renda Fixa" },
   { code: "POUPANCA",        label: "Poupança (referência)",              cls: "Caixa" },
 ];
+
+const NewBadge = () => (
+  <span className="ml-2 inline-flex items-center rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary border border-primary/30">
+    Novo
+  </span>
+);
 
 export default function Simulations() {
   const navigate = useNavigate();
@@ -273,7 +279,10 @@ export default function Simulations() {
                 onClick={() => handlePreset(p.id)}
                 className="text-left p-3 rounded-lg border border-border hover:border-primary/60 hover:bg-primary/5 transition-colors"
               >
-                <div className="text-sm font-semibold text-foreground">{p.label}</div>
+                <div className="text-sm font-semibold text-foreground flex items-center flex-wrap">
+                  <span>{p.label}</span>
+                  {p.isNew && <NewBadge />}
+                </div>
                 <div className="text-xs text-muted-foreground mt-1">{p.description}</div>
               </button>
             ))}
@@ -324,7 +333,10 @@ export default function Simulations() {
                         <SelectContent>
                           {DESTINATION_ASSETS.map((d) => (
                             <SelectItem key={d.code} value={d.code}>
-                              {d.label}
+                              <span className="inline-flex items-center">
+                                {d.label}
+                                {d.isNew && <NewBadge />}
+                              </span>
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -401,7 +413,10 @@ export default function Simulations() {
                         <SelectContent>
                           {DESTINATION_ASSETS.map((d) => (
                             <SelectItem key={d.code} value={d.code}>
-                              {d.label}
+                              <span className="inline-flex items-center">
+                                {d.label}
+                                {d.isNew && <NewBadge />}
+                              </span>
                             </SelectItem>
                           ))}
                         </SelectContent>
