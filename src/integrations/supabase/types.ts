@@ -469,6 +469,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          cpf_hash: string | null
           created_at: string
           data_consent_accepted_at: string | null
           full_name: string | null
@@ -480,6 +481,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          cpf_hash?: string | null
           created_at?: string
           data_consent_accepted_at?: string | null
           full_name?: string | null
@@ -491,6 +493,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          cpf_hash?: string | null
           created_at?: string
           data_consent_accepted_at?: string | null
           full_name?: string | null
@@ -769,6 +772,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cpf_hash_exists: { Args: { _hash: string }; Returns: boolean }
       delete_user_account: { Args: never; Returns: undefined }
       export_user_data: { Args: never; Returns: Json }
       has_role: {
@@ -778,6 +782,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      hash_cpf: { Args: { _cpf: string }; Returns: string }
+      set_user_cpf: { Args: { _cpf: string }; Returns: Json }
+      user_has_cpf: { Args: { _user_id?: string }; Returns: boolean }
+      validate_cpf: { Args: { _cpf: string }; Returns: boolean }
     }
     Enums: {
       analysis_status: "pending" | "running" | "completed" | "error"
