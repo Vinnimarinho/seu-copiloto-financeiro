@@ -5,6 +5,7 @@ export interface PresetDef {
   label: string;
   description: string;
   build: () => SimulationInputs;
+  isNew?: boolean;
 }
 
 const conservativeRebalance: RebalanceInputs = {
