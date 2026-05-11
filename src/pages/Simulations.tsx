@@ -279,7 +279,10 @@ export default function Simulations() {
                 onClick={() => handlePreset(p.id)}
                 className="text-left p-3 rounded-lg border border-border hover:border-primary/60 hover:bg-primary/5 transition-colors"
               >
-                <div className="text-sm font-semibold text-foreground">{p.label}</div>
+                <div className="text-sm font-semibold text-foreground flex items-center flex-wrap">
+                  <span>{p.label}</span>
+                  {p.isNew && <NewBadge />}
+                </div>
                 <div className="text-xs text-muted-foreground mt-1">{p.description}</div>
               </button>
             ))}
