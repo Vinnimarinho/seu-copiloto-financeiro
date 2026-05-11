@@ -1,9 +1,10 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Loader2, Sparkles, Lock } from "lucide-react";
+import { FileText, Download, Loader2 } from "lucide-react";
 import { useReports, useGenerateReport, useReportDownload, useLatestAnalysis } from "@/hooks/usePortfolio";
 import { useNavigate } from "react-router-dom";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
+import { PaidFeatureOverlay } from "@/components/PaidFeatureOverlay";
 
 export default function Reports() {
   const { data: dbReports, isLoading } = useReports();
@@ -45,19 +46,26 @@ export default function Reports() {
         </div>
 
         {!canGenerateReports && (
-          <div className="bg-card border border-border rounded-xl p-6 text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-primary/10 mx-auto flex items-center justify-center">
-              <Lock className="w-5 h-5 text-primary" />
+          <PaidFeatureOverlay
+            active
+            plan="essencial"
+            title="Relatórios PDF"
+            description="Gere PDFs profissionais com a identidade do LUCIUS contendo diagnóstico, posições e oportunidades aceitas."
+          >
+            <div className="bg-card border border-border rounded-xl p-6 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-semibold text-foreground">Diagnóstico completo · 12 páginas</h3>
+                  <p className="text-xs text-muted-foreground">Pronto para download em PDF</p>
+                </div>
+              </div>
+              <div className="h-32 bg-secondary/40 rounded-lg" />
+              <div className="h-24 bg-secondary/40 rounded-lg" />
             </div>
-            <h2 className="font-heading text-lg font-semibold text-foreground">Relatórios PDF estão nos planos pagos</h2>
-            <p className="text-sm text-muted-foreground">
-              Faça upgrade para gerar relatórios PDF com a identidade do LUCIUS, contendo diagnóstico,
-              posições e somente as oportunidades que você aceitou.
-            </p>
-            <Button onClick={() => navigate("/pricing")} className="gap-2">
-              <Sparkles className="w-4 h-4" /> Ver planos
-            </Button>
-          </div>
+          </PaidFeatureOverlay>
         )}
 
         {canGenerateReports && (

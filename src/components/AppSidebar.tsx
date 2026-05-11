@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { RegulatoryDisclaimer } from "@/components/RegulatoryDisclaimer";
 import { LuciusFloatingChat } from "@/components/LuciusFloatingChat";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { AccessBanner } from "@/components/AccessBanner";
 import { useNoIndex } from "@/hooks/useNoIndex";
 
 interface NavItem {
@@ -175,7 +176,10 @@ export function AppSidebar({ children }: { children: ReactNode }) {
             </button>
           </div>
         </header>
-        <div className="flex-1 p-6">{children}</div>
+        <div className="flex-1 p-6 space-y-4">
+          <AccessBanner />
+          {children}
+        </div>
         <footer className="border-t border-border px-6 py-3">
           <RegulatoryDisclaimer compact />
         </footer>

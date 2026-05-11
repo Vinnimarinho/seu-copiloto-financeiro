@@ -97,8 +97,17 @@ serve(async (req) => {
       );
     }
 
+    // Trial: plano gratuito só por 10 dias
+    const { data: trial } = await supabase.rpc("user_trial_status", { _user_id: userId });
+    const trialInfo = (trial ?? {}) as { is_paid?: boolean; trial_expired?: boolean };
+    if (!trialInfo.is_paid && trialInfo.trial_expired) {
+      return new Response(
+        JSON.stringify({ error: "trial_expired", message: "Seu período gratuito de 10 dias acabou. Assine um plano ou compre créditos." }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     // SECURITY: ensure the user has credits before consuming AI gateway tokens.
-    // Prevents denial-of-wallet abuse on an authenticated endpoint.
     const { data: wallet, error: walletError } = await supabase
       .from("credit_wallets")
       .select("id, balance")
@@ -107,7 +116,7 @@ serve(async (req) => {
     if (walletError) throw new Error(`Erro ao consultar créditos: ${walletError.message}`);
     if (!wallet || wallet.balance <= 0) {
       return new Response(
-        JSON.stringify({ error: "Você não tem créditos suficientes para conversar com o LUCIUS." }),
+        JSON.stringify({ error: "no_credits", message: "Você não tem créditos suficientes para conversar com o LUCIUS." }),
         { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

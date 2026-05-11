@@ -1,11 +1,12 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useRecommendations, useUpdateRecommendation } from "@/hooks/usePortfolio";
-import { CheckCircle2, Clock, X, Loader2, ListChecks, Lock, Sparkles, MessageCircle } from "lucide-react";
+import { CheckCircle2, Clock, X, Loader2, ListChecks, MessageCircle } from "lucide-react";
 import { RegulatoryDisclaimer } from "@/components/RegulatoryDisclaimer";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
+import { PaidFeatureOverlay } from "@/components/PaidFeatureOverlay";
 
 // Linguagem ajustada para evitar termos com conotação operacional/regulada
 // ("execute a ordem", "ordem de compra/venda"). Tudo aqui é caminho sugerido —
@@ -62,25 +63,33 @@ export default function Recommendations() {
     });
   };
 
-  // Gating: plano gratuito não acessa Oportunidades
+  // Gating: plano gratuito não acessa Oportunidades — overlay bloqueante
   if (!planLoading && !canAccessOpportunities) {
+    const mockRecs = [
+      { title: "Reduzir concentração em PETR4", reason: "PETR4 representa 28% da sua carteira em ações.", impact: "Diversificação +15%" },
+      { title: "Considerar exposição internacional", reason: "Sua carteira tem 0% em ativos globais.", impact: "Risco -8%" },
+      { title: "Migrar parte do CDB para Tesouro IPCA+", reason: "Proteção contra inflação no longo prazo.", impact: "Retorno real esperado +1,8% a.a." },
+    ];
     return (
       <AppSidebar>
-        <div className="max-w-lg mx-auto py-12">
-          <div className="bg-card border border-border rounded-xl p-8 text-center space-y-4">
-            <div className="w-14 h-14 rounded-full bg-primary/10 mx-auto flex items-center justify-center">
-              <Lock className="w-6 h-6 text-primary" />
+        <div className="max-w-3xl mx-auto">
+          <PaidFeatureOverlay
+            active
+            plan="essencial"
+            title="Oportunidades de Melhoria"
+            description="Veja sugestões personalizadas de rebalanceamento, diversificação e otimização da sua carteira — com passo a passo para aplicar."
+          >
+            <div className="space-y-3">
+              <h1 className="font-heading text-2xl font-bold text-foreground">Oportunidades de Melhoria</h1>
+              {mockRecs.map((r, i) => (
+                <div key={i} className="bg-card border border-border rounded-xl p-4">
+                  <h3 className="font-heading font-semibold text-foreground">{r.title}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">{r.reason}</p>
+                  <p className="text-xs text-foreground/70 mt-1"><strong>Impacto possível:</strong> {r.impact}</p>
+                </div>
+              ))}
             </div>
-            <div className="space-y-1">
-              <h1 className="font-heading text-xl font-bold text-foreground">Oportunidades disponíveis nos planos pagos</h1>
-              <p className="text-sm text-muted-foreground">
-                Faça upgrade para liberar oportunidades personalizadas e o passo a passo de cada sugestão.
-              </p>
-            </div>
-            <Button onClick={() => navigate("/pricing")} className="gap-2">
-              <Sparkles className="w-4 h-4" /> Ver planos
-            </Button>
-          </div>
+          </PaidFeatureOverlay>
         </div>
       </AppSidebar>
     );
