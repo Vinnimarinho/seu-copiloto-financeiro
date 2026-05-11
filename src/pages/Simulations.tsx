@@ -52,10 +52,12 @@ const ASSET_CLASSES: AssetClassKey[] = [
 ];
 
 const DESTINATION_ASSETS: { code: string; label: string; cls: AssetClassKey }[] = [
-  { code: "TESOURO_POS",  label: "Tesouro Selic (pós)", cls: "Tesouro" },
-  { code: "TESOURO_PRE",  label: "Tesouro Prefixado",   cls: "Tesouro" },
-  { code: "TESOURO_IPCA", label: "Tesouro IPCA+",       cls: "Tesouro" },
-  { code: "CDI",          label: "CDB / LCI / LCA",     cls: "Renda Fixa" },
+  { code: "TESOURO_RESERVA", label: "Tesouro Reserva (24h, 100% Selic)", cls: "Caixa" },
+  { code: "TESOURO_POS",     label: "Tesouro Selic (pós)",                cls: "Tesouro" },
+  { code: "TESOURO_PRE",     label: "Tesouro Prefixado",                  cls: "Tesouro" },
+  { code: "TESOURO_IPCA",    label: "Tesouro IPCA+",                      cls: "Tesouro" },
+  { code: "CDI",             label: "CDB / LCI / LCA",                    cls: "Renda Fixa" },
+  { code: "POUPANCA",        label: "Poupança (referência)",              cls: "Caixa" },
 ];
 
 export default function Simulations() {

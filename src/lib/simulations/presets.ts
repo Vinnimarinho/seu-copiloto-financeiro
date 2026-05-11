@@ -50,7 +50,20 @@ const moveToTesouroPos: ConcentrationInputs = {
   pctOfPortfolio: 80,
 };
 
+const moveToTesouroReserva: ConcentrationInputs = {
+  mode: "concentration",
+  targetAssetClass: "Caixa",
+  targetAssetCode: "TESOURO_RESERVA",
+  pctOfPortfolio: 30,
+};
+
 export const PRESETS: PresetDef[] = [
+  {
+    id: "move_to_tesouro_reserva",
+    label: "Reserva de emergência no Tesouro Reserva",
+    description: "Aloca parte da carteira no novo Tesouro Reserva (24h, 100% Selic, sem marcação a mercado).",
+    build: () => moveToTesouroReserva,
+  },
   {
     id: "move_to_tesouro_pos",
     label: "Mover para Tesouro pós-fixado",

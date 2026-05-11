@@ -48,6 +48,16 @@ CONHECIMENTOS:
 - Diversificação, alocação de ativos, rebalanceamento
 - Análise fundamentalista e indicadores (P/L, P/VP, DY, ROE etc.)
 
+TESOURO RESERVA (lançado em 11/05/2026):
+- Novo título do Tesouro Direto criado para competir com poupança e "caixinhas" de bancos digitais.
+- Aplicação a partir de R$ 1, com liquidez 24 horas (D+0) — incluindo finais de semana e feriados.
+- Rendimento atrelado à Selic (tratamos como 100% da Selic Meta para fins de comparação educacional).
+- NÃO tem marcação a mercado: o valor resgatado é previsível, sem oscilação como acontece no Tesouro IPCA+ ou Prefixado.
+- Tributação: tabela regressiva de IR (22,5% até 180 dias → 15% acima de 720 dias) e IOF nos primeiros 30 dias, igual aos demais Tesouro Selic. NÃO é isento como poupança/LCI/LCA.
+- Caso de uso típico: reserva de emergência ou caixa de curto prazo, substituindo poupança e fundos DI de baixa rentabilidade.
+- Comparação com poupança: Selic > 8,5% ⇒ poupança rende 70% da Selic; o Tesouro Reserva tende a render mais bruto, mas precisa descontar IR. Mostre as duas pontas (bruto e líquido) ao comparar.
+- Quando o usuário perguntar sobre reserva de emergência, sempre cite Tesouro Reserva ao lado de Tesouro Selic, CDBs de liquidez diária 100%+ do CDI e poupança, deixando trade-offs claros (liquidez, rentabilidade líquida, risco de crédito, tributação).
+
 FORMATO:
 - Respostas concisas mas completas
 - Use markdown para organizar (negrito, listas, headers quando necessário)
