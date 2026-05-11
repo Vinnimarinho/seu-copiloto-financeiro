@@ -111,6 +111,9 @@ Deno.serve(async (req) => {
       SERIES.map((cfg) => fetchSeries(cfg, controller.signal)),
     );
 
+    let lastSelicAnnual: number | null = null;
+    let lastSelicDate: string | null = null;
+
     for (let i = 0; i < settled.length; i++) {
       const cfg = SERIES[i];
       const r = settled[i];
@@ -154,6 +157,86 @@ Deno.serve(async (req) => {
         status: "updated",
         annual_rate: row.annual_rate,
         reference_date: row.reference_date,
+      });
+
+      if (cfg.code === "SELIC") {
+        lastSelicAnnual = row.annual_rate;
+        lastSelicDate = row.reference_date;
+      }
+    }
+
+    // Derivações a partir da SELIC (Tesouro Reserva e Poupança).
+    // Mantemos aqui porque dependem 1:1 da Selic Meta atualizada nesta mesma execução.
+    if (lastSelicAnnual !== null && lastSelicDate !== null) {
+      const selicAnnual = lastSelicAnnual;
+      const selicDate = lastSelicDate;
+      // Tesouro Reserva (lançado 11/05/2026): rendimento atrelado à Selic, sem
+      // marcação a mercado, liquidez 24h. Tratamos como 100% da Selic Meta.
+      // Poupança: regra atual — Selic > 8,5% ⇒ 70% da Selic + TR (TR ~0).
+      //                       Selic ≤ 8,5% ⇒ 0,5%/mês + TR ≈ 6,17% a.a.
+      const poupAnnual =
+        selicAnnual > 0.085 ? selicAnnual * 0.70 : Math.pow(1.005, 12) - 1;
+
+      const derived = [
+        {
+          code: "TESOURO_RESERVA",
+          label: "Tesouro Reserva",
+          annual_rate: selicAnnual,
+          source: "derived-selic-100pct",
+          reference_date: selicDate,
+          frequency: "daily",
+          metadata: {
+            basis: "100%_selic_meta",
+            liquidity: "D+0",
+            launched: "2026-05-11",
+            note: "Sem marcação a mercado. Tributação Tesouro Selic (IR regressivo + IOF até 30d).",
+            selicAnnualUsed: selicAnnual,
+          },
+        },
+        {
+          code: "POUPANCA",
+          label: "Poupança",
+          annual_rate: poupAnnual,
+          source: "derived-selic-rule",
+          reference_date: selicDate,
+          frequency: "monthly",
+          metadata: {
+            basis: selicAnnual > 0.085 ? "70%_selic_meta" : "0.5%_mes",
+            selicAnnualUsed: selicAnnual,
+            tr_assumed: 0,
+            note: "Isenta de IR para PF. Aniversário mensal — liquidez efetiva pode ter perda de juros.",
+          },
+        },
+      ];
+
+      for (const row of derived) {
+        const { error: dErr } = await admin
+          .from("market_reference_rates")
+          .upsert(
+            { ...row, updated_at: new Date().toISOString() },
+            { onConflict: "code" },
+          );
+        if (dErr) {
+          results.push({ code: row.code, status: "error", error: dErr.message });
+        } else {
+          results.push({
+            code: row.code,
+            status: "updated",
+            annual_rate: row.annual_rate,
+            reference_date: row.reference_date,
+          });
+        }
+      }
+    } else {
+      results.push({
+        code: "TESOURO_RESERVA",
+        status: "error",
+        error: "SELIC indisponível — não foi possível derivar",
+      });
+      results.push({
+        code: "POUPANCA",
+        status: "error",
+        error: "SELIC indisponível — não foi possível derivar",
       });
     }
   } finally {
