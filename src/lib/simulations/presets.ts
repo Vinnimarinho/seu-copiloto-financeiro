@@ -64,6 +64,7 @@ export const PRESETS: PresetDef[] = [
     label: "Reserva de emergência no Tesouro Reserva",
     description: "Aloca parte da carteira no novo Tesouro Reserva (24h, 100% Selic, sem marcação a mercado).",
     build: () => moveToTesouroReserva,
+    isNew: true,
   },
   {
     id: "move_to_tesouro_pos",
