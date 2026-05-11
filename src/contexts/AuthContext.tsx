@@ -35,16 +35,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
-    // Após confirmar email, redireciona o usuário direto para a área autenticada;
-    // ProtectedRoute leva ao onboarding caso o profile ainda esteja incompleto.
+  const signUp = async (email: string, password: string, fullName: string, cpfHash?: string) => {
     // Após confirmar email, o link cai em /auth/callback (rota controlada),
     // que valida sessão e decide entre /onboarding e /dashboard.
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName },
+        data: { full_name: fullName, ...(cpfHash ? { cpf_hash: cpfHash } : {}) },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
