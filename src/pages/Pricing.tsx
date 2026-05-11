@@ -166,6 +166,68 @@ export default function Pricing() {
             </p>
           </div>
         )}
+
+        {/* Pacotes de créditos avulsos */}
+        <section id="credits" className="pt-8 border-t border-border space-y-6 scroll-mt-20">
+          <div className="text-center space-y-2">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide bg-primary/10 text-primary rounded-full px-3 py-1">
+              <Coins className="w-3 h-3" /> Créditos avulsos
+            </span>
+            <h2 className="font-heading text-2xl font-bold text-foreground">
+              Comprar créditos sem assinar
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+              Cada análise, relatório PDF ou conversa com o LUCIUS consome 1 crédito.
+              Os pacotes não expiram e ficam disponíveis em qualquer plano (inclusive o gratuito).
+            </p>
+            {trial && !trial.is_paid && (
+              <p className="text-xs text-muted-foreground">
+                Seu saldo atual: <span className="font-semibold text-foreground">{credits ?? 0} créditos</span>
+                {trial.trial_expired
+                  ? " · período gratuito encerrado"
+                  : ` · ${trial.days_left} dias restantes do plano gratuito`}
+              </p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {CREDIT_PACKS.map((pack) => (
+              <div
+                key={pack.id}
+                className={cn(
+                  "bg-card border rounded-xl p-6 flex flex-col text-center",
+                  pack.highlight ? "border-primary ring-2 ring-primary/20" : "border-border",
+                )}
+              >
+                {pack.highlight && (
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary mb-2 mx-auto">
+                    <Zap className="w-3 h-3" /> Mais escolhido
+                  </span>
+                )}
+                <div className="font-heading text-3xl font-bold text-foreground">{pack.credits}</div>
+                <div className="text-xs text-muted-foreground uppercase tracking-wide mb-3">créditos</div>
+                <div className="font-heading text-2xl font-bold text-foreground mb-1">{pack.price}</div>
+                <p className="text-xs text-muted-foreground mb-5 flex-1">{pack.desc}</p>
+                <Button
+                  variant={pack.highlight ? "hero" : "outline"}
+                  className="w-full gap-2"
+                  onClick={() => handleBuyPack(pack.id)}
+                  disabled={!!loadingPack}
+                >
+                  {loadingPack === pack.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <ShoppingCart className="w-4 h-4" />
+                  )}
+                  Comprar
+                </Button>
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground text-center">
+            Pagamento único em BRL processado pelo Stripe. Créditos liberados automaticamente após confirmação.
+          </p>
+        </section>
       </div>
     </AppSidebar>
   );
