@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useRunPortfolioDiagnosis } from "@/hooks/usePortfolioAnalysis";
 import { AnalysisLoading } from "@/components/AnalysisLoading";
+import { RequireCpfDialog } from "@/components/RequireCpfDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 const formats = [
   { icon: <FileSpreadsheet className="w-8 h-8" />, name: "CSV", desc: "Extrato de corretora em CSV" },
