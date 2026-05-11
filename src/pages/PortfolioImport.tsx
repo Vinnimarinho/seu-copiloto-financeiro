@@ -70,6 +70,7 @@ export default function PortfolioImport() {
   const { data: profile } = useProfile();
   const { data: investorProfile } = useInvestorProfile();
   const [dragOver, setDragOver] = useState(false);
+  const [cpfDialogOpen, setCpfDialogOpen] = useState(false);
   const navigate = useNavigate();
   const isPeriodValid = !!periodStart && !!periodEnd && periodStart <= periodEnd;
   const uploadedFile = files.find((file) => file.status === "uploaded" && file.path);
