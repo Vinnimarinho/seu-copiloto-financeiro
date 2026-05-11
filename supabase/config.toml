@@ -8,3 +8,7 @@ verify_jwt = false
 # Formulário de contato público — não exige autenticação
 [functions.send-contact-email]
 verify_jwt = false
+
+# Pré-checagem de CPF antes do signup — chamado por visitantes não autenticados
+[functions.signup-precheck]
+verify_jwt = false
