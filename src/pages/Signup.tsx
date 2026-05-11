@@ -1,16 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Mail, Lock, User, Eye, EyeOff, IdCard } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
 import { lovable } from "@/integrations/lovable/index";
+import { supabase } from "@/integrations/supabase/client";
+import { formatCpf, isValidCpf, onlyDigits } from "@/lib/cpf";
 import { toast } from "sonner";
 
 export default function SignupPage() {
   const [showPass, setShowPass] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [cpf, setCpf] = useState("");
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -21,13 +24,33 @@ export default function SignupPage() {
     e.preventDefault();
     if (!agreed) { toast.error("Você precisa aceitar os termos"); return; }
     if (password.length < 8) { toast.error("A senha deve ter pelo menos 8 caracteres"); return; }
+    if (!isValidCpf(cpf)) { toast.error("CPF inválido"); return; }
     setLoading(true);
-    const { error } = await signUp(email, password, fullName);
+
+    // 1) Pré-checagem: valida CPF e verifica duplicidade (retorna cpf_hash)
+    const { data: pre, error: preError } = await supabase.functions.invoke("signup-precheck", {
+      body: { cpf: onlyDigits(cpf) },
+    });
+    if (preError || !pre?.cpf_hash) {
+      setLoading(false);
+      const code = (pre as any)?.error ?? (preError as any)?.context?.error;
+      if (code === "cpf_already_in_use") {
+        toast.error("Este CPF já está vinculado a outra conta.");
+      } else if (code === "invalid_cpf") {
+        toast.error("CPF inválido.");
+      } else {
+        toast.error("Não foi possível validar o CPF. Tente novamente.");
+      }
+      return;
+    }
+
+    // 2) Cria a conta carregando o cpf_hash em user_metadata
+    const { error } = await signUp(email, password, fullName, pre.cpf_hash);
     setLoading(false);
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Conta criada! Verifique seu email para confirmar — o link levará você ao próximo passo.");
+      toast.success("Conta criada! Verifique seu email para confirmar.");
       navigate("/login");
     }
   };
@@ -57,6 +80,23 @@ export default function SignupPage() {
               <Mail className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-foreground mb-1.5 block">CPF</label>
+            <div className="relative">
+              <IdCard className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                inputMode="numeric"
+                value={cpf}
+                onChange={(e) => setCpf(formatCpf(e.target.value))}
+                placeholder="000.000.000-00"
+                required
+                maxLength={14}
+                className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-1">Usado apenas para garantir 1 conta gratuita por pessoa. Armazenamos só o hash.</p>
           </div>
           <div>
             <label className="text-sm font-medium text-foreground mb-1.5 block">Senha</label>

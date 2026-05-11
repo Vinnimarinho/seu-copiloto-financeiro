@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useRunPortfolioDiagnosis } from "@/hooks/usePortfolioAnalysis";
 import { AnalysisLoading } from "@/components/AnalysisLoading";
+import { RequireCpfDialog } from "@/components/RequireCpfDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 const formats = [
   { icon: <FileSpreadsheet className="w-8 h-8" />, name: "CSV", desc: "Extrato de corretora em CSV" },
@@ -68,6 +70,7 @@ export default function PortfolioImport() {
   const { data: profile } = useProfile();
   const { data: investorProfile } = useInvestorProfile();
   const [dragOver, setDragOver] = useState(false);
+  const [cpfDialogOpen, setCpfDialogOpen] = useState(false);
   const navigate = useNavigate();
   const isPeriodValid = !!periodStart && !!periodEnd && periodStart <= periodEnd;
   const uploadedFile = files.find((file) => file.status === "uploaded" && file.path);
@@ -103,6 +106,13 @@ export default function PortfolioImport() {
 
     if (!profile?.onboarding_completed) {
       toast.error("Complete seu perfil de investidor antes de rodar o diagnóstico.");
+      return;
+    }
+
+    // Gate: usuário precisa ter CPF cadastrado (1 conta gratuita por pessoa)
+    const { data: hasCpf } = await supabase.rpc("user_has_cpf");
+    if (hasCpf === false) {
+      setCpfDialogOpen(true);
       return;
     }
 
@@ -330,6 +340,7 @@ export default function PortfolioImport() {
           Seus dados são criptografados e nunca compartilhados. Usados exclusivamente para a análise da performance da sua carteira.
         </p>
       </div>
+      <RequireCpfDialog open={cpfDialogOpen} onOpenChange={setCpfDialogOpen} onConfirmed={() => handleRunDiagnosis()} />
     </AppSidebar>
   );
 }
