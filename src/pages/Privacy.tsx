@@ -32,11 +32,17 @@ export default function PrivacyPage() {
           <p>Coletamos as seguintes categorias de dados:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li><strong>Dados cadastrais:</strong> nome, email, telefone (opcional)</li>
+            <li><strong>CPF (hash):</strong> usado exclusivamente para garantir 1 (uma) conta gratuita por pessoa e prevenir abuso do plano gratuito. O CPF <strong>nunca é armazenado em texto puro</strong> — guardamos apenas o seu <strong>hash criptográfico SHA-256 com pepper</strong>, que não permite reverter para o número original. Não usamos o CPF para qualquer outra finalidade (não enviamos a parceiros, não consultamos bureaus de crédito, não compomos cadastro positivo).</li>
             <li><strong>Dados financeiros:</strong> posições de carteira, ativos, valores, tickers — importados voluntariamente por você</li>
             <li><strong>Dados de perfil de investidor:</strong> tolerância a risco, horizonte de investimento, objetivos</li>
             <li><strong>Dados de uso:</strong> páginas acessadas, funcionalidades utilizadas, interações com o chat</li>
             <li><strong>Dados técnicos:</strong> endereço IP, tipo de navegador, sistema operacional, cookies essenciais</li>
           </ul>
+
+          <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
+            <p className="font-semibold text-foreground mb-1">Nota LGPD — Tratamento do CPF</p>
+            <p>O CPF nunca é gravado em texto puro. Aplicamos a função SHA-256 com pepper (segredo de servidor) sobre os 11 dígitos e armazenamos apenas o hash resultante. Esse hash serve unicamente como identificador único anti-duplicidade — não permite recuperar o CPF original nem identificar você fora do contexto da nossa base.</p>
+          </div>
 
           <h2 className="font-heading text-lg font-semibold text-foreground">3. Bases legais para tratamento (Art. 7º, LGPD)</h2>
           <ul className="list-disc pl-5 space-y-1">
