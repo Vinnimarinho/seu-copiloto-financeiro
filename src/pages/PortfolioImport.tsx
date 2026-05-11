@@ -109,6 +109,13 @@ export default function PortfolioImport() {
       return;
     }
 
+    // Gate: usuário precisa ter CPF cadastrado (1 conta gratuita por pessoa)
+    const { data: hasCpf } = await supabase.rpc("user_has_cpf", { _user_id: undefined as any });
+    if (hasCpf === false) {
+      setCpfDialogOpen(true);
+      return;
+    }
+
     if (!isPeriodValid) {
       toast.error("Informe um período válido para a análise.");
       return;
