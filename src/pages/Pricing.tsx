@@ -1,6 +1,6 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { Check, Zap, Loader2, Settings2 } from "lucide-react";
+import { Check, Zap, Loader2, Settings2, Coins, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   useSubscription,
@@ -8,9 +8,11 @@ import {
   startCheckout,
   PLANS,
 } from "@/hooks/useSubscription";
-import { useState } from "react";
+import { CREDIT_PACKS, buyCreditPack, useTrialStatus } from "@/hooks/useTrialStatus";
+import { useUserCredits } from "@/hooks/usePortfolio";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const plans = [
   {
@@ -48,9 +50,19 @@ const plans = [
 
 export default function Pricing() {
   const { data: subscription, isLoading } = useSubscription();
+  const { data: trial } = useTrialStatus();
+  const { data: credits } = useUserCredits();
   const currentPlan = getPlanByProductId(subscription?.product_id ?? null);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [loadingPack, setLoadingPack] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash === "#credits") {
+      document.getElementById("credits")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [location.hash]);
 
   const handleSubscribe = async (planKey: string) => {
     const plan = PLANS[planKey as keyof typeof PLANS];
@@ -62,6 +74,17 @@ export default function Pricing() {
       toast.error("Erro ao iniciar checkout");
     } finally {
       setLoadingPlan(null);
+    }
+  };
+
+  const handleBuyPack = async (pack: "10" | "50" | "200") => {
+    setLoadingPack(pack);
+    try {
+      await buyCreditPack(pack);
+    } catch {
+      toast.error("Erro ao iniciar compra de créditos");
+    } finally {
+      setLoadingPack(null);
     }
   };
 
