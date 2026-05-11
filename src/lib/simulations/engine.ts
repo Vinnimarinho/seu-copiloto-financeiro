@@ -194,7 +194,12 @@ function applySwap(
 
   // Liquidez do destino: Tesouro pós/Caixa = D+1; outros mantidos D+30 médio
   const destBucket: LiquidityBucket =
-    toClass === "Caixa" || input.toAssetCode === "TESOURO_POS" ? "D+1" : "D+30";
+    toClass === "Caixa" ||
+    input.toAssetCode === "TESOURO_POS" ||
+    input.toAssetCode === "TESOURO_RESERVA" ||
+    input.toAssetCode === "POUPANCA"
+      ? "D+1"
+      : "D+30";
   const fromBucket = bucketLiquidity(target.liquidity);
   const newByLiq = { ...baseline.byLiquidity };
   newByLiq[fromBucket] = Math.max(0, newByLiq[fromBucket] - moveValue);
@@ -345,7 +350,10 @@ function applyConcentration(
 
   // Liquidez do alvo
   const destBucket: LiquidityBucket =
-    input.targetAssetClass === "Caixa" || input.targetAssetCode === "TESOURO_POS"
+    input.targetAssetClass === "Caixa" ||
+    input.targetAssetCode === "TESOURO_POS" ||
+    input.targetAssetCode === "TESOURO_RESERVA" ||
+    input.targetAssetCode === "POUPANCA"
       ? "D+1"
       : "D+30";
   const newByLiq = { ...baseline.byLiquidity };

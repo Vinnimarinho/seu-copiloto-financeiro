@@ -45,12 +45,14 @@ class SupabaseMockProvider implements MarketDataProvider {
 
 /** Fallback estático — usado se Supabase E BCB falharem. */
 const STATIC_FALLBACK: MarketRate[] = [
-  { code: "CDI",          label: "CDI",                        annualRate: 0.1115, source: "fallback", referenceDate: "", metadata: {} },
-  { code: "SELIC",        label: "Selic Meta",                 annualRate: 0.1125, source: "fallback", referenceDate: "", metadata: {} },
-  { code: "IPCA",         label: "IPCA (12m)",                 annualRate: 0.0450, source: "fallback", referenceDate: "", metadata: {} },
-  { code: "TESOURO_POS",  label: "Tesouro Selic (pós-fixado)", annualRate: 0.1110, source: "fallback", referenceDate: "", metadata: {} },
-  { code: "TESOURO_PRE",  label: "Tesouro Prefixado",          annualRate: 0.1180, source: "fallback", referenceDate: "", metadata: {} },
-  { code: "TESOURO_IPCA", label: "Tesouro IPCA+",              annualRate: 0.0625, source: "fallback", referenceDate: "", metadata: {} },
+  { code: "CDI",             label: "CDI",                        annualRate: 0.1115, source: "fallback", referenceDate: "", metadata: {} },
+  { code: "SELIC",           label: "Selic Meta",                 annualRate: 0.1125, source: "fallback", referenceDate: "", metadata: {} },
+  { code: "IPCA",            label: "IPCA (12m)",                 annualRate: 0.0450, source: "fallback", referenceDate: "", metadata: {} },
+  { code: "POUPANCA",        label: "Poupança",                   annualRate: 0.0788, source: "fallback", referenceDate: "", metadata: { basis: "70%_selic_meta_quando_selic>8.5%" } },
+  { code: "TESOURO_POS",     label: "Tesouro Selic (pós-fixado)", annualRate: 0.1110, source: "fallback", referenceDate: "", metadata: {} },
+  { code: "TESOURO_RESERVA", label: "Tesouro Reserva",            annualRate: 0.1125, source: "fallback", referenceDate: "", metadata: { basis: "100%_selic_meta", liquidity: "D+0", launched: "2026-05-11" } },
+  { code: "TESOURO_PRE",     label: "Tesouro Prefixado",          annualRate: 0.1180, source: "fallback", referenceDate: "", metadata: {} },
+  { code: "TESOURO_IPCA",    label: "Tesouro IPCA+",              annualRate: 0.0625, source: "fallback", referenceDate: "", metadata: {} },
 ];
 
 const ACTIVE_PROVIDER: MarketDataProvider = new HybridMarketDataProvider(
