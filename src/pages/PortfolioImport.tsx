@@ -340,6 +340,7 @@ export default function PortfolioImport() {
           Seus dados são criptografados e nunca compartilhados. Usados exclusivamente para a análise da performance da sua carteira.
         </p>
       </div>
+      <RequireCpfDialog open={cpfDialogOpen} onOpenChange={setCpfDialogOpen} onConfirmed={() => handleRunDiagnosis()} />
     </AppSidebar>
   );
 }
