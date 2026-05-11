@@ -299,7 +299,7 @@ serve(async (req) => {
       { data: wallet, error: walletError },
     ] = await Promise.all([
       supabase.from("portfolios").select("id").eq("user_id", user.id).limit(1).maybeSingle(),
-      supabase.from("profiles").select("onboarding_completed, full_name").eq("user_id", user.id).maybeSingle(),
+      supabase.from("profiles").select("onboarding_completed, full_name, cpf_hash").eq("user_id", user.id).maybeSingle(),
       supabase.from("investor_profiles").select("*").eq("user_id", user.id).maybeSingle(),
       supabase.from("credit_wallets").select("id, balance").eq("user_id", user.id).maybeSingle(),
     ]);
@@ -309,6 +309,12 @@ serve(async (req) => {
     if (investorProfileError) throw new Error(`Erro ao consultar perfil de investidor: ${investorProfileError.message}`);
     if (walletError) throw new Error(`Erro ao consultar créditos: ${walletError.message}`);
     if (!profile?.onboarding_completed) throw new Error("Complete seu perfil de investidor antes de executar o diagnóstico.");
+    if (!profile?.cpf_hash) {
+      return new Response(
+        JSON.stringify({ error: "cpf_required", message: "CPF é obrigatório para usar funções que consomem créditos." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
     if (!wallet) throw new Error("Carteira de créditos não encontrada.");
     if (wallet.balance <= 0) throw new Error("Você não tem créditos suficientes para rodar o diagnóstico.");
 
