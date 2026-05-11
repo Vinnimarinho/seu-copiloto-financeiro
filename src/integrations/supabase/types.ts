@@ -772,6 +772,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_credits: {
+        Args: {
+          _amount: number
+          _description: string
+          _reference_id: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       cpf_hash_exists: { Args: { _hash: string }; Returns: boolean }
       delete_user_account: { Args: never; Returns: undefined }
       export_user_data: { Args: never; Returns: Json }
@@ -785,6 +794,7 @@ export type Database = {
       hash_cpf: { Args: { _cpf: string }; Returns: string }
       set_user_cpf: { Args: { _cpf: string }; Returns: Json }
       user_has_cpf: { Args: { _user_id?: string }; Returns: boolean }
+      user_trial_status: { Args: { _user_id?: string }; Returns: Json }
       validate_cpf: { Args: { _cpf: string }; Returns: boolean }
     }
     Enums: {
