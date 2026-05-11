@@ -82,6 +82,23 @@ export default function SignupPage() {
             </div>
           </div>
           <div>
+            <label className="text-sm font-medium text-foreground mb-1.5 block">CPF</label>
+            <div className="relative">
+              <IdCard className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                inputMode="numeric"
+                value={cpf}
+                onChange={(e) => setCpf(formatCpf(e.target.value))}
+                placeholder="000.000.000-00"
+                required
+                maxLength={14}
+                className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-1">Usado apenas para garantir 1 conta gratuita por pessoa. Armazenamos só o hash.</p>
+          </div>
+          <div>
             <label className="text-sm font-medium text-foreground mb-1.5 block">Senha</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
