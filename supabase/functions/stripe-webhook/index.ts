@@ -128,6 +128,22 @@ serve(async (req) => {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.client_reference_id || session.metadata?.user_id || undefined;
+
+        // Pacote de créditos avulsos (mode=payment)
+        if (session.mode === "payment" && session.metadata?.kind === "credits" && userId) {
+          const credits = Number(session.metadata?.credits ?? "0");
+          if (credits > 0 && session.payment_status === "paid") {
+            const { error: addErr } = await supabase.rpc("add_credits", {
+              _user_id: userId,
+              _amount: credits,
+              _reference_id: null,
+              _description: `Compra de ${credits} créditos (Stripe ${session.id})`,
+            });
+            if (addErr) log("add_credits failed", { err: addErr.message, sid: session.id });
+            else log("Credits added", { userId, credits });
+          }
+        }
+
         if (session.subscription) {
           const subId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
           const sub = await stripe.subscriptions.retrieve(subId);
