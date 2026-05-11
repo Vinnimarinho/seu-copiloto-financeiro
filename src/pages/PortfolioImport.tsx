@@ -110,7 +110,7 @@ export default function PortfolioImport() {
     }
 
     // Gate: usuário precisa ter CPF cadastrado (1 conta gratuita por pessoa)
-    const { data: hasCpf } = await supabase.rpc("user_has_cpf", { _user_id: undefined as any });
+    const { data: hasCpf } = await supabase.rpc("user_has_cpf");
     if (hasCpf === false) {
       setCpfDialogOpen(true);
       return;
