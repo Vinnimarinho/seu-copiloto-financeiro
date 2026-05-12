@@ -9,6 +9,7 @@ import { z } from "npm:zod@3.25.76";
 
 const ALLOWED_ORIGINS: (string | RegExp)[] = [
   "https://luciuscopiloto.lovable.app",
+  "https://luciusinvest.com.br",
   /^https:\/\/.*\.lovable\.app$/,
   /^https:\/\/.*\.lovable\.dev$/,
   "http://localhost:8080",
@@ -71,6 +72,20 @@ serve(async (req) => {
     let isPaid = false;
     let isPro = false;
     let stripeCustomerId: string | null = null;
+
+    // 0) Override: admins têm acesso Pro completo
+    const { data: adminRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", u.user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (adminRole) {
+      return new Response(
+        JSON.stringify({ allowed: true, plan: "pro", product_id: PRO_PRODUCT_ID }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     // 1) Fonte primária: billing_subscriptions
     const { data: localSub } = await supabase

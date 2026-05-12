@@ -8,6 +8,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const ALLOWED_ORIGINS: (string | RegExp)[] = [
   "https://luciuscopiloto.lovable.app",
+  "https://luciusinvest.com.br",
   /^https:\/\/.*\.lovable\.app$/,
   /^https:\/\/.*\.lovable\.dev$/,
   "http://localhost:8080",
