@@ -3,18 +3,22 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useUserCredits } from "@/hooks/usePortfolio";
 import { useTrialStatus } from "@/hooks/useTrialStatus";
+import { useIsAdmin } from "@/hooks/useAdmin";
 
 /**
  * Banner exibido no topo da área logada quando:
  * - trial gratuito de 10 dias expirou (free), OU
  * - usuário está sem créditos
  * Sempre oferece CTA para Pricing (assinar OU comprar créditos).
+ * Admins não veem o banner — têm acesso Pro completo.
  */
 export function AccessBanner() {
   const navigate = useNavigate();
   const { data: credits } = useUserCredits();
   const { data: trial } = useTrialStatus();
+  const { data: isAdmin } = useIsAdmin();
 
+  if (isAdmin) return null;
   if (!trial) return null;
 
   const trialExpired = !trial.is_paid && trial.trial_expired;
