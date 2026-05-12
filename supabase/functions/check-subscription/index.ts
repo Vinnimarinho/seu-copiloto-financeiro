@@ -55,6 +55,28 @@ serve(async (req) => {
     const user = userData.user;
     if (!user) throw new Error("User not authenticated");
 
+    // 0) Override admin: acesso Pro completo
+    const { data: adminRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (adminRole) {
+      return new Response(
+        JSON.stringify({
+          subscribed: true,
+          product_id: PRODUCT_BY_PLAN.pro,
+          status: "active",
+          subscription_start: null,
+          subscription_end: null,
+          cancel_at_period_end: false,
+          source: "admin-override",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     // 1) Fonte primária: tabela local
     const { data: localSub } = await supabase
       .from("billing_subscriptions")
