@@ -73,6 +73,20 @@ serve(async (req) => {
     let isPro = false;
     let stripeCustomerId: string | null = null;
 
+    // 0) Override: admins têm acesso Pro completo
+    const { data: adminRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", u.user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (adminRole) {
+      return new Response(
+        JSON.stringify({ allowed: true, plan: "pro", product_id: PRO_PRODUCT_ID }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     // 1) Fonte primária: billing_subscriptions
     const { data: localSub } = await supabase
       .from("billing_subscriptions")
