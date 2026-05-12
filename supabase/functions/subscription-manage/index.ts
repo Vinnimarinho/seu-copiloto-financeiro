@@ -13,6 +13,7 @@ import { z } from "npm:zod@3.25.76";
 
 const ALLOWED_ORIGINS: (string | RegExp)[] = [
   "https://luciuscopiloto.lovable.app",
+  "https://luciusinvest.com.br",
   /^https:\/\/.*\.lovable\.app$/,
   /^https:\/\/.*\.lovable\.dev$/,
   "http://localhost:8080",

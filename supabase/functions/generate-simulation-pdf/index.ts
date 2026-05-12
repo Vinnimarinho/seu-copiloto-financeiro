@@ -7,6 +7,7 @@ import { jsPDF } from "npm:jspdf@2.5.2";
 
 const ALLOWED_ORIGINS: (string | RegExp)[] = [
   "https://luciuscopiloto.lovable.app",
+  "https://luciusinvest.com.br",
   /^https:\/\/.*\.lovable\.app$/,
   /^https:\/\/.*\.lovable\.dev$/,
   "http://localhost:8080",
