@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { formatCurrency } from "@/data/mockData";
 import { TrendingUp, TrendingDown, Minus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 
 interface Position {
   id: string;
@@ -59,34 +59,48 @@ export default function PortfolioTracker({ positions }: { positions: Position[] 
     return { invested: inv, current: cur, gain: cur - inv, pct: inv > 0 ? ((cur - inv) / inv) * 100 : 0 };
   }, [rows]);
 
-  function exportXLS() {
-    const data = rows.map((r) => ({
-      "Ativo": r.ticker,
-      "Nome": r.name,
-      "Classe": r.asset_class,
-      "Data Entrada": formatDate(r.date),
-      "Valor Investido (R$)": Number(r.invested.toFixed(2)),
-      "Valor Atual (R$)": Number(r.current.toFixed(2)),
-      "Ganho/Perda (R$)": Number(r.gain.toFixed(2)),
-      "Retorno (%)": Number(r.pct.toFixed(2)),
-      "Diagnóstico": r.diag.text,
-    }));
-    data.push({
-      "Ativo": "TOTAL",
-      "Nome": "",
-      "Classe": "",
-      "Data Entrada": "",
-      "Valor Investido (R$)": Number(totals.invested.toFixed(2)),
-      "Valor Atual (R$)": Number(totals.current.toFixed(2)),
-      "Ganho/Perda (R$)": Number(totals.gain.toFixed(2)),
-      "Retorno (%)": Number(totals.pct.toFixed(2)),
-      "Diagnóstico": "",
+  async function exportXLS() {
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet("Carteira");
+    ws.columns = [
+      { header: "Ativo", key: "ticker", width: 10 },
+      { header: "Nome", key: "name", width: 25 },
+      { header: "Classe", key: "asset_class", width: 15 },
+      { header: "Data Entrada", key: "date", width: 14 },
+      { header: "Valor Investido (R$)", key: "invested", width: 16 },
+      { header: "Valor Atual (R$)", key: "current", width: 16 },
+      { header: "Ganho/Perda (R$)", key: "gain", width: 16 },
+      { header: "Retorno (%)", key: "pct", width: 12 },
+      { header: "Diagnóstico", key: "diag", width: 12 },
+    ];
+    rows.forEach((r) => {
+      ws.addRow({
+        ticker: r.ticker,
+        name: r.name,
+        asset_class: r.asset_class,
+        date: formatDate(r.date),
+        invested: Number(r.invested.toFixed(2)),
+        current: Number(r.current.toFixed(2)),
+        gain: Number(r.gain.toFixed(2)),
+        pct: Number(r.pct.toFixed(2)),
+        diag: r.diag.text,
+      });
     });
-    const ws = XLSX.utils.json_to_sheet(data);
-    ws["!cols"] = [{ wch: 10 }, { wch: 25 }, { wch: 15 }, { wch: 14 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 12 }, { wch: 12 }];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Carteira");
-    XLSX.writeFile(wb, `carteira_lucius_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    ws.addRow({
+      ticker: "TOTAL",
+      invested: Number(totals.invested.toFixed(2)),
+      current: Number(totals.current.toFixed(2)),
+      gain: Number(totals.gain.toFixed(2)),
+      pct: Number(totals.pct.toFixed(2)),
+    });
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `carteira_lucius_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   if (!rows.length) return null;
