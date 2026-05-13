@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { formatCurrency } from "@/data/mockData";
 import { TrendingUp, TrendingDown, Minus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 
 interface Position {
   id: string;
