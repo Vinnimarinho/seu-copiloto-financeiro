@@ -40,7 +40,7 @@ export default defineConfig(({ mode }) => ({
           ],
           "charts": ["recharts"],
           "motion": ["framer-motion"],
-          "xlsx": ["xlsx"],
+          "exceljs": ["exceljs"],
           "supabase": ["@supabase/supabase-js"],
           "query": ["@tanstack/react-query"],
           "i18n": ["i18next", "react-i18next", "i18next-browser-languagedetector"],
