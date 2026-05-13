@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/AppSidebar";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Check, Zap, Loader2, Settings2, Coins, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -90,8 +91,29 @@ export default function Pricing() {
 
   const handleManage = () => navigate("/billing");
 
+  const productJsonLd = plans.map((p) => ({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: `Lucius ${p.name}`,
+    description: p.desc,
+    brand: { "@type": "Brand", name: "Lucius" },
+    offers: {
+      "@type": "Offer",
+      price: p.price.replace(/[^\d,]/g, "").replace(",", "."),
+      priceCurrency: "BRL",
+      url: "https://luciusinvest.com.br/pricing",
+      availability: "https://schema.org/InStock",
+    },
+  }));
+
   return (
     <AppSidebar>
+      <SEO
+        title="Planos e Preços — Lucius"
+        description="Compare os planos Gratuito, Essencial e Pro do Lucius. Análise de carteira por IA em PT-BR, com créditos por uso e cancelamento a qualquer momento."
+        path="/pricing"
+        jsonLd={productJsonLd}
+      />
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center space-y-3">
           <h1 className="font-heading text-2xl font-bold text-foreground">Planos e Preços</h1>

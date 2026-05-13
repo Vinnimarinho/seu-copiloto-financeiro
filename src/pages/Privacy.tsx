@@ -1,10 +1,12 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
+import { SEO } from "@/components/SEO";
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Política de Privacidade — Lucius" description="Como o Lucius coleta, utiliza e protege seus dados pessoais conforme a LGPD." path="/privacy" />
       <header className="border-b border-border bg-card h-16 flex items-center px-6">
         <Link to="/"><Logo size="md" /></Link>
       </header>

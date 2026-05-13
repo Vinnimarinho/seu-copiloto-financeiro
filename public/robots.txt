@@ -9,9 +9,12 @@ Disallow: /reports
 Disallow: /history
 Disallow: /settings
 Disallow: /admin
+Disallow: /compliance
 Disallow: /chat
 Disallow: /onboarding
 Disallow: /payment/
+Disallow: /billing
 Disallow: /reset-password
+Disallow: /auth/
 
-Sitemap: https://luciuscopiloto.lovable.app/sitemap.xml
+Sitemap: https://luciusinvest.com.br/sitemap.xml

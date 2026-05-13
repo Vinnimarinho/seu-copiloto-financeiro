@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
 import { ArrowLeft, Mail, Lock, User, Eye, EyeOff, IdCard } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -57,6 +58,7 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-sidebar flex items-center justify-center p-6">
+      <SEO title="Criar conta — Lucius" description="Cadastre-se grátis no Lucius e analise sua carteira de investimentos com copiloto de IA em PT-BR." path="/signup" />
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">

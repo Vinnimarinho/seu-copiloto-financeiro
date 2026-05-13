@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
 import { ArrowLeft, Lock, Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -53,6 +54,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen bg-sidebar flex items-center justify-center p-6">
+      <SEO title="Redefinir senha — Lucius" description="Defina uma nova senha para sua conta Lucius." path="/reset-password" noindex />
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">

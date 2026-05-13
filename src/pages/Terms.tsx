@@ -1,10 +1,12 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
+import { SEO } from "@/components/SEO";
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Termos de Uso — Lucius" description="Termos e condições de uso da plataforma Lucius, incluindo limites regulatórios e responsabilidades do usuário." path="/terms" />
       <header className="border-b border-border bg-card h-16 flex items-center px-6">
         <Link to="/"><Logo size="md" /></Link>
       </header>
