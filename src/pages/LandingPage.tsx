@@ -285,7 +285,7 @@ export default function LandingPage() {
             <motion.div
               variants={fadeUp}
               custom={4}
-              className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs text-sidebar-foreground/40"
+              className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs text-sidebar-foreground/70"
             >
               <span className="inline-flex items-center gap-1.5">
                 <Lock className="w-3 h-3" />
@@ -311,7 +311,7 @@ export default function LandingPage() {
             transition={{ duration: 0.6 }}
             className="mt-20 max-w-4xl mx-auto"
           >
-            <p className="text-center text-[10px] uppercase tracking-[0.24em] text-sidebar-foreground/35 mb-6">
+            <p className="text-center text-[10px] uppercase tracking-[0.24em] text-sidebar-foreground/65 mb-6">
               Construído com princípios de
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-sidebar-foreground/55 text-sm">
@@ -349,7 +349,7 @@ export default function LandingPage() {
             {/* Pain */}
             <div className="glass-dark rounded-2xl p-8 border-emerald-subtle border">
               <div className="flex items-center gap-2 mb-6">
-                <ShieldAlert className="w-5 h-5 text-sidebar-foreground/40" />
+                <ShieldAlert className="w-5 h-5 text-sidebar-foreground/70" />
                 <span className="text-xs uppercase tracking-[0.18em] text-sidebar-foreground/50 font-medium">
                   Hoje, sem o LUCIUS
                 </span>
@@ -581,7 +581,7 @@ export default function LandingPage() {
                   ))}
                 </ul>
                 {plan.note && (
-                  <p className="text-[11px] text-sidebar-foreground/40 mb-4 text-center">
+                  <p className="text-[11px] text-sidebar-foreground/70 mb-4 text-center">
                     {plan.note}
                   </p>
                 )}
@@ -638,7 +638,7 @@ export default function LandingPage() {
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
               </Button>
             </Link>
-            <p className="text-[11px] text-sidebar-foreground/35 mt-10 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-[11px] text-sidebar-foreground/65 mt-10 max-w-2xl mx-auto leading-relaxed">
               O LUCIUS é um software de apoio à análise da performance da carteira e à compreensão
               do investidor. Conteúdo informativo e educacional — não constitui consultoria, oferta
               de valores mobiliários ou execução de ordens. Não somos registrados na CVM, ANBIMA ou
@@ -660,11 +660,11 @@ export default function LandingPage() {
             <div className="flex flex-col md:flex-row items-center gap-4">
               <Logo size="sm" variant="light" />
               <span className="hidden md:inline text-sidebar-foreground/30">·</span>
-              <p className="text-[11px] text-sidebar-foreground/40 italic">
+              <p className="text-[11px] text-sidebar-foreground/70 italic">
                 Lucidez sobre a performance da sua carteira.
               </p>
             </div>
-            <div className="flex items-center gap-6 text-xs text-sidebar-foreground/45">
+            <div className="flex items-center gap-6 text-xs text-sidebar-foreground/70">
               <a
                 href="https://blog.luciusinvest.com.br"
                 target="_blank"
