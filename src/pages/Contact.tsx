@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SEO } from "@/components/SEO";
 import { Link } from "react-router-dom";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,7 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Contato — Lucius" description="Fale com a equipe Lucius. Tire dúvidas sobre planos, importação de carteira ou suporte técnico." path="/contato" />
       <LandingHeader />
       <main className="container mx-auto px-6 pt-32 pb-20 max-w-2xl">
         <Link
