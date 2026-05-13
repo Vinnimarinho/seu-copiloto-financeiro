@@ -182,7 +182,32 @@ const pricingPlans = [
 
 /* ================================================================ */
 export default function LandingPage() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      { q: "O LUCIUS é uma corretora ou consultoria de investimentos?", a: "Não. O LUCIUS é um software de apoio à análise da performance da sua carteira. Não somos registrados na CVM, ANBIMA ou APIMEC, não executamos ordens, não indicamos ativos específicos e não fazemos consultoria regulada. A decisão final é sempre exclusivamente sua." },
+      { q: "Como meus dados são protegidos?", a: "Seus dados são criptografados em trânsito e em repouso, armazenados em infraestrutura segura e jamais compartilhados com terceiros. Você pode exportar ou excluir tudo a qualquer momento." },
+      { q: "Como o LUCIUS lê minha carteira?", a: "Você importa seus dados via CSV, XLSX, OFX ou PDF — os mesmos formatos que sua corretora já fornece. O LUCIUS interpreta, organiza e traduz tudo em uma leitura clara, sem economês." },
+      { q: "Vocês indicam ações, fundos ou ativos específicos?", a: "Não. O LUCIUS oferece leitura, diagnóstico e oportunidades educacionais sobre a estrutura da sua carteira — nunca indicação de ativo específico." },
+      { q: "O que diferencia o LUCIUS de uma planilha?", a: "Inteligência aplicada. O LUCIUS interpreta risco, liquidez, concentração, diversificação e contexto de mercado em segundos — e traduz isso em linguagem direta." },
+      { q: "Posso cancelar a qualquer momento?", a: "Sim. Sem multa, sem letras miúdas. Você cancela direto pelo app e continua com acesso até o fim do ciclo já pago." },
+      { q: "Funciona para investidores iniciantes?", a: "Sim — e foi desenhado pensando em quem quer entender de verdade. Toda leitura é traduzida para uma linguagem acessível, sem exigir conhecimento técnico prévio." },
+    ].map(({ q, a }) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: { "@type": "Answer", text: a },
+    })),
+  };
+
   return (
+    <>
+      <SEO
+        title="Lucius — Lucidez sobre seus investimentos"
+        description="Importe seus extratos e veja, em minutos, performance, risco, liquidez e oportunidades da sua carteira. Copiloto de IA em PT-BR, sem economês."
+        path="/"
+        jsonLd={faqJsonLd}
+      />
     <div className="min-h-screen bg-obsidian text-sidebar-foreground">
       <LandingHeader />
 
