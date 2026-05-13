@@ -26,6 +26,7 @@ import { LandingHeader } from "@/components/landing/LandingHeader";
 import { HeroMockup } from "@/components/landing/HeroMockup";
 import { FAQ } from "@/components/landing/FAQ";
 import { Testimonials } from "@/components/Testimonials";
+import { SEO } from "@/components/SEO";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -687,5 +688,6 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+    </>
   );
 }
