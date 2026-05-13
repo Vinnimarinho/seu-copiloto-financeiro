@@ -212,6 +212,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-obsidian text-sidebar-foreground">
       <LandingHeader />
 
+      <main id="main-content">
       {/* ============================================================ */}
       {/* HERO                                                          */}
       {/* ============================================================ */}
@@ -647,6 +648,8 @@ export default function LandingPage() {
           </motion.div>
         </div>
       </section>
+
+      </main>
 
       {/* ============================================================ */}
       {/* FOOTER                                                        */}
