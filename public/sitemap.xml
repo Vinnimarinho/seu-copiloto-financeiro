@@ -2,36 +2,41 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://luciuscopiloto.lovable.app/</loc>
+    <loc>https://luciusinvest.com.br/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://luciuscopiloto.lovable.app/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://luciuscopiloto.lovable.app/?lang=en" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://luciuscopiloto.lovable.app/?lang=es" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://luciuscopiloto.lovable.app/" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://luciusinvest.com.br/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://luciusinvest.com.br/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://luciusinvest.com.br/?lang=es" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://luciusinvest.com.br/" />
   </url>
   <url>
-    <loc>https://luciuscopiloto.lovable.app/pricing</loc>
+    <loc>https://luciusinvest.com.br/pricing</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://luciuscopiloto.lovable.app/login</loc>
+    <loc>https://luciusinvest.com.br/contato</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://luciusinvest.com.br/login</loc>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://luciuscopiloto.lovable.app/signup</loc>
+    <loc>https://luciusinvest.com.br/signup</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://luciuscopiloto.lovable.app/terms</loc>
+    <loc>https://luciusinvest.com.br/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://luciuscopiloto.lovable.app/privacy</loc>
+    <loc>https://luciusinvest.com.br/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

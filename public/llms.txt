@@ -1,0 +1,18 @@
+# Lucius
+
+> Copiloto de IA em PT-BR para análise de carteira de investimentos. Importe extratos (CSV, XLSX, OFX, PDF) e veja em minutos performance, risco, liquidez, concentração e oportunidades — sem economês.
+
+Lucius é um software brasileiro de apoio à análise da performance da carteira. Não é corretora, não executa ordens, não indica ativos específicos e não substitui consultoria regulada. A decisão final é sempre do investidor.
+
+## Pages
+
+- [Início](/): Visão geral do produto, como funciona e provas sociais.
+- [Planos e preços](/pricing): Plano Gratuito, Essencial e Pro com créditos por uso.
+- [Contato](/contato): Fale com a equipe Lucius.
+- [Termos de uso](/terms): Termos de serviço e limites regulatórios.
+- [Política de privacidade](/privacy): Tratamento de dados conforme LGPD.
+
+## Optional
+
+- [Entrar](/login): Acesso para usuários cadastrados.
+- [Criar conta](/signup): Cadastro de novo usuário.
