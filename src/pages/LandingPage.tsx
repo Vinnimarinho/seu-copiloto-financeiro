@@ -147,7 +147,7 @@ export default function LandingPage() {
             <motion.div variants={fadeUp} custom={0}>
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-dark text-[11px] uppercase tracking-[0.18em] text-emerald-glow font-medium mb-8">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-glow animate-pulse" />
-                Lucidez assistida por IA de última geração
+                {t("landing.tagline")}
               </span>
             </motion.div>
 
@@ -156,8 +156,8 @@ export default function LandingPage() {
               custom={1}
               className="font-heading text-5xl md:text-7xl font-bold leading-[1.05] mb-6 text-balance text-sidebar-foreground"
             >
-              Lucidez sobre a performance da{" "}
-              <span className="text-gradient-emerald">sua carteira</span>.
+              {t("landing.heroTitlePart1")}{" "}
+              <span className="text-gradient-emerald">{t("landing.heroTitleHighlight")}</span>.
             </motion.h1>
 
             <motion.p
@@ -165,8 +165,7 @@ export default function LandingPage() {
               custom={2}
               className="text-lg md:text-xl text-sidebar-foreground/65 mb-10 max-w-2xl mx-auto leading-relaxed text-balance"
             >
-              O LUCIUS traduz a linguagem técnica do mercado em leitura clara, isenta e
-              acionável — para você decidir com inteligência, no seu tempo, sob seu controle.
+              {t("landing.heroSubtitle")}
             </motion.p>
 
             <motion.div
@@ -176,7 +175,7 @@ export default function LandingPage() {
             >
               <Link to="/signup">
                 <Button variant="hero" size="xl" className="shadow-glow-emerald group">
-                  Começar análise grátis
+                  {t("landing.ctaStart")}
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
                 </Button>
               </Link>
@@ -186,7 +185,7 @@ export default function LandingPage() {
                   size="xl"
                   className="text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
                 >
-                  Ver como funciona
+                  {t("landing.ctaHowItWorks")}
                 </Button>
               </a>
             </motion.div>
@@ -198,12 +197,12 @@ export default function LandingPage() {
             >
               <span className="inline-flex items-center gap-1.5">
                 <Lock className="w-3 h-3" />
-                Dados criptografados e privados
+                {t("landing.trustEncrypted")}
               </span>
               <span className="hidden sm:inline w-1 h-1 rounded-full bg-sidebar-foreground/20" />
-              <span>Sem cartão de crédito</span>
+              <span>{t("landing.trustNoCard")}</span>
               <span className="hidden sm:inline w-1 h-1 rounded-full bg-sidebar-foreground/20" />
-              <span>Cancele quando quiser</span>
+              <span>{t("landing.trustCancel")}</span>
             </motion.div>
           </motion.div>
 
