@@ -138,7 +138,7 @@ export default function Diagnosis() {
             return (
               <BentoCard key={item.key} title={item.label} subtitle={item.glossary}>
                 <div className="flex items-center justify-between gap-2">
-                  <span className={`text-xs font-medium ${cls.textClass}`}>{getScoreLabel(item.score)}</span>
+                  <span className={`text-xs font-medium ${cls.textClass}`}>{tierLabel(item.score)}</span>
                   <ScoreBadge score={item.score} />
                 </div>
                 <div className="mt-2 h-1.5 bg-secondary rounded-full overflow-hidden">
