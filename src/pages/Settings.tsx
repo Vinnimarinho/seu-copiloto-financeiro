@@ -18,12 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
-
-const profileOptions = [
-  { value: "conservador" as const, label: "Conservador" },
-  { value: "moderado" as const, label: "Moderado" },
-  { value: "arrojado" as const, label: "Arrojado" },
-];
+import { useTranslation } from "react-i18next";
 
 export default function SettingsPage() {
   const { user, signOut } = useAuth();
