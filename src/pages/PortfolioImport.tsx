@@ -102,12 +102,12 @@ export default function PortfolioImport() {
 
   const handleRunDiagnosis = useCallback(async () => {
     if (!uploadedFile?.path) {
-      toast.error("Envie um arquivo antes de iniciar a análise.");
+      toast.error(t("portfolioImport.toasts.needFile"));
       return;
     }
 
     if (!profile?.onboarding_completed) {
-      toast.error("Complete seu perfil de investidor antes de rodar o diagnóstico.");
+      toast.error(t("portfolioImport.toasts.needOnboarding"));
       return;
     }
 
@@ -119,7 +119,7 @@ export default function PortfolioImport() {
     }
 
     if (!isPeriodValid) {
-      toast.error("Informe um período válido para a análise.");
+      toast.error(t("portfolioImport.toasts.invalidPeriod"));
       return;
     }
 
