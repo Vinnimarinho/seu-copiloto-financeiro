@@ -37,19 +37,27 @@ const toDateInputValue = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-const formatPeriodLabel = (startDate: string, endDate: string) => {
+const formatPeriodLabel = (startDate: string, endDate: string, locale: string, separator: string) => {
   const start = new Date(`${startDate}T00:00:00`);
   const end = new Date(`${endDate}T00:00:00`);
-  const formatter = new Intl.DateTimeFormat("pt-BR", {
+  const formatter = new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   });
 
-  return `${formatter.format(start)} a ${formatter.format(end)}`;
+  return `${formatter.format(start)} ${separator} ${formatter.format(end)}`;
 };
 
 export default function PortfolioImport() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language?.startsWith("en") ? "en-US" : "pt-BR";
+  const formats = [
+    { icon: <FileSpreadsheet className="w-8 h-8" />, name: "CSV", desc: t("portfolioImport.format.csv") },
+    { icon: <FileSpreadsheet className="w-8 h-8" />, name: "XLSX", desc: t("portfolioImport.format.xlsx") },
+    { icon: <File className="w-8 h-8" />, name: "OFX", desc: t("portfolioImport.format.ofx") },
+    { icon: <FileText className="w-8 h-8" />, name: "PDF", desc: t("portfolioImport.format.pdf") },
+  ];
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [processResult, setProcessResult] = useState<ProcessResult | null>(null);
   const [periodStart, setPeriodStart] = useState(() => {
@@ -72,8 +80,8 @@ export default function PortfolioImport() {
   const canAnalyze = !!uploadedFile && isPeriodValid && !!profile?.onboarding_completed && !!investorProfile && !isBusy;
   const periodLabel = useMemo(() => {
     if (!isPeriodValid) return "";
-    return formatPeriodLabel(periodStart, periodEnd);
-  }, [isPeriodValid, periodEnd, periodStart]);
+    return formatPeriodLabel(periodStart, periodEnd, dateLocale, t("portfolioImport.periodSeparator"));
+  }, [isPeriodValid, periodEnd, periodStart, dateLocale, t]);
 
   const handleFiles = useCallback(async (fileList: FileList | File[]) => {
     const [file] = Array.from(fileList);
@@ -85,12 +93,12 @@ export default function PortfolioImport() {
     try {
       const path = await uploadMutation.mutateAsync(file);
       setFiles([{ file, status: "uploaded", path }]);
-      toast.info("Arquivo pronto. Configure o período e inicie a análise da performance da carteira.");
+      toast.info(t("portfolioImport.toasts.ready"));
     } catch (e) {
       setFiles([{ file, status: "error", error: (e as Error).message }]);
-      toast.error(`Erro: ${(e as Error).message}`);
+      toast.error(t("portfolioImport.toasts.uploadError", { msg: (e as Error).message }));
     }
-  }, [uploadMutation]);
+  }, [uploadMutation, t]);
 
   const handleRunDiagnosis = useCallback(async () => {
     if (!uploadedFile?.path) {
