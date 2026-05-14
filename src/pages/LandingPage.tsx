@@ -39,152 +39,59 @@ const fadeUp = {
   }),
 };
 
-/* ---------------------------------------------------------------- */
-/* Section: Por que                                                  */
-/* ---------------------------------------------------------------- */
-const painPoints = [
-  "Você não sabe ao certo o que tem na carteira",
-  "Você recebe ruído demais e clareza de menos",
-  "Você toma decisão sem ler o todo",
-  "Você ouve economês onde precisava de leitura simples",
-];
-
-const lucidityPoints = [
-  { icon: Eye, label: "Leitura clara", desc: "Tradução direta da carteira em linguagem humana." },
-  { icon: Compass, label: "Diagnóstico isento", desc: "Risco, liquidez, concentração, diversificação." },
-  { icon: Sparkles, label: "Inteligência aplicada", desc: "IA de última geração focada em educação financeira." },
-  { icon: ShieldCheck, label: "Apoio à decisão", desc: "Sugestões educacionais. Quem decide é você." },
-];
-
-/* ---------------------------------------------------------------- */
-/* Section: Como funciona                                            */
-/* ---------------------------------------------------------------- */
-const steps = [
-  {
-    n: "01",
-    title: "Crie sua conta",
-    desc: "Onboarding rápido. Sem fricção, sem cartão de crédito.",
-  },
-  {
-    n: "02",
-    title: "Importe sua carteira",
-    desc: "CSV, XLSX, OFX ou PDF — os formatos que sua corretora já fornece.",
-  },
-  {
-    n: "03",
-    title: "Receba o diagnóstico",
-    desc: "Risco, liquidez, concentração e leitura LUCIUS em segundos.",
-  },
-  {
-    n: "04",
-    title: "Aja com clareza",
-    desc: "Oportunidades, simulações de cenário e relatórios para apoiar decisões.",
-  },
-];
-
-/* ---------------------------------------------------------------- */
-/* Section: Benefícios                                               */
-/* ---------------------------------------------------------------- */
-const benefits = [
-  {
-    icon: Activity,
-    title: "Leitura da performance",
-    desc: "Veja o que sua carteira está dizendo — sem precisar ser analista para entender.",
-  },
-  {
-    icon: Layers,
-    title: "Risco, liquidez e concentração",
-    desc: "Três leituras essenciais que a maioria dos investidores nunca vê com clareza.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Oportunidades estratégicas",
-    desc: "Identificação de pontos de melhoria — sem indicar ativo específico.",
-  },
-  {
-    icon: FileText,
-    title: "Relatórios sob demanda",
-    desc: "PDFs elegantes para registrar decisões, comparar períodos e organizar a leitura.",
-  },
-  {
-    icon: MessagesSquare,
-    title: "Converse com o LUCIUS",
-    desc: "Tire dúvidas em linguagem clara, com contexto da sua própria carteira.",
-  },
-  {
-    icon: Sparkles,
-    title: "Simulações e projeções",
-    desc: "Teste cenários táticos antes de agir — leitura comparativa, não promessa.",
-  },
-];
-
-/* ---------------------------------------------------------------- */
-/* Section: Para quem                                                */
-/* ---------------------------------------------------------------- */
-const audience = [
-  "Investidor que quer entender o que está fazendo",
-  "Investidor cansado de economês e ruído de mercado",
-  "Investidor que busca autonomia com clareza",
-  "Investidor que quer organizar e registrar decisões",
-];
-
-/* ---------------------------------------------------------------- */
-/* Section: Planos                                                   */
-/* ---------------------------------------------------------------- */
-const pricingPlans = [
-  {
-    name: "Gratuito",
-    price: "R$ 0",
-    period: "",
-    desc: "Para conhecer a leitura LUCIUS",
-    features: ["1 carteira", "1 crédito de análise", "Diagnóstico básico", "Sem download de relatórios"],
-    cta: "Experimentar grátis",
-    href: "/signup",
-    note: "Sem compromisso — teste agora",
-  },
-  {
-    name: "Essencial",
-    price: "R$ 39,99",
-    period: "/mês",
-    desc: "Para o investidor ativo",
-    features: [
-      "3 carteiras",
-      "Diagnóstico completo",
-      "20 créditos de análise/mês",
-      "Relatórios em PDF",
-      "Oportunidades de melhoria",
-      "Calculadora de aposentadoria passiva",
-      "Histórico de 12 meses",
-    ],
-    cta: "Assinar Essencial",
-    href: "/signup",
-    highlight: true,
-    note: "Cobrado anualmente · 12x de R$ 39,99",
-  },
-  {
-    name: "Pro",
-    price: "R$ 89",
-    period: "/mês",
-    desc: "Para quem leva a carteira a sério",
-    features: [
-      "Carteiras ilimitadas",
-      "Diagnóstico avançado",
-      "100 créditos de análise/mês",
-      "Relatórios completos",
-      "Oportunidades de melhoria",
-      "Calculadora de aposentadoria passiva",
-      "Simulações de cenário",
-      "Histórico completo",
-      "Suporte prioritário",
-    ],
-    cta: "Assinar Pro",
-    href: "/signup",
-    note: "Cobrado anualmente · 12x de R$ 89",
-  },
-];
+const lucidityIcons = [Eye, Compass, Sparkles, ShieldCheck];
+const benefitIcons = [Activity, Layers, TrendingUp, FileText, MessagesSquare, Sparkles];
 
 /* ================================================================ */
 export default function LandingPage() {
+  const { t } = useTranslation();
+  const { currency, formatPrice } = useCurrency();
+
+  const painPoints = t("landing.painPoints", { returnObjects: true }) as string[];
+  const lucidityPoints = (t("landing.lucidity", { returnObjects: true }) as Array<{ label: string; desc: string }>).map((p, i) => ({
+    ...p, icon: lucidityIcons[i] ?? Eye,
+  }));
+  const steps = t("landing.steps", { returnObjects: true }) as Array<{ n: string; title: string; desc: string }>;
+  const benefits = (t("landing.benefits", { returnObjects: true }) as Array<{ title: string; desc: string }>).map((b, i) => ({
+    ...b, icon: benefitIcons[i] ?? Activity,
+  }));
+  const audience = t("landing.audience", { returnObjects: true }) as string[];
+
+  // Pricing (currency-aware)
+  const isUSD = currency === "USD";
+  const pricingPlans = [
+    {
+      name: t("pricing.free"),
+      price: isUSD ? "$0" : "R$ 0",
+      period: "",
+      desc: t("pricing.planDescriptions.free"),
+      features: t("pricing.planFeatures.free", { returnObjects: true }) as string[],
+      cta: t("pricing.subscribe"),
+      href: "/signup",
+      note: t("pricing.planNotes.free"),
+    },
+    {
+      name: t("pricing.essential"),
+      price: isUSD ? "$9.90" : "R$ 39,99",
+      period: t("pricing.perMonth"),
+      desc: t("pricing.planDescriptions.essencial"),
+      features: t("pricing.planFeatures.essencial", { returnObjects: true }) as string[],
+      cta: t("pricing.subscribe"),
+      href: "/signup",
+      highlight: true,
+      note: isUSD ? t("pricing.planNotes.essencialUSD") : t("pricing.planNotes.essencialBRL"),
+    },
+    {
+      name: t("pricing.pro"),
+      price: isUSD ? "$19.90" : "R$ 89,99",
+      period: t("pricing.perMonth"),
+      desc: t("pricing.planDescriptions.pro"),
+      features: t("pricing.planFeatures.pro", { returnObjects: true }) as string[],
+      cta: t("pricing.subscribe"),
+      href: "/signup",
+      note: isUSD ? t("pricing.planNotes.proUSD") : t("pricing.planNotes.proBRL"),
+    },
+  ];
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
