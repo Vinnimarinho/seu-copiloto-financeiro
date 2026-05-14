@@ -285,5 +285,65 @@
     "download": "Download",
     "empty": "No reports generated yet",
     "generating": "Generating report..."
+  },
+  "notFound": {
+    "message": "Oops! Page not found",
+    "back": "Return to Home"
+  },
+  "paymentSuccess": {
+    "syncingTitle": "Confirming your payment...",
+    "syncingDesc": "Please wait while we sync your subscription. This only takes a few seconds.",
+    "receivedTitle": "Payment received",
+    "receivedDesc": "Your payment was processed, but syncing is taking a bit longer. Your plan will be activated shortly. You can check on the Plans page.",
+    "viewPlan": "View my plan",
+    "goDashboard": "Go to Dashboard",
+    "congrats": "Congratulations! 🎉",
+    "planActivated": "{{plan}} plan activated successfully!",
+    "enjoy": "You now have access to every feature of the {{plan}} plan. Enjoy the full Lucius experience to manage your investments.",
+    "feat1": "Full portfolio diagnosis",
+    "feat2": "Detailed reports",
+    "feat3": "Improvement opportunities",
+    "feat4": "Chat with Lucius AI",
+    "goDash2": "Go to Dashboard",
+    "doDiagnosis": "Run Diagnosis"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "phonePlaceholder": "(555) 555-5555",
+    "investorProfile": "Investor profile",
+    "conservative": "Conservative",
+    "moderate": "Moderate",
+    "aggressive": "Aggressive",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "privacy": "Privacy and data",
+    "privacyDesc": "Your data is protected and never used to train AI models. You can export a full copy as JSON or permanently delete your account at any time.",
+    "fiscalNote": "For tax and accounting obligations, essential billing records are retained for up to 5 years (with no direct link to your identity after deletion).",
+    "exportData": "Export my data",
+    "deleteAccount": "Delete account",
+    "exportSuccess": "Data exported successfully",
+    "exportError": "Error exporting data",
+    "deleteTitle": "Delete your account?",
+    "deleteWarning": "This action is permanent. All your personal data, portfolios, analyses, opportunities and reports will be deleted. Billing records are kept by legal obligation and unlinked from your identity.",
+    "deleteConfirm": "To confirm, type DELETE below:",
+    "deleteWord": "DELETE",
+    "deleteFinal": "Delete permanently",
+    "deleteSuccess": "Account deleted. Signing out...",
+    "deleteError": "Error deleting account",
+    "cancel": "Cancel"
+  },
+  "footer": {
+    "links": {
+      "blog": "Blog",
+      "contact": "Contact",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "compliance": "Compliance"
+    },
+    "copyright": "© 2026 Lucius"
   }
 }

@@ -285,5 +285,65 @@
     "download": "Baixar",
     "empty": "Nenhum relatório gerado ainda",
     "generating": "Gerando relatório..."
+  },
+  "notFound": {
+    "message": "Ops! Página não encontrada",
+    "back": "Voltar para a Home"
+  },
+  "paymentSuccess": {
+    "syncingTitle": "Confirmando seu pagamento...",
+    "syncingDesc": "Aguarde enquanto sincronizamos sua assinatura. Isso leva apenas alguns segundos.",
+    "receivedTitle": "Pagamento recebido",
+    "receivedDesc": "Seu pagamento foi processado, mas a sincronização está demorando um pouco mais. Seu plano será ativado em breve. Você pode verificar na página de Planos.",
+    "viewPlan": "Ver meu plano",
+    "goDashboard": "Ir para Dashboard",
+    "congrats": "Parabéns! 🎉",
+    "planActivated": "Plano {{plan}} ativado com sucesso!",
+    "enjoy": "Agora você tem acesso a todos os recursos do plano {{plan}}. Aproveite a experiência completa do Lucius para gerenciar seus investimentos.",
+    "feat1": "Diagnóstico completo da carteira",
+    "feat2": "Relatórios detalhados",
+    "feat3": "Oportunidades de melhoria",
+    "feat4": "Chat com Lucius IA",
+    "goDash2": "Ir para o Dashboard",
+    "doDiagnosis": "Fazer Diagnóstico"
+  },
+  "settings": {
+    "title": "Configurações",
+    "profile": "Perfil",
+    "name": "Nome",
+    "email": "Email",
+    "phone": "Telefone",
+    "phonePlaceholder": "(11) 99999-9999",
+    "investorProfile": "Perfil de investidor",
+    "conservative": "Conservador",
+    "moderate": "Moderado",
+    "aggressive": "Arrojado",
+    "save": "Salvar alterações",
+    "saving": "Salvando...",
+    "privacy": "Privacidade e dados",
+    "privacyDesc": "Seus dados são protegidos e nunca usados para treinar modelos de IA. Você pode exportar uma cópia completa em JSON ou excluir permanentemente sua conta a qualquer momento.",
+    "fiscalNote": "Por obrigação fiscal e contábil, registros essenciais de cobrança ficam retidos por até 5 anos (sem vínculo direto à sua identidade após exclusão).",
+    "exportData": "Exportar meus dados",
+    "deleteAccount": "Excluir conta",
+    "exportSuccess": "Dados exportados com sucesso",
+    "exportError": "Erro ao exportar dados",
+    "deleteTitle": "Excluir sua conta?",
+    "deleteWarning": "Esta ação é permanente. Todos os seus dados pessoais, carteiras, análises, oportunidades e relatórios serão excluídos. Registros de cobrança são mantidos por obrigação legal e desvinculados da sua identidade.",
+    "deleteConfirm": "Para confirmar, digite EXCLUIR abaixo:",
+    "deleteWord": "EXCLUIR",
+    "deleteFinal": "Excluir definitivamente",
+    "deleteSuccess": "Conta excluída. Encerrando sessão...",
+    "deleteError": "Erro ao excluir conta",
+    "cancel": "Cancelar"
+  },
+  "footer": {
+    "links": {
+      "blog": "Blog",
+      "contact": "Contato",
+      "terms": "Termos",
+      "privacy": "Privacidade",
+      "compliance": "Compliance"
+    },
+    "copyright": "© 2026 Lucius"
   }
 }
