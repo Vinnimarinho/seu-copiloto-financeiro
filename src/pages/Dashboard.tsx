@@ -50,6 +50,7 @@ export default function Dashboard() {
   const { data: analysis } = useLatestAnalysis();
   const { data: investorProfile } = useInvestorProfile();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const category = getInvestorCategory(investorProfile?.risk_tolerance);
 
