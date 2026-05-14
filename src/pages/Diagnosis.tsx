@@ -9,12 +9,7 @@ import { formatCurrency } from "@/data/mockData";
 import { useMemo } from "react";
 import { getScoreClass, getScoreLabel } from "@/lib/scoreClassification";
 import { LiquidityBreakdown } from "@/components/LiquidityBreakdown";
-
-const TERM_GLOSSARY: Record<string, string> = {
-  "Risco": "Chance de perder dinheiro — quanto maior, mais volátil o investimento",
-  "Diversificação": "Não colocar todos os ovos na mesma cesta — espalhar entre tipos de investimentos",
-  "Liquidez": "Facilidade de transformar o investimento de volta em dinheiro quando precisar",
-};
+import { useTranslation } from "react-i18next";
 
 function ScoreBadge({ score }: { score: number }) {
   const cls = getScoreClass(score);
@@ -25,10 +20,9 @@ function ScoreBadge({ score }: { score: number }) {
   );
 }
 
-/** Replace any hardcoded name in AI text with the user's actual name */
 function personalizeText(text: string, userName?: string): string {
   if (!text) return text;
-  const namePattern = /(?:Olá|Oi|Prezad[oa]),?\s+[A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)?\s*[!,.:]/g;
+  const namePattern = /(?:Olá|Oi|Prezad[oa]|Hello|Hi|Dear),?\s+[A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)?\s*[!,.:]/g;
   return text.replace(namePattern, (match) => {
     if (userName) {
       return match.replace(/[A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)?/, userName);
@@ -37,18 +31,17 @@ function personalizeText(text: string, userName?: string): string {
   });
 }
 
-/** Replace approximate patrimony mentions in AI text with exact calculated value */
 function replaceApproxPatrimony(text: string, exactValue: number | null): string {
   if (!text || !exactValue) return text;
   const formatted = formatCurrency(exactValue);
-  // Match patterns like "R$ 375 mil", "R$ 374.603,74", "aproximadamente R$ 375 mil", etc.
   return text.replace(
-    /(?:aproximadamente\s+)?R\$\s*[\d.,]+\s*(?:mil|milhões|milhão)?/gi,
+    /(?:aproximadamente\s+|approximately\s+)?R\$\s*[\d.,]+\s*(?:mil|milhões|milhão|thousand|million)?/gi,
     formatted
   );
 }
 
 export default function Diagnosis() {
+  const { t } = useTranslation();
   const { data: analysis, isLoading } = useLatestAnalysis();
   const { data: profile } = useProfile();
   const { data: portfolios } = usePortfolios();
@@ -58,7 +51,6 @@ export default function Diagnosis() {
 
   const userName = profile?.full_name || undefined;
 
-  // Calculate total from positions (same logic as Dashboard) for consistency
   const totalFromPositions = useMemo(() => {
     if (!positions || positions.length === 0) return null;
     return positions.reduce(
@@ -81,9 +73,9 @@ export default function Diagnosis() {
     return (
       <AppSidebar>
         <div className="max-w-lg mx-auto text-center space-y-3 py-16">
-          <h1 className="font-heading text-2xl font-bold text-foreground">Nenhum diagnóstico ainda</h1>
-          <p className="text-muted-foreground text-sm">Envie a performance da sua carteira para gerar o diagnóstico automático com IA.</p>
-          <Button onClick={() => navigate("/portfolio/import")}>Importar performance da carteira</Button>
+          <h1 className="font-heading text-2xl font-bold text-foreground">{t("diagnosis.emptyTitle")}</h1>
+          <p className="text-muted-foreground text-sm">{t("diagnosis.emptyDesc")}</p>
+          <Button onClick={() => navigate("/portfolio/import")}>{t("diagnosis.importBtn")}</Button>
         </div>
       </AppSidebar>
     );
@@ -97,56 +89,53 @@ export default function Diagnosis() {
   const overallScore = Math.round((riskScore + divScore + liqScore) / 3);
 
   const diagnosisItems = [
-    { label: "Risco", score: riskScore },
-    { label: "Diversificação", score: divScore },
-    { label: "Liquidez", score: liqScore },
+    { key: "risk", label: t("diagnosis.risk"), score: riskScore, glossary: t("diagnosis.glossary.risk") },
+    { key: "diversification", label: t("diagnosis.diversification"), score: divScore, glossary: t("diagnosis.glossary.diversification") },
+    { key: "liquidity", label: t("diagnosis.liquidity"), score: liqScore, glossary: t("diagnosis.glossary.liquidity") },
   ];
+
+  const overallLabel = t(`scores.${["bad", "warning", "good", "excellent"][["bad", "warning", "good", "excellent"].indexOf(getScoreLabel(overallScore).toLowerCase().includes("ruim") ? "bad" : getScoreLabel(overallScore).toLowerCase().includes("aten") ? "warning" : getScoreLabel(overallScore).toLowerCase().includes("excel") ? "excellent" : "good")]}`);
 
   return (
     <AppSidebar>
       <div className="space-y-4 max-w-4xl">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-foreground">Diagnóstico da performance da carteira</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Análise gerada por IA com base nos seus investimentos</p>
+          <h1 className="font-heading text-2xl font-bold text-foreground">{t("diagnosis.title")}</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("diagnosis.subtitle")}</p>
         </div>
 
-        {/* Overall score + patrimony */}
         <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
             <span className="font-heading text-2xl font-bold text-primary-foreground">{overallScore}</span>
           </div>
           <div className="flex-1">
             <h2 className="font-heading font-semibold text-foreground">
-              Nota geral: {getScoreLabel(overallScore)}
+              {t("diagnosis.overall", { label: overallLabel })}
             </h2>
-            <p className="text-xs text-muted-foreground">
-              Média das notas de risco, diversificação e liquidez (quanto maior, melhor)
-            </p>
+            <p className="text-xs text-muted-foreground">{t("diagnosis.overallDesc")}</p>
           </div>
           {totalFromPositions !== null && (
             <div className="text-right">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Patrimônio</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{t("diagnosis.patrimony")}</p>
               <p className="font-heading text-lg font-bold text-foreground">{formatCurrency(totalFromPositions)}</p>
             </div>
           )}
         </div>
 
-        {/* Summary */}
         {analysis.summary && (
           <div className="bg-card border border-border rounded-xl p-4">
-            <h3 className="font-heading font-semibold text-sm text-foreground mb-1">Resumo em linguagem simples</h3>
+            <h3 className="font-heading font-semibold text-sm text-foreground mb-1">{t("diagnosis.summaryTitle")}</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {replaceApproxPatrimony(personalizeText(analysis.summary, userName), totalFromPositions)}
             </p>
           </div>
         )}
 
-        {/* Scores — todos seguem a régua única 0–100 (Ruim/Atenção/Bom/Excelente) */}
         <BentoGrid columns={3}>
           {diagnosisItems.map((item) => {
             const cls = getScoreClass(item.score);
             return (
-              <BentoCard key={item.label} title={item.label} subtitle={TERM_GLOSSARY[item.label]}>
+              <BentoCard key={item.key} title={item.label} subtitle={item.glossary}>
                 <div className="flex items-center justify-between gap-2">
                   <span className={`text-xs font-medium ${cls.textClass}`}>{getScoreLabel(item.score)}</span>
                   <ScoreBadge score={item.score} />
@@ -162,18 +151,14 @@ export default function Diagnosis() {
           })}
         </BentoGrid>
 
-        {/* Liquidez detalhada por posição */}
         {positions && positions.length > 0 && (
           <LiquidityBreakdown positions={positions as any} />
         )}
 
-        {/* Allocation */}
         {Object.keys(allocation).length > 0 && (
           <div className="bg-card border border-border rounded-xl p-4">
-            <h3 className="font-heading font-semibold text-sm text-foreground mb-1">
-              Alocação por Classe
-            </h3>
-            <p className="text-[10px] text-muted-foreground mb-2">Como seu dinheiro está distribuído entre tipos de investimento</p>
+            <h3 className="font-heading font-semibold text-sm text-foreground mb-1">{t("diagnosis.allocation")}</h3>
+            <p className="text-[10px] text-muted-foreground mb-2">{t("diagnosis.allocationDesc")}</p>
             <div className="space-y-1.5">
               {Object.entries(allocation).map(([name, pct]) => (
                 <div key={name}>
@@ -190,13 +175,12 @@ export default function Diagnosis() {
           </div>
         )}
 
-        {/* Concentration alerts */}
         {concentrationAlerts.length > 0 && (
           <div className="bg-card border border-border rounded-xl p-4">
             <h3 className="font-heading font-semibold text-sm text-foreground mb-1 flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5 text-warning" /> Pontos de atenção
+              <AlertTriangle className="w-3.5 h-3.5 text-warning" /> {t("diagnosis.alerts")}
             </h3>
-            <p className="text-[10px] text-muted-foreground mb-2">Investimentos que podem estar com peso desproporcional na carteira</p>
+            <p className="text-[10px] text-muted-foreground mb-2">{t("diagnosis.alertsDesc")}</p>
             <ul className="space-y-1">
               {concentrationAlerts.map((alert, i) => (
                 <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
@@ -207,10 +191,9 @@ export default function Diagnosis() {
           </div>
         )}
 
-        {/* AI Insights */}
         {analysis.ai_insights && (
           <div className="bg-card border border-border rounded-xl p-4">
-            <h3 className="font-heading font-semibold text-sm text-foreground mb-1">Análise detalhada do Lucius</h3>
+            <h3 className="font-heading font-semibold text-sm text-foreground mb-1">{t("diagnosis.insights")}</h3>
             <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
               {replaceApproxPatrimony(personalizeText(analysis.ai_insights, userName), totalFromPositions)}
             </p>
