@@ -10,9 +10,12 @@ import "@fontsource/dm-sans/600.css";
 import "./i18n";
 import App from "./App.tsx";
 import "./index.css";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
-    <App />
+    <CurrencyProvider>
+      <App />
+    </CurrencyProvider>
   </HelmetProvider>,
 );

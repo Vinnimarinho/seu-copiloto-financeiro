@@ -88,7 +88,7 @@ export default function Billing() {
   const cancelScheduled = sub.cancel_at_period_end && sub.subscribed;
 
   const requestPreview = async (target: PlanKey) => {
-    const targetPriceId = PLANS[target].price_id;
+    const targetPriceId = PLANS[target].prices?.BRL ?? null;
     if (!targetPriceId) return;
     setLoadingPreview(target);
     try {
@@ -111,7 +111,7 @@ export default function Billing() {
 
   const applyChange = async () => {
     if (!previewTarget) return;
-    const targetPriceId = PLANS[previewTarget].price_id;
+    const targetPriceId = PLANS[previewTarget].prices?.BRL ?? null;
     if (!targetPriceId) return;
     setApplying(true);
     try {

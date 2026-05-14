@@ -12,3 +12,7 @@ verify_jwt = false
 # Pré-checagem de CPF antes do signup — chamado por visitantes não autenticados
 [functions.signup-precheck]
 verify_jwt = false
+
+# Detecção de geo/idioma — público (sem JWT) para landing e onboarding
+[functions.geo-detect]
+verify_jwt = false
