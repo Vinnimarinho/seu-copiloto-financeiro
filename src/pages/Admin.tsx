@@ -507,7 +507,12 @@ export default function Admin() {
                           <TableCell className="text-xs font-mono">{u.credits_balance}</TableCell>
                           <TableCell className="text-xs">{new Date(u.created_at).toLocaleDateString("pt-BR")}</TableCell>
                           <TableCell className="text-xs">{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString("pt-BR") : "—"}</TableCell>
-                          <TableCell><GrantCreditsDialog user={u} /></TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <GrantCreditsDialog user={u} />
+                              <DeleteUserButton user={u} />
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))
                     )}
