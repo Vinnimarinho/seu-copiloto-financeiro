@@ -94,7 +94,8 @@ export default function Diagnosis() {
     { key: "liquidity", label: t("diagnosis.liquidity"), score: liqScore, glossary: t("diagnosis.glossary.liquidity") },
   ];
 
-  const overallLabel = t(`scores.${["bad", "warning", "good", "excellent"][["bad", "warning", "good", "excellent"].indexOf(getScoreLabel(overallScore).toLowerCase().includes("ruim") ? "bad" : getScoreLabel(overallScore).toLowerCase().includes("aten") ? "warning" : getScoreLabel(overallScore).toLowerCase().includes("excel") ? "excellent" : "good")]}`);
+  const tierLabel = (score: number) => t(`scores.${getScoreClass(score).tier}`);
+  const overallLabel = tierLabel(overallScore);
 
   return (
     <AppSidebar>
