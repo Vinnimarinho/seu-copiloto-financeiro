@@ -13,12 +13,12 @@ type Msg = { role: "user" | "assistant"; content: string };
 
 function buildDynamicSuggestions(
   positions: any[] | undefined,
-  analysis: any | undefined
+  analysis: any | undefined,
+  t: TFunction
 ): string[] {
   const suggestions: string[] = [];
 
   if (positions && positions.length > 0) {
-    // Find worst performer
     const withPerf = positions
       .filter(p => p.avg_price > 0 && p.current_value && p.quantity > 0)
       .map(p => ({
@@ -28,15 +28,14 @@ function buildDynamicSuggestions(
 
     const worst = withPerf.sort((a, b) => a.perf - b.perf)[0];
     if (worst && worst.perf < 0) {
-      suggestions.push(`Por que meu ativo ${worst.ticker} está com ${worst.perf.toFixed(0)}%? Devo me preocupar?`);
+      suggestions.push(t("chatLucius.suggestions.worst", { ticker: worst.ticker, perf: worst.perf.toFixed(0) }));
     }
 
     const best = withPerf.sort((a, b) => b.perf - a.perf)[0];
     if (best && best.perf > 0) {
-      suggestions.push(`${best.ticker} subiu ${best.perf.toFixed(0)}%. É hora de realizar lucro?`);
+      suggestions.push(t("chatLucius.suggestions.best", { ticker: best.ticker, perf: best.perf.toFixed(0) }));
     }
 
-    // Asset class concentration
     const classMap: Record<string, number> = {};
     const total = positions.reduce((s, p) => s + (Number(p.current_value) || 0), 0);
     positions.forEach(p => {
@@ -47,27 +46,22 @@ function buildDynamicSuggestions(
     if (topClass && total > 0) {
       const pct = Math.round((topClass[1] / total) * 100);
       if (pct > 40) {
-        suggestions.push(`Tenho ${pct}% em ${topClass[0]}. Estou concentrado demais?`);
+        suggestions.push(t("chatLucius.suggestions.concentration", { pct, cls: topClass[0] }));
       }
     }
   }
 
   if (analysis) {
     const risk = Number(analysis.risk_score) || 0;
-    if (risk < 50) {
-      suggestions.push("Minha nota de risco está baixa. O que posso fazer para melhorar?");
-    }
+    if (risk < 50) suggestions.push(t("chatLucius.suggestions.lowRisk"));
     const div = Number(analysis.diversification_score) || 0;
-    if (div < 60) {
-      suggestions.push("Como posso diversificar melhor minha carteira?");
-    }
+    if (div < 60) suggestions.push(t("chatLucius.suggestions.lowDiv"));
   }
 
-  // Fill remaining with generic but useful ones
   const generic = [
-    "Minha carteira está bem diversificada?",
-    "O que são FIIs e como escolher?",
-    "Como funciona o imposto sobre investimentos?",
+    t("chatLucius.suggestions.generic1"),
+    t("chatLucius.suggestions.generic2"),
+    t("chatLucius.suggestions.generic3"),
   ];
 
   for (const g of generic) {
@@ -79,6 +73,7 @@ function buildDynamicSuggestions(
 }
 
 export default function ChatLucius() {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
