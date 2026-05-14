@@ -164,24 +164,23 @@ export default function PortfolioImport() {
   }, [analysisDone, navigate]);
 
   const statusLabel: Record<FileStatus, string> = {
-    uploading: "Enviando...",
-    uploaded: "Pronto para análise",
-    processing: "Analisando performance da carteira...",
-    done: "Análise concluída",
-    error: "Erro",
+    uploading: t("portfolioImport.status.uploading"),
+    uploaded: t("portfolioImport.status.uploaded"),
+    processing: t("portfolioImport.status.processing"),
+    done: t("portfolioImport.status.done"),
+    error: t("portfolioImport.status.error"),
   };
 
   return (
     <AppSidebar>
       <div className="max-w-2xl mx-auto space-y-8">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-foreground">Importar performance da carteira</h1>
-          <p className="text-sm text-muted-foreground mt-1">Envie seus extratos e posições para análise automática com IA</p>
+          <h1 className="font-heading text-2xl font-bold text-foreground">{t("portfolioImport.title")}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t("portfolioImport.subtitle")}</p>
         </div>
 
-        {/* Loading screen full ao processar */}
         {isProcessing && (
-          <AnalysisLoading subtitle="Estamos cruzando arquivo, período e seu perfil de investidor." />
+          <AnalysisLoading subtitle={t("portfolioImport.loadingSubtitle")} />
         )}
 
         <div
@@ -196,9 +195,9 @@ export default function PortfolioImport() {
           }}
         >
           <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-4" />
-          <p className="font-heading font-semibold text-foreground mb-1">Insira a performance da carteira</p>
-          <p className="text-sm text-muted-foreground mb-4">Após o upload, escolha o período e inicie a análise da performance da carteira</p>
-          <Button variant="outline" size="sm" type="button" disabled={isBusy}>Selecionar arquivo</Button>
+          <p className="font-heading font-semibold text-foreground mb-1">{t("portfolioImport.dropTitle")}</p>
+          <p className="text-sm text-muted-foreground mb-4">{t("portfolioImport.dropDesc")}</p>
+          <Button variant="outline" size="sm" type="button" disabled={isBusy}>{t("portfolioImport.selectFile")}</Button>
           <input
             ref={inputRef}
             type="file"
@@ -211,67 +210,67 @@ export default function PortfolioImport() {
         <div className="bg-card border border-border rounded-xl p-6 space-y-4 shadow-card">
           <div>
             <h2 className="font-heading font-semibold text-foreground flex items-center gap-2">
-              <CalendarRange className="w-4 h-4 text-primary" /> Configurar análise
+              <CalendarRange className="w-4 h-4 text-primary" /> {t("portfolioImport.configTitle")}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              O sistema vai cruzar o arquivo enviado com o período analisado e seu perfil de investidor para gerar o diagnóstico e identificar oportunidades.
+              {t("portfolioImport.configDesc")}
             </p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label htmlFor="period-start" className="text-sm font-medium text-foreground">Data inicial</label>
+              <label htmlFor="period-start" className="text-sm font-medium text-foreground">{t("portfolioImport.startDate")}</label>
               <Input id="period-start" type="date" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} max={periodEnd} />
             </div>
             <div className="space-y-2">
-              <label htmlFor="period-end" className="text-sm font-medium text-foreground">Data final</label>
+              <label htmlFor="period-end" className="text-sm font-medium text-foreground">{t("portfolioImport.endDate")}</label>
               <Input id="period-end" type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} min={periodStart} max={toDateInputValue(new Date())} />
             </div>
           </div>
 
           <div className="rounded-lg border border-border bg-secondary/40 p-4 text-sm text-muted-foreground">
             {profile?.onboarding_completed
-              ? "Seu perfil de investidor será usado como contexto para personalizar as oportunidades sugeridas."
-              : "Antes da análise, complete o perfil do investidor para liberar oportunidades personalizadas."}
+              ? t("portfolioImport.profileNote")
+              : t("portfolioImport.completeProfileNote")}
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
             {!profile?.onboarding_completed && (
               <Button variant="outline" onClick={() => navigate("/onboarding")}>
-                Completar perfil investidor
+                {t("portfolioImport.completeProfileBtn")}
               </Button>
             )}
             <Button onClick={handleRunDiagnosis} disabled={!canAnalyze} className="gap-2 sm:min-w-[260px]">
               {diagnosisMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              Analisar performance da carteira
+              {t("portfolioImport.analyzeBtn")}
             </Button>
           </div>
 
           {!canAnalyze && !isBusy && (
             <div className="space-y-1">
               {!uploadedFile && (
-                <p className="text-xs text-muted-foreground flex items-center gap-1">❌ Envie o arquivo da carteira</p>
+                <p className="text-xs text-muted-foreground flex items-center gap-1">{t("portfolioImport.checks.fileMissing")}</p>
               )}
               {uploadedFile && (
-                <p className="text-xs text-success flex items-center gap-1">✅ Arquivo enviado</p>
+                <p className="text-xs text-success flex items-center gap-1">{t("portfolioImport.checks.fileOk")}</p>
               )}
               {!isPeriodValid && (
-                <p className="text-xs text-destructive flex items-center gap-1">❌ Informe um período válido (data inicial ≤ data final)</p>
+                <p className="text-xs text-destructive flex items-center gap-1">{t("portfolioImport.checks.periodMissing")}</p>
               )}
               {isPeriodValid && (
-                <p className="text-xs text-success flex items-center gap-1">✅ Período configurado</p>
+                <p className="text-xs text-success flex items-center gap-1">{t("portfolioImport.checks.periodOk")}</p>
               )}
               {!profile?.onboarding_completed && (
-                <p className="text-xs text-destructive flex items-center gap-1">❌ Complete o perfil do investidor (onboarding)</p>
+                <p className="text-xs text-destructive flex items-center gap-1">{t("portfolioImport.checks.onboardingMissing")}</p>
               )}
               {profile?.onboarding_completed && (
-                <p className="text-xs text-success flex items-center gap-1">✅ Perfil do investidor completo</p>
+                <p className="text-xs text-success flex items-center gap-1">{t("portfolioImport.checks.onboardingOk")}</p>
               )}
               {!investorProfile && (
-                <p className="text-xs text-destructive flex items-center gap-1">❌ Perfil investidor não encontrado</p>
+                <p className="text-xs text-destructive flex items-center gap-1">{t("portfolioImport.checks.investorMissing")}</p>
               )}
               {investorProfile && (
-                <p className="text-xs text-success flex items-center gap-1">✅ Perfil investidor encontrado</p>
+                <p className="text-xs text-success flex items-center gap-1">{t("portfolioImport.checks.investorOk")}</p>
               )}
             </div>
           )}
@@ -279,7 +278,7 @@ export default function PortfolioImport() {
 
         {files.length > 0 && (
           <div className="space-y-2">
-            <h2 className="font-heading font-semibold text-sm text-foreground">Arquivo enviado</h2>
+            <h2 className="font-heading font-semibold text-sm text-foreground">{t("portfolioImport.uploadedFile")}</h2>
             {files.map((f, i) => (
               <div key={i} className="flex items-center gap-3 bg-card border border-border rounded-lg px-4 py-3">
                 <FileText className="w-5 h-5 text-muted-foreground flex-shrink-0" />
@@ -297,7 +296,7 @@ export default function PortfolioImport() {
                 )}
                 {f.status === "done" && <CheckCircle2 className="w-5 h-5 text-success" />}
                 {f.status === "error" && (
-                  <span className="text-xs text-destructive max-w-[200px] truncate">{f.error || "Erro"}</span>
+                  <span className="text-xs text-destructive max-w-[200px] truncate">{f.error || t("common.error")}</span>
                 )}
                 <button onClick={(e) => { e.stopPropagation(); removeFile(f.file); }} className="text-muted-foreground hover:text-foreground" disabled={isBusy}>
                   <X className="w-4 h-4" />
@@ -307,26 +306,24 @@ export default function PortfolioImport() {
           </div>
         )}
 
-        {/* Resultado: redireciona automaticamente em 1.5s */}
         {processResult && processResult.positionsCount > 0 && (
           <div className="bg-primary/10 border border-primary/30 rounded-xl p-6 space-y-3 text-center">
             <CheckCircle2 className="w-10 h-10 text-primary mx-auto" />
             <div>
-              <h3 className="font-heading font-bold text-foreground">Análise concluída</h3>
+              <h3 className="font-heading font-bold text-foreground">{t("portfolioImport.result.title")}</h3>
               <p className="text-sm text-muted-foreground">
-                {processResult.positionsCount} posições identificadas · {processResult.recommendationsCount} oportunidades geradas
+                {t("portfolioImport.result.summary", { positions: processResult.positionsCount, recs: processResult.recommendationsCount })}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">Período: {processResult.periodLabel}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t("portfolioImport.result.period", { label: processResult.periodLabel })}</p>
             </div>
             <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
-              <Loader2 className="w-3 h-3 animate-spin" /> Abrindo seu diagnóstico...
+              <Loader2 className="w-3 h-3 animate-spin" /> {t("portfolioImport.result.redirecting")}
             </p>
           </div>
         )}
 
-        {/* Supported formats */}
         <div>
-          <h2 className="font-heading font-semibold text-sm text-foreground mb-3">Formatos aceitos</h2>
+          <h2 className="font-heading font-semibold text-sm text-foreground mb-3">{t("portfolioImport.formats")}</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {formats.map((f) => (
               <div key={f.name} className="bg-card border border-border rounded-lg p-4 text-center shadow-card">
@@ -339,7 +336,7 @@ export default function PortfolioImport() {
         </div>
 
         <p className="text-xs text-muted-foreground text-center">
-          Seus dados são criptografados e nunca compartilhados. Usados exclusivamente para a análise da performance da sua carteira.
+          {t("portfolioImport.privacy")}
         </p>
       </div>
       <RequireCpfDialog open={cpfDialogOpen} onOpenChange={setCpfDialogOpen} onConfirmed={() => handleRunDiagnosis()} />
