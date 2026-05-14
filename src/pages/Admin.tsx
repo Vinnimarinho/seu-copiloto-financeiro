@@ -470,7 +470,10 @@ export default function Admin() {
                     <CardTitle className="text-base font-heading">Base de Contatos</CardTitle>
                     <CardDescription>Conceda créditos grátis ou consulte status dos usuários</CardDescription>
                   </div>
-                  <Input placeholder="Buscar por nome, e-mail ou telefone…" value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
+                  <div className="flex items-center gap-2">
+                    <Input placeholder="Buscar por nome, e-mail ou telefone…" value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
+                    <CreateUserDialog />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
