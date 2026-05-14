@@ -18,6 +18,8 @@ import {
   Crown,
   CheckCircle2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
