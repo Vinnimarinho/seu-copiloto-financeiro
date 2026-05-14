@@ -10,13 +10,7 @@ import { useRunPortfolioDiagnosis } from "@/hooks/usePortfolioAnalysis";
 import { AnalysisLoading } from "@/components/AnalysisLoading";
 import { RequireCpfDialog } from "@/components/RequireCpfDialog";
 import { supabase } from "@/integrations/supabase/client";
-
-const formats = [
-  { icon: <FileSpreadsheet className="w-8 h-8" />, name: "CSV", desc: "Extrato de corretora em CSV" },
-  { icon: <FileSpreadsheet className="w-8 h-8" />, name: "XLSX", desc: "Planilha Excel com posições" },
-  { icon: <File className="w-8 h-8" />, name: "OFX", desc: "Arquivo bancário OFX/OFC" },
-  { icon: <FileText className="w-8 h-8" />, name: "PDF", desc: "Extrato ou nota de corretagem" },
-];
+import { useTranslation } from "react-i18next";
 
 const ACCEPTED = ".csv,.xlsx,.xls,.ofx,.ofc,.pdf";
 
