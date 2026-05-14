@@ -119,11 +119,11 @@ export default function ChatLucius() {
       );
 
       if (!resp.ok) {
-        const err = await resp.json().catch(() => ({ error: "Erro desconhecido" }));
-        throw new Error(err.error || `Erro ${resp.status}`);
+        const err = await resp.json().catch(() => ({ error: t("chatLucius.errorUnknown") }));
+        throw new Error(err.error || t("chatLucius.errorStatus", { status: resp.status }));
       }
 
-      if (!resp.body) throw new Error("Sem resposta");
+      if (!resp.body) throw new Error(t("chatLucius.errorNoBody"));
 
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
@@ -184,8 +184,8 @@ export default function ChatLucius() {
             <Bot className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="font-heading text-lg font-bold text-foreground">Lucius — Copiloto educacional</h1>
-            <p className="text-xs text-muted-foreground">Apoio à compreensão da performance da sua carteira · Sempre disponível</p>
+            <h1 className="font-heading text-lg font-bold text-foreground">{t("chatLucius.headerTitle")}</h1>
+            <p className="text-xs text-muted-foreground">{t("chatLucius.headerSubtitle")}</p>
           </div>
         </div>
 
@@ -197,9 +197,9 @@ export default function ChatLucius() {
                 <Sparkles className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <h2 className="font-heading text-xl font-bold text-foreground mb-1">Converse com o Lucius</h2>
+                <h2 className="font-heading text-xl font-bold text-foreground mb-1">{t("chatLucius.emptyTitle")}</h2>
                 <p className="text-sm text-muted-foreground max-w-md">
-                  Tire dúvidas sobre investimentos, entenda conceitos do mercado e receba orientações sobre sua carteira — tudo em linguagem simples.
+                  {t("chatLucius.emptyDesc")}
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-lg w-full">
@@ -274,7 +274,7 @@ export default function ChatLucius() {
                   sendMessage(input);
                 }
               }}
-              placeholder="Pergunte ao Lucius sobre investimentos..."
+              placeholder={t("chatLucius.placeholder")}
               className="flex-1 resize-none rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary min-h-[42px] max-h-[120px]"
               rows={1}
               disabled={isLoading}
@@ -284,7 +284,7 @@ export default function ChatLucius() {
             </Button>
           </form>
           <p className="text-[10px] text-muted-foreground text-center mt-2">
-            Lucius é um copiloto educacional de apoio à compreensão da performance da carteira. Não constitui consultoria nem execução de ordens.
+            {t("chatLucius.footer")}
           </p>
         </div>
       </div>
