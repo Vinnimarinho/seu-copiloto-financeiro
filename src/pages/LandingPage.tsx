@@ -220,13 +220,13 @@ export default function LandingPage() {
             className="mt-20 max-w-4xl mx-auto"
           >
             <p className="text-center text-[10px] uppercase tracking-[0.24em] text-sidebar-foreground/65 mb-6">
-              Construído com princípios de
+              {t("landing.trustBuiltWith")}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-sidebar-foreground/55 text-sm">
-              <span className="inline-flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-glow" />Privacidade por padrão</span>
-              <span className="inline-flex items-center gap-2"><Eye className="w-4 h-4 text-emerald-glow" />Leitura isenta</span>
-              <span className="inline-flex items-center gap-2"><Sparkles className="w-4 h-4 text-emerald-glow" />Inteligência aplicada</span>
-              <span className="inline-flex items-center gap-2"><Crown className="w-4 h-4 text-gold" />Apoio premium</span>
+              <span className="inline-flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-glow" />{t("landing.trustPrivacy")}</span>
+              <span className="inline-flex items-center gap-2"><Eye className="w-4 h-4 text-emerald-glow" />{t("landing.trustReading")}</span>
+              <span className="inline-flex items-center gap-2"><Sparkles className="w-4 h-4 text-emerald-glow" />{t("landing.trustIntelligence")}</span>
+              <span className="inline-flex items-center gap-2"><Crown className="w-4 h-4 text-gold" />{t("landing.trustPremium")}</span>
             </div>
           </motion.div>
         </div>
@@ -240,16 +240,15 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-emerald-glow/80 font-medium mb-4">
-              Por que LUCIUS
+              {t("landing.whyKicker")}
             </span>
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-sidebar-foreground mb-5 text-balance">
-              Você não precisa de mais ruído.
+              {t("landing.whyTitleP1")}
               <br />
-              Precisa de <span className="text-gradient-emerald">clareza</span>.
+              {t("landing.whyTitleP2")} <span className="text-gradient-emerald">{t("landing.whyTitleHighlight")}</span>.
             </h2>
             <p className="text-sidebar-foreground/60 text-base md:text-lg leading-relaxed">
-              A maioria dos investidores acumula informação sem entender o que ela significa.
-              O LUCIUS existe para inverter essa equação.
+              {t("landing.whyDesc")}
             </p>
           </div>
 
@@ -259,7 +258,7 @@ export default function LandingPage() {
               <div className="flex items-center gap-2 mb-6">
                 <ShieldAlert className="w-5 h-5 text-sidebar-foreground/70" />
                 <span className="text-xs uppercase tracking-[0.18em] text-sidebar-foreground/50 font-medium">
-                  Hoje, sem o LUCIUS
+                  {t("landing.whyWithout")}
                 </span>
               </div>
               <ul className="space-y-4">
@@ -278,7 +277,7 @@ export default function LandingPage() {
               <div className="flex items-center gap-2 mb-6 relative">
                 <Sparkles className="w-5 h-5 text-emerald-glow" />
                 <span className="text-xs uppercase tracking-[0.18em] text-emerald-glow font-medium">
-                  Com o LUCIUS
+                  {t("landing.whyWith")}
                 </span>
               </div>
               <ul className="space-y-5 relative">
@@ -306,13 +305,13 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-emerald-glow/80 font-medium mb-4">
-              Como funciona
+              {t("landing.howKicker")}
             </span>
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-sidebar-foreground mb-5 text-balance">
-              Quatro passos. Uma <span className="text-gradient-emerald">leitura completa</span>.
+              {t("landing.howTitleP1")} <span className="text-gradient-emerald">{t("landing.howTitleHighlight")}</span>.
             </h2>
             <p className="text-sidebar-foreground/60 text-base md:text-lg">
-              Sem complicação técnica. Sem economês. Em minutos você está vendo a sua carteira como nunca viu.
+              {t("landing.howDesc")}
             </p>
           </div>
 
@@ -352,10 +351,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-emerald-glow/80 font-medium mb-4">
-              O que você ganha
+              {t("landing.benefitsKicker")}
             </span>
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-sidebar-foreground mb-5 text-balance">
-              Inteligência aplicada à <span className="text-gradient-emerald">sua decisão</span>.
+              {t("landing.benefitsTitleP1")} <span className="text-gradient-emerald">{t("landing.benefitsTitleHighlight")}</span>.
             </h2>
           </div>
 
@@ -395,10 +394,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative">
           <div className="max-w-4xl mx-auto text-center">
             <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-emerald-glow/80 font-medium mb-4">
-              Para quem é o LUCIUS
+              {t("landing.audienceKicker")}
             </span>
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-sidebar-foreground mb-10 text-balance">
-              Para quem quer <span className="text-gradient-emerald">decidir com lucidez</span>.
+              {t("landing.audienceTitleP1")} <span className="text-gradient-emerald">{t("landing.audienceTitleHighlight")}</span>.
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl mx-auto">
@@ -430,13 +429,13 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-emerald-glow/80 font-medium mb-4">
-              Planos
+              {t("landing.pricingKicker")}
             </span>
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-sidebar-foreground mb-5 text-balance">
-              Comece grátis. <span className="text-gradient-emerald">Evolua quando quiser</span>.
+              {t("landing.pricingTitleP1")} <span className="text-gradient-emerald">{t("landing.pricingTitleHighlight")}</span>.
             </h2>
             <p className="text-sidebar-foreground/60 text-base md:text-lg">
-              Transparência total. Sem letras miúdas, sem fidelidade obrigatória.
+              {t("landing.pricingDesc")}
             </p>
           </div>
 
@@ -458,7 +457,7 @@ export default function LandingPage() {
                 {plan.highlight && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gold text-obsidian text-[10px] uppercase tracking-[0.16em] font-bold shadow-glow-gold">
-                      <Crown className="w-3 h-3" /> Mais escolhido
+                      <Crown className="w-3 h-3" /> {t("landing.mostPopular")}
                     </span>
                   </div>
                 )}
@@ -533,25 +532,21 @@ export default function LandingPage() {
           >
             <Crown className="w-10 h-10 text-gold mx-auto mb-6 opacity-80" />
             <h2 className="font-heading text-4xl md:text-6xl font-bold text-sidebar-foreground mb-6 text-balance leading-[1.05]">
-              Assuma o controle.
+              {t("landing.ctaFinalP1")}
               <br />
-              Com <span className="text-gradient-emerald">clareza real</span>.
+              {t("landing.ctaFinalP2")} <span className="text-gradient-emerald">{t("landing.ctaFinalHighlight")}</span>.
             </h2>
             <p className="text-sidebar-foreground/65 text-lg mb-10 max-w-xl mx-auto">
-              Importe sua carteira em minutos e descubra o que ela está dizendo de verdade.
+              {t("landing.ctaFinalDesc")}
             </p>
             <Link to="/signup">
               <Button variant="hero" size="xl" className="shadow-glow-emerald group">
-                Criar conta grátis
+                {t("landing.ctaFinalBtn")}
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
               </Button>
             </Link>
             <p className="text-[11px] text-sidebar-foreground/65 mt-10 max-w-2xl mx-auto leading-relaxed">
-              O LUCIUS é um software de apoio à análise da performance da carteira e à compreensão
-              do investidor. Conteúdo informativo e educacional — não constitui consultoria, oferta
-              de valores mobiliários ou execução de ordens. Não somos registrados na CVM, ANBIMA ou
-              APIMEC. Não indicamos fundos, ações ou ativos específicos. A decisão final é
-              exclusivamente sua. Rentabilidade passada não garante resultados futuros.
+              {t("landing.ctaFinalDisclaimer")}
             </p>
           </motion.div>
         </div>
@@ -569,7 +564,7 @@ export default function LandingPage() {
               <Logo size="sm" variant="light" />
               <span className="hidden md:inline text-sidebar-foreground/30">·</span>
               <p className="text-[11px] text-sidebar-foreground/70 italic">
-                Lucidez sobre a performance da sua carteira.
+                {t("landing.footerTagline")}
               </p>
             </div>
             <div className="flex items-center gap-6 text-xs text-sidebar-foreground/70">
@@ -579,21 +574,21 @@ export default function LandingPage() {
                 rel="noopener noreferrer"
                 className="hover:text-sidebar-foreground transition-colors"
               >
-                Blog
+                {t("footer.links.blog")}
               </a>
               <Link to="/contato" className="hover:text-sidebar-foreground transition-colors">
-                Contato
+                {t("footer.links.contact")}
               </Link>
               <Link to="/terms" className="hover:text-sidebar-foreground transition-colors">
-                Termos
+                {t("footer.links.terms")}
               </Link>
               <Link to="/privacy" className="hover:text-sidebar-foreground transition-colors">
-                Privacidade
+                {t("footer.links.privacy")}
               </Link>
               <Link to="/compliance" className="hover:text-sidebar-foreground transition-colors">
-                Compliance
+                {t("footer.links.compliance")}
               </Link>
-              <span className="text-sidebar-foreground/30">© 2026 Lucius</span>
+              <span className="text-sidebar-foreground/30">{t("footer.copyright")}</span>
             </div>
           </div>
         </div>
