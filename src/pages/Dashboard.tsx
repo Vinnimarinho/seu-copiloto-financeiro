@@ -12,6 +12,7 @@ import PortfolioTracker from "@/components/PortfolioTracker";
 import { getInvestorCategory } from "@/lib/investorProfile";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { SubscriptionStatusCard } from "@/components/SubscriptionStatusCard";
+import { useTranslation } from "react-i18next";
 
 function StatValue({ label, value, sub, trend }: { label: string; value: string; sub?: string; trend?: "up" | "down" }) {
   return (
