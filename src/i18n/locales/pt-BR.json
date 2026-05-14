@@ -16,7 +16,13 @@
     "language": "Idioma",
     "wait": "Aguarde...",
     "send": "Enviar",
-    "or": "ou"
+    "or": "ou",
+    "next": "Próxima",
+    "finish": "Finalizar",
+    "skip": "Pular por agora",
+    "yes": "Sim",
+    "no": "Não",
+    "error": "Erro"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -106,7 +112,6 @@
     "trustReading": "Leitura isenta",
     "trustIntelligence": "Inteligência aplicada",
     "trustPremium": "Apoio premium",
-
     "whyKicker": "Por que LUCIUS",
     "whyTitleP1": "Você não precisa de mais ruído.",
     "whyTitleP2": "Precisa de",
@@ -126,7 +131,6 @@
       { "label": "Inteligência aplicada", "desc": "IA de última geração focada em educação financeira." },
       { "label": "Apoio à decisão", "desc": "Sugestões educacionais. Quem decide é você." }
     ],
-
     "howKicker": "Como funciona",
     "howTitleP1": "Quatro passos. Uma",
     "howTitleHighlight": "leitura completa",
@@ -137,7 +141,6 @@
       { "n": "03", "title": "Receba o diagnóstico", "desc": "Risco, liquidez, concentração e leitura LUCIUS em segundos." },
       { "n": "04", "title": "Aja com clareza", "desc": "Oportunidades, simulações de cenário e relatórios para apoiar decisões." }
     ],
-
     "benefitsKicker": "O que você ganha",
     "benefitsTitleP1": "Inteligência aplicada à",
     "benefitsTitleHighlight": "sua decisão",
@@ -149,7 +152,6 @@
       { "title": "Converse com o LUCIUS", "desc": "Tire dúvidas em linguagem clara, com contexto da sua própria carteira." },
       { "title": "Simulações e projeções", "desc": "Teste cenários táticos antes de agir — leitura comparativa, não promessa." }
     ],
-
     "audienceKicker": "Para quem é o LUCIUS",
     "audienceTitleP1": "Para quem quer",
     "audienceTitleHighlight": "decidir com lucidez",
@@ -159,13 +161,11 @@
       "Investidor que busca autonomia com clareza",
       "Investidor que quer organizar e registrar decisões"
     ],
-
     "pricingKicker": "Planos",
     "pricingTitleP1": "Comece grátis.",
     "pricingTitleHighlight": "Evolua quando quiser",
     "pricingDesc": "Transparência total. Sem letras miúdas, sem fidelidade obrigatória.",
     "mostPopular": "Mais escolhido",
-
     "ctaFinalP1": "Assuma o controle.",
     "ctaFinalP2": "Com",
     "ctaFinalHighlight": "clareza real",
@@ -265,13 +265,30 @@
     "topPositionsDesc": "Top 5 por valor"
   },
   "diagnosis": {
-    "title": "Diagnóstico da Carteira",
+    "title": "Diagnóstico da performance da carteira",
+    "subtitle": "Análise gerada por IA com base nos seus investimentos",
     "overallScore": "Score Geral",
+    "overall": "Nota geral: {{label}}",
+    "overallDesc": "Média das notas de risco, diversificação e liquidez (quanto maior, melhor)",
+    "patrimony": "Patrimônio",
+    "summaryTitle": "Resumo em linguagem simples",
     "risk": "Risco",
     "diversification": "Diversificação",
     "liquidity": "Liquidez",
     "summary": "Resumo",
-    "insights": "Insights da IA"
+    "insights": "Análise detalhada do Lucius",
+    "allocation": "Alocação por Classe",
+    "allocationDesc": "Como seu dinheiro está distribuído entre tipos de investimento",
+    "alerts": "Pontos de atenção",
+    "alertsDesc": "Investimentos que podem estar com peso desproporcional na carteira",
+    "emptyTitle": "Nenhum diagnóstico ainda",
+    "emptyDesc": "Envie a performance da sua carteira para gerar o diagnóstico automático com IA.",
+    "importBtn": "Importar performance da carteira",
+    "glossary": {
+      "risk": "Chance de perder dinheiro — quanto maior, mais volátil o investimento",
+      "diversification": "Não colocar todos os ovos na mesma cesta — espalhar entre tipos de investimentos",
+      "liquidity": "Facilidade de transformar o investimento de volta em dinheiro quando precisar"
+    }
   },
   "scores": {
     "bad": "Ruim",
@@ -281,10 +298,354 @@
   },
   "reports": {
     "title": "Relatórios",
+    "subtitle": "PDFs gerados a partir do diagnóstico mais recente da sua carteira.",
     "generate": "Gerar PDF",
+    "generating": "Gerando relatório...",
     "download": "Baixar",
     "empty": "Nenhum relatório gerado ainda",
-    "generating": "Gerando relatório..."
+    "emptyDesc": "Clique em \"Gerar PDF\" para produzir o primeiro relatório do seu diagnóstico atual.",
+    "noAnalysisTitle": "Nenhum diagnóstico disponível",
+    "noAnalysisDesc": "Importe sua carteira e rode um diagnóstico para liberar a geração de PDF.",
+    "importBtn": "Importar carteira",
+    "acceptedNote": "O PDF inclui apenas as oportunidades que você marcou como aceitas.",
+    "paidTitle": "Relatórios PDF",
+    "paidDesc": "Gere PDFs profissionais com a identidade do LUCIUS contendo diagnóstico, posições e oportunidades aceitas.",
+    "previewTitle": "Diagnóstico completo · 12 páginas",
+    "previewDesc": "Pronto para download em PDF",
+    "ready": "Pronto",
+    "generatingStatus": "Gerando...",
+    "errorStatus": "Erro",
+    "pdfBtn": "PDF"
+  },
+  "onboarding": {
+    "skip": "Pular por agora",
+    "stepCounter": "{{current}} de {{total}}",
+    "back": "Voltar",
+    "next": "Próxima",
+    "finish": "Finalizar",
+    "saving": "Salvando...",
+    "saveError": "Erro ao salvar perfil. Tente novamente.",
+    "savedToast": "Perfil salvo! Você é um {{category}} 🐍",
+    "categories": {
+      "arrojado": "Lorde do Risco",
+      "conservador": "Herdeiro de Gringotes",
+      "moderado": "Estrategista da Sonserina"
+    },
+    "steps": {
+      "objectives": {
+        "question": "O que você quer conquistar com seus investimentos?",
+        "subtitle": "Pode escolher mais de uma opção",
+        "options": {
+          "aposentadoria": { "label": "Aposentadoria tranquila", "desc": "Guardar dinheiro para parar de trabalhar no futuro" },
+          "reserva": { "label": "Reserva de emergência", "desc": "Ter dinheiro guardado para imprevistos" },
+          "crescimento": { "label": "Fazer o dinheiro crescer", "desc": "Aumentar o patrimônio ao longo do tempo" },
+          "renda_passiva": { "label": "Renda extra todo mês", "desc": "Receber dinheiro regularmente dos investimentos" }
+        }
+      },
+      "investment_horizon": {
+        "question": "Quando você vai precisar desse dinheiro?",
+        "subtitle": "Pense no prazo principal dos seus investimentos",
+        "options": {
+          "curto": { "label": "Em menos de 2 anos", "desc": "Preciso do dinheiro em breve" },
+          "medio": { "label": "Entre 2 e 5 anos", "desc": "Tenho um pouco de paciência" },
+          "longo": { "label": "Mais de 5 anos", "desc": "Posso esperar bastante tempo" }
+        }
+      },
+      "liquidity_need": {
+        "question": "Com que frequência você pode precisar resgatar?",
+        "subtitle": "Liquidez é a facilidade de transformar investimento em dinheiro",
+        "options": {
+          "alta": { "label": "A qualquer momento", "desc": "Preciso poder sacar rápido se necessário" },
+          "media": { "label": "De vez em quando", "desc": "Posso esperar alguns dias ou semanas" },
+          "baixa": { "label": "Quase nunca", "desc": "Não pretendo mexer por um bom tempo" }
+        }
+      },
+      "risk_tolerance": {
+        "question": "Se seus investimentos caíssem 20%, o que você faria?",
+        "subtitle": "Não tem resposta certa — é sobre como você se sente",
+        "options": {
+          "conservador": { "label": "Tiraria tudo na hora", "desc": "Prefiro não arriscar, mesmo que ganhe menos" },
+          "moderado": { "label": "Esperaria um pouco", "desc": "Ficaria preocupado, mas tentaria esperar" },
+          "arrojado": { "label": "Compraria mais", "desc": "Vejo quedas como oportunidade de comprar barato" }
+        }
+      },
+      "monthly_income_range": {
+        "question": "Qual sua renda mensal aproximada?",
+        "subtitle": "Isso ajuda a calibrar a análise — seus dados são sigilosos",
+        "options": {
+          "ate_3k": { "label": "Até R$ 3.000", "desc": "" },
+          "3k_10k": { "label": "R$ 3.000 a R$ 10.000", "desc": "" },
+          "10k_30k": { "label": "R$ 10.000 a R$ 30.000", "desc": "" },
+          "acima_30k": { "label": "Acima de R$ 30.000", "desc": "" }
+        }
+      },
+      "approximate_patrimony": {
+        "question": "Quanto você tem investido hoje (aproximadamente)?",
+        "subtitle": "Pode ser um chute — não precisa ser exato",
+        "options": {
+          "ate_10k": { "label": "Até R$ 10.000", "desc": "Estou começando" },
+          "10k_100k": { "label": "R$ 10.000 a R$ 100.000", "desc": "Já tenho algo guardado" },
+          "100k_500k": { "label": "R$ 100.000 a R$ 500.000", "desc": "Patrimônio em crescimento" },
+          "acima_500k": { "label": "Acima de R$ 500.000", "desc": "Investidor experiente" }
+        }
+      },
+      "experience_years": {
+        "question": "Há quanto tempo você investe?",
+        "subtitle": "Conta qualquer tipo de investimento, incluindo poupança",
+        "options": {
+          "0": { "label": "Nunca investi", "desc": "Estou dando os primeiros passos" },
+          "1": { "label": "Menos de 2 anos", "desc": "Comecei há pouco tempo" },
+          "3": { "label": "2 a 5 anos", "desc": "Já tenho alguma experiência" },
+          "7": { "label": "Mais de 5 anos", "desc": "Investidor experiente" }
+        }
+      },
+      "preference": {
+        "question": "O que é mais importante pra você?",
+        "subtitle": "Escolha o que mais combina com seu momento",
+        "options": {
+          "renda": { "label": "Receber renda todo mês", "desc": "Dividendos, aluguéis, juros — quero dinheiro caindo na conta" },
+          "crescimento": { "label": "Fazer o patrimônio crescer", "desc": "Posso esperar, quero ver o valor aumentar" },
+          "protecao": { "label": "Proteger o que já tenho", "desc": "Não quero perder — segurança em primeiro lugar" },
+          "simplicidade": { "label": "Manter simples", "desc": "Não quero complicação — quanto mais fácil, melhor" }
+        }
+      }
+    }
+  },
+  "portfolioImport": {
+    "title": "Importar performance da carteira",
+    "subtitle": "Envie seus extratos e posições para análise automática com IA",
+    "loadingSubtitle": "Estamos cruzando arquivo, período e seu perfil de investidor.",
+    "dropTitle": "Insira a performance da carteira",
+    "dropDesc": "Após o upload, escolha o período e inicie a análise da performance da carteira",
+    "selectFile": "Selecionar arquivo",
+    "configTitle": "Configurar análise",
+    "configDesc": "O sistema vai cruzar o arquivo enviado com o período analisado e seu perfil de investidor para gerar o diagnóstico e identificar oportunidades.",
+    "startDate": "Data inicial",
+    "endDate": "Data final",
+    "profileNote": "Seu perfil de investidor será usado como contexto para personalizar as oportunidades sugeridas.",
+    "completeProfileNote": "Antes da análise, complete o perfil do investidor para liberar oportunidades personalizadas.",
+    "completeProfileBtn": "Completar perfil investidor",
+    "analyzeBtn": "Analisar performance da carteira",
+    "checks": {
+      "fileMissing": "❌ Envie o arquivo da carteira",
+      "fileOk": "✅ Arquivo enviado",
+      "periodMissing": "❌ Informe um período válido (data inicial ≤ data final)",
+      "periodOk": "✅ Período configurado",
+      "onboardingMissing": "❌ Complete o perfil do investidor (onboarding)",
+      "onboardingOk": "✅ Perfil do investidor completo",
+      "investorMissing": "❌ Perfil investidor não encontrado",
+      "investorOk": "✅ Perfil investidor encontrado"
+    },
+    "uploadedFile": "Arquivo enviado",
+    "status": {
+      "uploading": "Enviando...",
+      "uploaded": "Pronto para análise",
+      "processing": "Analisando performance da carteira...",
+      "done": "Análise concluída",
+      "error": "Erro"
+    },
+    "toasts": {
+      "ready": "Arquivo pronto. Configure o período e inicie a análise da performance da carteira.",
+      "uploadError": "Erro: {{msg}}",
+      "needFile": "Envie um arquivo antes de iniciar a análise.",
+      "needOnboarding": "Complete seu perfil de investidor antes de rodar o diagnóstico.",
+      "invalidPeriod": "Informe um período válido para a análise.",
+      "diagnosisReady": "Diagnóstico pronto! Redirecionando..."
+    },
+    "result": {
+      "title": "Análise concluída",
+      "summary": "{{positions}} posições identificadas · {{recs}} oportunidades geradas",
+      "period": "Período: {{label}}",
+      "redirecting": "Abrindo seu diagnóstico..."
+    },
+    "formats": "Formatos aceitos",
+    "format": {
+      "csv": "Extrato de corretora em CSV",
+      "xlsx": "Planilha Excel com posições",
+      "ofx": "Arquivo bancário OFX/OFC",
+      "pdf": "Extrato ou nota de corretagem"
+    },
+    "privacy": "Seus dados são criptografados e nunca compartilhados. Usados exclusivamente para a análise da performance da sua carteira.",
+    "periodSeparator": "a"
+  },
+  "history": {
+    "title": "Histórico",
+    "subtitle": "Todos os diagnósticos realizados na sua carteira",
+    "emptyTitle": "Nenhum diagnóstico realizado",
+    "emptyDesc": "Importe sua carteira e execute o diagnóstico para começar a construir seu histórico.",
+    "importBtn": "Importar Carteira",
+    "th": {
+      "date": "Data",
+      "status": "Status",
+      "risk": "Risco",
+      "diversification": "Diversif.",
+      "liquidity": "Liquidez",
+      "summary": "Resumo"
+    },
+    "status": {
+      "completed": "Concluído",
+      "error": "Erro",
+      "processing": "Processando"
+    }
+  },
+  "chatLucius": {
+    "headerTitle": "Lucius — Copiloto educacional",
+    "headerSubtitle": "Apoio à compreensão da performance da sua carteira · Sempre disponível",
+    "emptyTitle": "Converse com o Lucius",
+    "emptyDesc": "Tire dúvidas sobre investimentos, entenda conceitos do mercado e receba orientações sobre sua carteira — tudo em linguagem simples.",
+    "placeholder": "Pergunte ao Lucius sobre investimentos...",
+    "footer": "Lucius é um copiloto educacional de apoio à compreensão da performance da carteira. Não constitui consultoria nem execução de ordens.",
+    "errorUnknown": "Erro desconhecido",
+    "errorStatus": "Erro {{status}}",
+    "errorNoBody": "Sem resposta",
+    "suggestions": {
+      "worst": "Por que meu ativo {{ticker}} está com {{perf}}%? Devo me preocupar?",
+      "best": "{{ticker}} subiu {{perf}}%. É hora de realizar lucro?",
+      "concentration": "Tenho {{pct}}% em {{cls}}. Estou concentrado demais?",
+      "lowRisk": "Minha nota de risco está baixa. O que posso fazer para melhorar?",
+      "lowDiv": "Como posso diversificar melhor minha carteira?",
+      "generic1": "Minha carteira está bem diversificada?",
+      "generic2": "O que são FIIs e como escolher?",
+      "generic3": "Como funciona o imposto sobre investimentos?"
+    }
+  },
+  "recommendations": {
+    "title": "Oportunidades de Melhoria",
+    "subtitle": "Caminhos sugeridos para otimizar a performance da sua carteira — você decide o que fazer.",
+    "emptyTitle": "Nenhuma oportunidade identificada ainda",
+    "emptyDesc": "Envie a performance da sua carteira e rode o diagnóstico para identificar oportunidades.",
+    "importBtn": "Importar performance da carteira",
+    "paidTitle": "Oportunidades de Melhoria",
+    "paidDesc": "Veja sugestões personalizadas de rebalanceamento, diversificação e otimização da sua carteira — com passo a passo para aplicar.",
+    "impact": "Impacto possível:",
+    "showSteps": "Como aplicar na prática?",
+    "hideSteps": "Ocultar caminho sugerido",
+    "stepsKicker": "Caminho sugerido",
+    "accept": "Aceitar",
+    "postpone": "Adiar",
+    "discard": "Descartar",
+    "status": {
+      "accepted": "✓ Aceita",
+      "postponed": "⏳ Adiada",
+      "discarded": "✕ Descartada"
+    },
+    "ctaTitle": "Dúvidas sobre alguma oportunidade?",
+    "ctaDesc": "Converse com o LUCIUS para entender melhor cada sugestão.",
+    "ctaBtn": "Fale com o LUCIUS"
+  },
+  "admin": {
+    "deniedTitle": "Acesso negado",
+    "deniedDesc": "Você não tem permissão para acessar esta área.",
+    "title": "Painel Administrativo 🐍",
+    "subtitle": "Visão geral, usuários e cupons da plataforma Lucius",
+    "metrics": {
+      "totalUsers": "Total de Usuários",
+      "activeSubs": "Assinantes Ativos",
+      "subsBreakdown": "{{essencial}} Essencial · {{pro}} Pro",
+      "portfolios": "Carteiras Criadas",
+      "analyses": "Diagnósticos Realizados"
+    },
+    "tabs": {
+      "users": "Usuários",
+      "coupons": "Cupons",
+      "overview": "Distribuições"
+    },
+    "users": {
+      "title": "Base de Contatos",
+      "desc": "Conceda créditos grátis ou consulte status dos usuários",
+      "searchPlaceholder": "Buscar por nome, e-mail ou telefone…",
+      "newUser": "Novo usuário",
+      "th": {
+        "name": "Nome",
+        "email": "E-mail",
+        "plan": "Plano",
+        "profile": "Perfil",
+        "patrimony": "Patrimônio",
+        "credits": "Créditos",
+        "createdAt": "Cadastro",
+        "lastSignIn": "Último Acesso",
+        "actions": "Ações"
+      },
+      "empty": "Nenhum usuário encontrado"
+    },
+    "grant": {
+      "btn": "Créditos",
+      "title": "Conceder créditos grátis",
+      "balance": "{{name}} · saldo atual {{balance}}",
+      "amount": "Quantidade",
+      "reason": "Motivo (opcional)",
+      "reasonPh": "Cortesia, suporte, brinde…",
+      "submit": "Conceder",
+      "successToast": "+{{amount}} créditos. Novo saldo: {{balance}}",
+      "errorToast": "Falha ao conceder créditos"
+    },
+    "create": {
+      "title": "Adicionar usuário",
+      "desc": "Deixe a senha vazia para enviar convite por email.",
+      "email": "E-mail *",
+      "emailPh": "usuario@exemplo.com",
+      "name": "Nome completo",
+      "passLabel": "Senha (opcional)",
+      "passPh": "Mín. 8 caracteres — ou deixe vazio p/ convite",
+      "promote": "Promover a administrador",
+      "createBtn": "Criar",
+      "inviteBtn": "Enviar convite",
+      "createdToast": "Usuário criado",
+      "invitedToast": "Convite enviado por email",
+      "errorToast": "Falha ao criar usuário"
+    },
+    "delete": {
+      "title": "Excluir {{name}}?",
+      "desc": "Ação <strong>permanente</strong>. Apaga conta, carteiras, análises e histórico. Registros de cobrança são mantidos por obrigação legal.",
+      "confirm": "Excluir definitivamente",
+      "successToast": "Usuário excluído",
+      "errorToast": "Falha ao excluir"
+    },
+    "coupons": {
+      "newTitle": "Novo cupom",
+      "newDesc": "Aplicado no checkout do Stripe.",
+      "discount": "Desconto",
+      "name": "Nome",
+      "namePh": "Ex: Lançamento Sonserina",
+      "duration": "Duração",
+      "durationOnce": "Uma cobrança",
+      "durationRepeating": "N meses",
+      "durationForever": "Para sempre",
+      "months": "Meses",
+      "promoCode": "Código promocional (opcional)",
+      "maxRedemptions": "Máx. usos",
+      "redeemBy": "Expira em (dias)",
+      "create": "Criar cupom",
+      "createdToast": "Cupom criado",
+      "errorToast": "Falha ao criar cupom",
+      "existingTitle": "Cupons existentes",
+      "existingDesc": "Lista direto do Stripe",
+      "loading": "Carregando…",
+      "loadError": "Erro: {{msg}}",
+      "th": {
+        "name": "Nome",
+        "discount": "Desconto",
+        "duration": "Duração",
+        "codes": "Códigos",
+        "uses": "Usos",
+        "status": "Status"
+      },
+      "noCoupons": "Nenhum cupom criado ainda",
+      "durationOnceShort": "1x",
+      "durationForeverShort": "Sempre",
+      "valid": "Válido",
+      "inactive": "Inativo",
+      "free100": "100% (grátis)"
+    },
+    "overview": {
+      "byPlan": "Distribuição por Plano",
+      "byRisk": "Perfil de Risco"
+    },
+    "riskLabels": {
+      "conservador": "Herdeiro de Gringotes",
+      "moderado": "Estrategista da Sonserina",
+      "arrojado": "Lorde do Risco"
+    }
   },
   "notFound": {
     "message": "Ops! Página não encontrada",
