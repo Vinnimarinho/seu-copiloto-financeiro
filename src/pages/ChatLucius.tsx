@@ -87,8 +87,8 @@ export default function ChatLucius() {
   const { data: analysis } = useLatestAnalysis();
 
   const suggestions = useMemo(
-    () => buildDynamicSuggestions(positions, analysis),
-    [positions, analysis]
+    () => buildDynamicSuggestions(positions, analysis, t),
+    [positions, analysis, t]
   );
 
   useEffect(() => {
