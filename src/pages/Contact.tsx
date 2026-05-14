@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { Mail, ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, "Informe seu nome").max(120, "Nome muito longo"),
@@ -21,6 +22,7 @@ const contactSchema = z.object({
 
 export default function Contact() {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
 
@@ -29,7 +31,7 @@ export default function Contact() {
     const parsed = contactSchema.safeParse(form);
     if (!parsed.success) {
       toast({
-        title: "Verifique os campos",
+        title: t("contact.checkFields"),
         description: parsed.error.errors[0]?.message ?? "Dados inválidos",
         variant: "destructive",
       });
@@ -43,14 +45,14 @@ export default function Contact() {
       });
       if (error) throw error;
       toast({
-        title: "Mensagem enviada",
-        description: "Recebemos seu contato. Responderemos em breve em sac@luciusinvest.com.br.",
+        title: t("contact.sent"),
+        description: t("contact.sentDesc"),
       });
       setForm({ name: "", email: "", subject: "", message: "" });
     } catch (err) {
       toast({
-        title: "Erro ao enviar",
-        description: (err as Error).message ?? "Tente novamente em instantes.",
+        title: t("contact.errorTitle"),
+        description: (err as Error).message ?? t("contact.errorDesc"),
         variant: "destructive",
       });
     } finally {
@@ -67,7 +69,7 @@ export default function Contact() {
           to="/"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" /> Voltar
+          <ArrowLeft className="h-4 w-4" /> {t("contact.back")}
         </Link>
 
         <div className="text-center mb-8">
@@ -75,10 +77,10 @@ export default function Contact() {
             <Mail className="h-6 w-6" />
           </div>
           <h1 className="text-3xl md:text-4xl font-display font-semibold tracking-tight mb-3">
-            Fale com a gente
+            {t("contact.title")}
           </h1>
           <p className="text-muted-foreground">
-            Dúvidas, sugestões ou suporte? Envie sua mensagem e nossa equipe responderá pelo e-mail{" "}
+            {t("contact.intro")}{" "}
             <a href="mailto:sac@luciusinvest.com.br" className="text-primary hover:underline">
               sac@luciusinvest.com.br
             </a>
@@ -88,54 +90,54 @@ export default function Contact() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Formulário de contato</CardTitle>
-            <CardDescription>Preencha os campos abaixo. Retorno em até 2 dias úteis.</CardDescription>
+            <CardTitle>{t("contact.formTitle")}</CardTitle>
+            <CardDescription>{t("contact.formDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Nome *</Label>
+                <Label htmlFor="name">{t("contact.name")} *</Label>
                 <Input
                   id="name"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Seu nome completo"
+                  placeholder={t("contact.namePlaceholder")}
                   maxLength={120}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail *</Label>
+                <Label htmlFor="email">{t("contact.email")} *</Label>
                 <Input
                   id="email"
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="voce@email.com"
+                  placeholder={t("contact.emailPlaceholder")}
                   maxLength={200}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="subject">Assunto</Label>
+                <Label htmlFor="subject">{t("contact.subject")}</Label>
                 <Input
                   id="subject"
                   value={form.subject}
                   onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                  placeholder="Sobre o que você quer falar?"
+                  placeholder={t("contact.subjectPlaceholder")}
                   maxLength={200}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="message">Mensagem *</Label>
+                <Label htmlFor="message">{t("contact.message")} *</Label>
                 <Textarea
                   id="message"
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  placeholder="Escreva sua mensagem..."
+                  placeholder={t("contact.messagePlaceholder")}
                   rows={6}
                   maxLength={5000}
                   required
@@ -143,7 +145,7 @@ export default function Contact() {
               </div>
 
               <Button type="submit" variant="hero" size="lg" disabled={loading} className="w-full">
-                {loading ? "Enviando..." : "Enviar mensagem"}
+                {loading ? t("contact.sending") : t("contact.send")}
               </Button>
             </form>
           </CardContent>

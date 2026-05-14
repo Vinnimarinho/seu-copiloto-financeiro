@@ -7,11 +7,13 @@ import { useNavigate } from "react-router-dom";
 import { Check, Loader2, PartyPopper, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 export default function PaymentSuccess() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const [syncing, setSyncing] = useState(true);
   const [planName, setPlanName] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
@@ -59,22 +61,19 @@ export default function PaymentSuccess() {
         {syncing ? (
           <>
             <Loader2 className="w-12 h-12 text-primary animate-spin" />
-            <h1 className="font-heading text-2xl font-bold text-foreground">Confirmando seu pagamento...</h1>
-            <p className="text-sm text-muted-foreground">Aguarde enquanto sincronizamos sua assinatura. Isso leva apenas alguns segundos.</p>
+            <h1 className="font-heading text-2xl font-bold text-foreground">{t("paymentSuccess.syncingTitle")}</h1>
+            <p className="text-sm text-muted-foreground">{t("paymentSuccess.syncingDesc")}</p>
           </>
         ) : failed ? (
           <>
             <div className="w-16 h-16 rounded-full bg-warning/10 flex items-center justify-center">
               <Loader2 className="w-8 h-8 text-warning" />
             </div>
-            <h1 className="font-heading text-2xl font-bold text-foreground">Pagamento recebido</h1>
-            <p className="text-sm text-muted-foreground">
-              Seu pagamento foi processado, mas a sincronização está demorando um pouco mais. 
-              Seu plano será ativado em breve. Você pode verificar na página de Planos.
-            </p>
+            <h1 className="font-heading text-2xl font-bold text-foreground">{t("paymentSuccess.receivedTitle")}</h1>
+            <p className="text-sm text-muted-foreground">{t("paymentSuccess.receivedDesc")}</p>
             <div className="flex gap-3">
-              <Button onClick={() => navigate("/pricing")}>Ver meu plano</Button>
-              <Button variant="outline" onClick={() => navigate("/dashboard")}>Ir para Dashboard</Button>
+              <Button onClick={() => navigate("/pricing")}>{t("paymentSuccess.viewPlan")}</Button>
+              <Button variant="outline" onClick={() => navigate("/dashboard")}>{t("paymentSuccess.goDashboard")}</Button>
             </div>
           </>
         ) : (
@@ -82,29 +81,26 @@ export default function PaymentSuccess() {
             <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center">
               <PartyPopper className="w-10 h-10 text-success" />
             </div>
-            <h1 className="font-heading text-2xl font-bold text-foreground">Parabéns! 🎉</h1>
-            <p className="text-lg font-medium text-primary">Plano {planName} ativado com sucesso!</p>
-            <p className="text-sm text-muted-foreground">
-              Agora você tem acesso a todos os recursos do plano {planName}. 
-              Aproveite a experiência completa do Lucius para gerenciar seus investimentos.
-            </p>
+            <h1 className="font-heading text-2xl font-bold text-foreground">{t("paymentSuccess.congrats")}</h1>
+            <p className="text-lg font-medium text-primary">{t("paymentSuccess.planActivated", { plan: planName })}</p>
+            <p className="text-sm text-muted-foreground">{t("paymentSuccess.enjoy", { plan: planName })}</p>
             <div className="bg-card border border-success/30 rounded-xl p-4 w-full space-y-2">
               <div className="flex items-center gap-2 text-sm text-foreground">
-                <Check className="w-4 h-4 text-success" /> Diagnóstico completo da carteira
+                <Check className="w-4 h-4 text-success" /> {t("paymentSuccess.feat1")}
               </div>
               <div className="flex items-center gap-2 text-sm text-foreground">
-                <Check className="w-4 h-4 text-success" /> Relatórios detalhados
+                <Check className="w-4 h-4 text-success" /> {t("paymentSuccess.feat2")}
               </div>
               <div className="flex items-center gap-2 text-sm text-foreground">
-                <Check className="w-4 h-4 text-success" /> Oportunidades de melhoria
+                <Check className="w-4 h-4 text-success" /> {t("paymentSuccess.feat3")}
               </div>
               <div className="flex items-center gap-2 text-sm text-foreground">
-                <Crown className="w-4 h-4 text-primary" /> Chat com Lucius IA
+                <Crown className="w-4 h-4 text-primary" /> {t("paymentSuccess.feat4")}
               </div>
             </div>
             <div className="flex gap-3 pt-2">
-              <Button onClick={() => navigate("/dashboard")}>Ir para o Dashboard</Button>
-              <Button variant="outline" onClick={() => navigate("/diagnosis")}>Fazer Diagnóstico</Button>
+              <Button onClick={() => navigate("/dashboard")}>{t("paymentSuccess.goDash2")}</Button>
+              <Button variant="outline" onClick={() => navigate("/diagnosis")}>{t("paymentSuccess.doDiagnosis")}</Button>
             </div>
           </>
         )}
