@@ -14,6 +14,7 @@ import { LuciusFloatingChat } from "@/components/LuciusFloatingChat";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { AccessBanner } from "@/components/AccessBanner";
 import { useNoIndex } from "@/hooks/useNoIndex";
+import { useTranslation } from "react-i18next";
 
 interface NavItem {
   label: string;
@@ -23,21 +24,6 @@ interface NavItem {
   locked?: boolean;
 }
 
-const baseNav: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
-  { label: "Importar Carteira", href: "/portfolio/import", icon: <Upload className="w-5 h-5" /> },
-  { label: "Diagnóstico", href: "/diagnosis", icon: <Target className="w-5 h-5" /> },
-  { label: "Oportunidades", href: "/recommendations", icon: <ShieldCheck className="w-5 h-5" /> },
-  { label: "Simulações", href: "/simulations", icon: <FlaskConical className="w-5 h-5" />, badge: "PRO" },
-  { label: "Relatórios", href: "/reports", icon: <FileText className="w-5 h-5" /> },
-  { label: "Histórico", href: "/history", icon: <History className="w-5 h-5" /> },
-];
-
-const bottomNav: NavItem[] = [
-  { label: "Assinatura", href: "/pricing", icon: <CreditCard className="w-5 h-5" /> },
-  { label: "Configurações", href: "/settings", icon: <Settings className="w-5 h-5" /> },
-];
-
 export function AppSidebar({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -46,9 +32,24 @@ export function AppSidebar({ children }: { children: ReactNode }) {
   const { data: isAdmin } = useIsAdmin();
   const { canAccessOpportunities } = usePlanAccess();
   const [collapsed, setCollapsed] = useState(false);
+  const { t } = useTranslation();
   useNoIndex();
 
-  // Plano gratuito não vê "Oportunidades" no menu
+  const baseNav: NavItem[] = [
+    { label: t("nav.dashboard"), href: "/dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
+    { label: t("nav.import"), href: "/portfolio/import", icon: <Upload className="w-5 h-5" /> },
+    { label: t("nav.diagnosis"), href: "/diagnosis", icon: <Target className="w-5 h-5" /> },
+    { label: t("nav.opportunities"), href: "/recommendations", icon: <ShieldCheck className="w-5 h-5" /> },
+    { label: t("nav.simulations"), href: "/simulations", icon: <FlaskConical className="w-5 h-5" />, badge: "PRO" },
+    { label: t("nav.reports"), href: "/reports", icon: <FileText className="w-5 h-5" /> },
+    { label: t("nav.history"), href: "/history", icon: <History className="w-5 h-5" /> },
+  ];
+
+  const bottomNav: NavItem[] = [
+    { label: t("nav.subscription"), href: "/pricing", icon: <CreditCard className="w-5 h-5" /> },
+    { label: t("nav.settings"), href: "/settings", icon: <Settings className="w-5 h-5" /> },
+  ];
+
   const mainNav: NavItem[] = baseNav.filter(
     (item) => item.href !== "/recommendations" || canAccessOpportunities,
   );
@@ -101,7 +102,7 @@ export function AppSidebar({ children }: { children: ReactNode }) {
               )}
             >
               <Shield className="w-5 h-5" />
-              {!collapsed && <span>Admin</span>}
+              {!collapsed && <span>{t("nav.admin")}</span>}
             </Link>
           )}
           {bottomNav.map((item) => (
@@ -140,38 +141,38 @@ export function AppSidebar({ children }: { children: ReactNode }) {
             <Popover>
               <PopoverTrigger asChild>
                 <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  <span>{credits ?? "–"} créditos</span>
+                  <span>{credits ?? "–"} {t("common.credits")}</span>
                   <HelpCircle className="w-3.5 h-3.5" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-72 text-sm" align="end">
-                <h4 className="font-heading font-semibold text-foreground mb-2">O que são créditos?</h4>
+                <h4 className="font-heading font-semibold text-foreground mb-2">{t("credits.title")}</h4>
                 <p className="text-muted-foreground text-xs mb-3">
-                  Créditos são usados para gerar análises e diagnósticos da sua carteira com IA.
+                  {t("credits.description")}
                 </p>
                 <div className="space-y-1.5 text-xs mb-3">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Diagnóstico completo</span>
-                    <span className="font-medium text-foreground">1 crédito</span>
+                    <span className="text-muted-foreground">{t("credits.diagnosis")}</span>
+                    <span className="font-medium text-foreground">1 {t("common.credits")}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Relatório PDF</span>
-                    <span className="font-medium text-foreground">1 crédito</span>
+                    <span className="text-muted-foreground">{t("credits.report")}</span>
+                    <span className="font-medium text-foreground">1 {t("common.credits")}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Falar com o LUCIUS</span>
-                    <span className="font-medium text-foreground">Gratuito</span>
+                    <span className="text-muted-foreground">{t("credits.chat")}</span>
+                    <span className="font-medium text-foreground">{t("credits.free")}</span>
                   </div>
                 </div>
                 <Link to="/pricing" className="text-xs text-primary hover:underline font-medium">
-                  Obter mais créditos →
+                  {t("credits.getMore")}
                 </Link>
               </PopoverContent>
             </Popover>
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
               {user?.user_metadata?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
             </div>
-            <button onClick={async () => { await signOut(); navigate("/login"); }} className="text-muted-foreground hover:text-foreground transition-colors" title="Sair">
+            <button onClick={async () => { await signOut(); navigate("/login"); }} className="text-muted-foreground hover:text-foreground transition-colors" title={t("common.logout")}>
               <LogOut className="w-4 h-4" />
             </button>
           </div>

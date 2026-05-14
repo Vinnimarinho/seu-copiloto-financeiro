@@ -18,6 +18,8 @@ import {
   Crown,
   CheckCircle2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
@@ -37,152 +39,59 @@ const fadeUp = {
   }),
 };
 
-/* ---------------------------------------------------------------- */
-/* Section: Por que                                                  */
-/* ---------------------------------------------------------------- */
-const painPoints = [
-  "Você não sabe ao certo o que tem na carteira",
-  "Você recebe ruído demais e clareza de menos",
-  "Você toma decisão sem ler o todo",
-  "Você ouve economês onde precisava de leitura simples",
-];
-
-const lucidityPoints = [
-  { icon: Eye, label: "Leitura clara", desc: "Tradução direta da carteira em linguagem humana." },
-  { icon: Compass, label: "Diagnóstico isento", desc: "Risco, liquidez, concentração, diversificação." },
-  { icon: Sparkles, label: "Inteligência aplicada", desc: "IA de última geração focada em educação financeira." },
-  { icon: ShieldCheck, label: "Apoio à decisão", desc: "Sugestões educacionais. Quem decide é você." },
-];
-
-/* ---------------------------------------------------------------- */
-/* Section: Como funciona                                            */
-/* ---------------------------------------------------------------- */
-const steps = [
-  {
-    n: "01",
-    title: "Crie sua conta",
-    desc: "Onboarding rápido. Sem fricção, sem cartão de crédito.",
-  },
-  {
-    n: "02",
-    title: "Importe sua carteira",
-    desc: "CSV, XLSX, OFX ou PDF — os formatos que sua corretora já fornece.",
-  },
-  {
-    n: "03",
-    title: "Receba o diagnóstico",
-    desc: "Risco, liquidez, concentração e leitura LUCIUS em segundos.",
-  },
-  {
-    n: "04",
-    title: "Aja com clareza",
-    desc: "Oportunidades, simulações de cenário e relatórios para apoiar decisões.",
-  },
-];
-
-/* ---------------------------------------------------------------- */
-/* Section: Benefícios                                               */
-/* ---------------------------------------------------------------- */
-const benefits = [
-  {
-    icon: Activity,
-    title: "Leitura da performance",
-    desc: "Veja o que sua carteira está dizendo — sem precisar ser analista para entender.",
-  },
-  {
-    icon: Layers,
-    title: "Risco, liquidez e concentração",
-    desc: "Três leituras essenciais que a maioria dos investidores nunca vê com clareza.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Oportunidades estratégicas",
-    desc: "Identificação de pontos de melhoria — sem indicar ativo específico.",
-  },
-  {
-    icon: FileText,
-    title: "Relatórios sob demanda",
-    desc: "PDFs elegantes para registrar decisões, comparar períodos e organizar a leitura.",
-  },
-  {
-    icon: MessagesSquare,
-    title: "Converse com o LUCIUS",
-    desc: "Tire dúvidas em linguagem clara, com contexto da sua própria carteira.",
-  },
-  {
-    icon: Sparkles,
-    title: "Simulações e projeções",
-    desc: "Teste cenários táticos antes de agir — leitura comparativa, não promessa.",
-  },
-];
-
-/* ---------------------------------------------------------------- */
-/* Section: Para quem                                                */
-/* ---------------------------------------------------------------- */
-const audience = [
-  "Investidor que quer entender o que está fazendo",
-  "Investidor cansado de economês e ruído de mercado",
-  "Investidor que busca autonomia com clareza",
-  "Investidor que quer organizar e registrar decisões",
-];
-
-/* ---------------------------------------------------------------- */
-/* Section: Planos                                                   */
-/* ---------------------------------------------------------------- */
-const pricingPlans = [
-  {
-    name: "Gratuito",
-    price: "R$ 0",
-    period: "",
-    desc: "Para conhecer a leitura LUCIUS",
-    features: ["1 carteira", "1 crédito de análise", "Diagnóstico básico", "Sem download de relatórios"],
-    cta: "Experimentar grátis",
-    href: "/signup",
-    note: "Sem compromisso — teste agora",
-  },
-  {
-    name: "Essencial",
-    price: "R$ 39,99",
-    period: "/mês",
-    desc: "Para o investidor ativo",
-    features: [
-      "3 carteiras",
-      "Diagnóstico completo",
-      "20 créditos de análise/mês",
-      "Relatórios em PDF",
-      "Oportunidades de melhoria",
-      "Calculadora de aposentadoria passiva",
-      "Histórico de 12 meses",
-    ],
-    cta: "Assinar Essencial",
-    href: "/signup",
-    highlight: true,
-    note: "Cobrado anualmente · 12x de R$ 39,99",
-  },
-  {
-    name: "Pro",
-    price: "R$ 89",
-    period: "/mês",
-    desc: "Para quem leva a carteira a sério",
-    features: [
-      "Carteiras ilimitadas",
-      "Diagnóstico avançado",
-      "100 créditos de análise/mês",
-      "Relatórios completos",
-      "Oportunidades de melhoria",
-      "Calculadora de aposentadoria passiva",
-      "Simulações de cenário",
-      "Histórico completo",
-      "Suporte prioritário",
-    ],
-    cta: "Assinar Pro",
-    href: "/signup",
-    note: "Cobrado anualmente · 12x de R$ 89",
-  },
-];
+const lucidityIcons = [Eye, Compass, Sparkles, ShieldCheck];
+const benefitIcons = [Activity, Layers, TrendingUp, FileText, MessagesSquare, Sparkles];
 
 /* ================================================================ */
 export default function LandingPage() {
+  const { t } = useTranslation();
+  const { currency, formatPrice } = useCurrency();
+
+  const painPoints = t("landing.painPoints", { returnObjects: true }) as string[];
+  const lucidityPoints = (t("landing.lucidity", { returnObjects: true }) as Array<{ label: string; desc: string }>).map((p, i) => ({
+    ...p, icon: lucidityIcons[i] ?? Eye,
+  }));
+  const steps = t("landing.steps", { returnObjects: true }) as Array<{ n: string; title: string; desc: string }>;
+  const benefits = (t("landing.benefits", { returnObjects: true }) as Array<{ title: string; desc: string }>).map((b, i) => ({
+    ...b, icon: benefitIcons[i] ?? Activity,
+  }));
+  const audience = t("landing.audience", { returnObjects: true }) as string[];
+
+  // Pricing (currency-aware)
+  const isUSD = currency === "USD";
+  const pricingPlans = [
+    {
+      name: t("pricing.free"),
+      price: isUSD ? "$0" : "R$ 0",
+      period: "",
+      desc: t("pricing.planDescriptions.free"),
+      features: t("pricing.planFeatures.free", { returnObjects: true }) as string[],
+      cta: t("pricing.subscribe"),
+      href: "/signup",
+      note: t("pricing.planNotes.free"),
+    },
+    {
+      name: t("pricing.essential"),
+      price: isUSD ? "$9.90" : "R$ 39,99",
+      period: t("pricing.perMonth"),
+      desc: t("pricing.planDescriptions.essencial"),
+      features: t("pricing.planFeatures.essencial", { returnObjects: true }) as string[],
+      cta: t("pricing.subscribe"),
+      href: "/signup",
+      highlight: true,
+      note: isUSD ? t("pricing.planNotes.essencialUSD") : t("pricing.planNotes.essencialBRL"),
+    },
+    {
+      name: t("pricing.pro"),
+      price: isUSD ? "$19.90" : "R$ 89,99",
+      period: t("pricing.perMonth"),
+      desc: t("pricing.planDescriptions.pro"),
+      features: t("pricing.planFeatures.pro", { returnObjects: true }) as string[],
+      cta: t("pricing.subscribe"),
+      href: "/signup",
+      note: isUSD ? t("pricing.planNotes.proUSD") : t("pricing.planNotes.proBRL"),
+    },
+  ];
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -238,7 +147,7 @@ export default function LandingPage() {
             <motion.div variants={fadeUp} custom={0}>
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-dark text-[11px] uppercase tracking-[0.18em] text-emerald-glow font-medium mb-8">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-glow animate-pulse" />
-                Lucidez assistida por IA de última geração
+                {t("landing.tagline")}
               </span>
             </motion.div>
 
@@ -247,8 +156,8 @@ export default function LandingPage() {
               custom={1}
               className="font-heading text-5xl md:text-7xl font-bold leading-[1.05] mb-6 text-balance text-sidebar-foreground"
             >
-              Lucidez sobre a performance da{" "}
-              <span className="text-gradient-emerald">sua carteira</span>.
+              {t("landing.heroTitlePart1")}{" "}
+              <span className="text-gradient-emerald">{t("landing.heroTitleHighlight")}</span>.
             </motion.h1>
 
             <motion.p
@@ -256,8 +165,7 @@ export default function LandingPage() {
               custom={2}
               className="text-lg md:text-xl text-sidebar-foreground/65 mb-10 max-w-2xl mx-auto leading-relaxed text-balance"
             >
-              O LUCIUS traduz a linguagem técnica do mercado em leitura clara, isenta e
-              acionável — para você decidir com inteligência, no seu tempo, sob seu controle.
+              {t("landing.heroSubtitle")}
             </motion.p>
 
             <motion.div
@@ -267,7 +175,7 @@ export default function LandingPage() {
             >
               <Link to="/signup">
                 <Button variant="hero" size="xl" className="shadow-glow-emerald group">
-                  Começar análise grátis
+                  {t("landing.ctaStart")}
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
                 </Button>
               </Link>
@@ -277,7 +185,7 @@ export default function LandingPage() {
                   size="xl"
                   className="text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
                 >
-                  Ver como funciona
+                  {t("landing.ctaHowItWorks")}
                 </Button>
               </a>
             </motion.div>
@@ -289,12 +197,12 @@ export default function LandingPage() {
             >
               <span className="inline-flex items-center gap-1.5">
                 <Lock className="w-3 h-3" />
-                Dados criptografados e privados
+                {t("landing.trustEncrypted")}
               </span>
               <span className="hidden sm:inline w-1 h-1 rounded-full bg-sidebar-foreground/20" />
-              <span>Sem cartão de crédito</span>
+              <span>{t("landing.trustNoCard")}</span>
               <span className="hidden sm:inline w-1 h-1 rounded-full bg-sidebar-foreground/20" />
-              <span>Cancele quando quiser</span>
+              <span>{t("landing.trustCancel")}</span>
             </motion.div>
           </motion.div>
 
@@ -312,13 +220,13 @@ export default function LandingPage() {
             className="mt-20 max-w-4xl mx-auto"
           >
             <p className="text-center text-[10px] uppercase tracking-[0.24em] text-sidebar-foreground/65 mb-6">
-              Construído com princípios de
+              {t("landing.trustBuiltWith")}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-sidebar-foreground/55 text-sm">
-              <span className="inline-flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-glow" />Privacidade por padrão</span>
-              <span className="inline-flex items-center gap-2"><Eye className="w-4 h-4 text-emerald-glow" />Leitura isenta</span>
-              <span className="inline-flex items-center gap-2"><Sparkles className="w-4 h-4 text-emerald-glow" />Inteligência aplicada</span>
-              <span className="inline-flex items-center gap-2"><Crown className="w-4 h-4 text-gold" />Apoio premium</span>
+              <span className="inline-flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-glow" />{t("landing.trustPrivacy")}</span>
+              <span className="inline-flex items-center gap-2"><Eye className="w-4 h-4 text-emerald-glow" />{t("landing.trustReading")}</span>
+              <span className="inline-flex items-center gap-2"><Sparkles className="w-4 h-4 text-emerald-glow" />{t("landing.trustIntelligence")}</span>
+              <span className="inline-flex items-center gap-2"><Crown className="w-4 h-4 text-gold" />{t("landing.trustPremium")}</span>
             </div>
           </motion.div>
         </div>
@@ -332,16 +240,15 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-emerald-glow/80 font-medium mb-4">
-              Por que LUCIUS
+              {t("landing.whyKicker")}
             </span>
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-sidebar-foreground mb-5 text-balance">
-              Você não precisa de mais ruído.
+              {t("landing.whyTitleP1")}
               <br />
-              Precisa de <span className="text-gradient-emerald">clareza</span>.
+              {t("landing.whyTitleP2")} <span className="text-gradient-emerald">{t("landing.whyTitleHighlight")}</span>.
             </h2>
             <p className="text-sidebar-foreground/60 text-base md:text-lg leading-relaxed">
-              A maioria dos investidores acumula informação sem entender o que ela significa.
-              O LUCIUS existe para inverter essa equação.
+              {t("landing.whyDesc")}
             </p>
           </div>
 
@@ -351,7 +258,7 @@ export default function LandingPage() {
               <div className="flex items-center gap-2 mb-6">
                 <ShieldAlert className="w-5 h-5 text-sidebar-foreground/70" />
                 <span className="text-xs uppercase tracking-[0.18em] text-sidebar-foreground/50 font-medium">
-                  Hoje, sem o LUCIUS
+                  {t("landing.whyWithout")}
                 </span>
               </div>
               <ul className="space-y-4">
@@ -370,7 +277,7 @@ export default function LandingPage() {
               <div className="flex items-center gap-2 mb-6 relative">
                 <Sparkles className="w-5 h-5 text-emerald-glow" />
                 <span className="text-xs uppercase tracking-[0.18em] text-emerald-glow font-medium">
-                  Com o LUCIUS
+                  {t("landing.whyWith")}
                 </span>
               </div>
               <ul className="space-y-5 relative">
@@ -398,13 +305,13 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-emerald-glow/80 font-medium mb-4">
-              Como funciona
+              {t("landing.howKicker")}
             </span>
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-sidebar-foreground mb-5 text-balance">
-              Quatro passos. Uma <span className="text-gradient-emerald">leitura completa</span>.
+              {t("landing.howTitleP1")} <span className="text-gradient-emerald">{t("landing.howTitleHighlight")}</span>.
             </h2>
             <p className="text-sidebar-foreground/60 text-base md:text-lg">
-              Sem complicação técnica. Sem economês. Em minutos você está vendo a sua carteira como nunca viu.
+              {t("landing.howDesc")}
             </p>
           </div>
 
@@ -444,10 +351,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-emerald-glow/80 font-medium mb-4">
-              O que você ganha
+              {t("landing.benefitsKicker")}
             </span>
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-sidebar-foreground mb-5 text-balance">
-              Inteligência aplicada à <span className="text-gradient-emerald">sua decisão</span>.
+              {t("landing.benefitsTitleP1")} <span className="text-gradient-emerald">{t("landing.benefitsTitleHighlight")}</span>.
             </h2>
           </div>
 
@@ -487,10 +394,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative">
           <div className="max-w-4xl mx-auto text-center">
             <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-emerald-glow/80 font-medium mb-4">
-              Para quem é o LUCIUS
+              {t("landing.audienceKicker")}
             </span>
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-sidebar-foreground mb-10 text-balance">
-              Para quem quer <span className="text-gradient-emerald">decidir com lucidez</span>.
+              {t("landing.audienceTitleP1")} <span className="text-gradient-emerald">{t("landing.audienceTitleHighlight")}</span>.
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl mx-auto">
@@ -522,13 +429,13 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-emerald-glow/80 font-medium mb-4">
-              Planos
+              {t("landing.pricingKicker")}
             </span>
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-sidebar-foreground mb-5 text-balance">
-              Comece grátis. <span className="text-gradient-emerald">Evolua quando quiser</span>.
+              {t("landing.pricingTitleP1")} <span className="text-gradient-emerald">{t("landing.pricingTitleHighlight")}</span>.
             </h2>
             <p className="text-sidebar-foreground/60 text-base md:text-lg">
-              Transparência total. Sem letras miúdas, sem fidelidade obrigatória.
+              {t("landing.pricingDesc")}
             </p>
           </div>
 
@@ -550,7 +457,7 @@ export default function LandingPage() {
                 {plan.highlight && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gold text-obsidian text-[10px] uppercase tracking-[0.16em] font-bold shadow-glow-gold">
-                      <Crown className="w-3 h-3" /> Mais escolhido
+                      <Crown className="w-3 h-3" /> {t("landing.mostPopular")}
                     </span>
                   </div>
                 )}
@@ -625,25 +532,21 @@ export default function LandingPage() {
           >
             <Crown className="w-10 h-10 text-gold mx-auto mb-6 opacity-80" />
             <h2 className="font-heading text-4xl md:text-6xl font-bold text-sidebar-foreground mb-6 text-balance leading-[1.05]">
-              Assuma o controle.
+              {t("landing.ctaFinalP1")}
               <br />
-              Com <span className="text-gradient-emerald">clareza real</span>.
+              {t("landing.ctaFinalP2")} <span className="text-gradient-emerald">{t("landing.ctaFinalHighlight")}</span>.
             </h2>
             <p className="text-sidebar-foreground/65 text-lg mb-10 max-w-xl mx-auto">
-              Importe sua carteira em minutos e descubra o que ela está dizendo de verdade.
+              {t("landing.ctaFinalDesc")}
             </p>
             <Link to="/signup">
               <Button variant="hero" size="xl" className="shadow-glow-emerald group">
-                Criar conta grátis
+                {t("landing.ctaFinalBtn")}
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
               </Button>
             </Link>
             <p className="text-[11px] text-sidebar-foreground/65 mt-10 max-w-2xl mx-auto leading-relaxed">
-              O LUCIUS é um software de apoio à análise da performance da carteira e à compreensão
-              do investidor. Conteúdo informativo e educacional — não constitui consultoria, oferta
-              de valores mobiliários ou execução de ordens. Não somos registrados na CVM, ANBIMA ou
-              APIMEC. Não indicamos fundos, ações ou ativos específicos. A decisão final é
-              exclusivamente sua. Rentabilidade passada não garante resultados futuros.
+              {t("landing.ctaFinalDisclaimer")}
             </p>
           </motion.div>
         </div>
@@ -661,7 +564,7 @@ export default function LandingPage() {
               <Logo size="sm" variant="light" />
               <span className="hidden md:inline text-sidebar-foreground/30">·</span>
               <p className="text-[11px] text-sidebar-foreground/70 italic">
-                Lucidez sobre a performance da sua carteira.
+                {t("landing.footerTagline")}
               </p>
             </div>
             <div className="flex items-center gap-6 text-xs text-sidebar-foreground/70">
@@ -671,21 +574,21 @@ export default function LandingPage() {
                 rel="noopener noreferrer"
                 className="hover:text-sidebar-foreground transition-colors"
               >
-                Blog
+                {t("footer.links.blog")}
               </a>
               <Link to="/contato" className="hover:text-sidebar-foreground transition-colors">
-                Contato
+                {t("footer.links.contact")}
               </Link>
               <Link to="/terms" className="hover:text-sidebar-foreground transition-colors">
-                Termos
+                {t("footer.links.terms")}
               </Link>
               <Link to="/privacy" className="hover:text-sidebar-foreground transition-colors">
-                Privacidade
+                {t("footer.links.privacy")}
               </Link>
               <Link to="/compliance" className="hover:text-sidebar-foreground transition-colors">
-                Compliance
+                {t("footer.links.compliance")}
               </Link>
-              <span className="text-sidebar-foreground/30">© 2026 Lucius</span>
+              <span className="text-sidebar-foreground/30">{t("footer.copyright")}</span>
             </div>
           </div>
         </div>

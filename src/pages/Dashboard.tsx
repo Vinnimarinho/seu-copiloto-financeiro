@@ -12,6 +12,7 @@ import PortfolioTracker from "@/components/PortfolioTracker";
 import { getInvestorCategory } from "@/lib/investorProfile";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { SubscriptionStatusCard } from "@/components/SubscriptionStatusCard";
+import { useTranslation } from "react-i18next";
 
 function StatValue({ label, value, sub, trend }: { label: string; value: string; sub?: string; trend?: "up" | "down" }) {
   return (
@@ -49,6 +50,7 @@ export default function Dashboard() {
   const { data: analysis } = useLatestAnalysis();
   const { data: investorProfile } = useInvestorProfile();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const category = getInvestorCategory(investorProfile?.risk_tolerance);
 
@@ -130,18 +132,17 @@ export default function Dashboard() {
       <AppSidebar>
       <div className="space-y-4">
           <div>
-            <h1 className="font-heading text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">Visão geral da sua carteira de investimentos</p>
+            <h1 className="font-heading text-2xl font-bold text-foreground">{t("dashboard.title")}</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("dashboard.subtitle")}</p>
           </div>
 
-          {/* Investor profile card */}
           {investorProfile && (
             <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-2xl">
                 {category.emoji}
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Seu perfil</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{t("dashboard.yourProfile")}</p>
                 <h2 className="font-heading text-lg font-bold text-foreground">{category.name}</h2>
                 <p className="text-xs text-muted-foreground">{category.description}</p>
               </div>
@@ -150,9 +151,9 @@ export default function Dashboard() {
 
           <div className="max-w-lg mx-auto text-center space-y-3 py-10">
             <Upload className="w-10 h-10 text-muted-foreground mx-auto" />
-            <h2 className="font-heading text-lg font-bold text-foreground">Sua carteira está vazia</h2>
-            <p className="text-sm text-muted-foreground">Importe seus extratos para ver o dashboard completo com análise por IA.</p>
-            <Button onClick={() => navigate("/portfolio/import")} size="sm">Importar Carteira</Button>
+            <h2 className="font-heading text-lg font-bold text-foreground">{t("dashboard.emptyTitle")}</h2>
+            <p className="text-sm text-muted-foreground">{t("dashboard.emptyDesc")}</p>
+            <Button onClick={() => navigate("/portfolio/import")} size="sm">{t("dashboard.importBtn")}</Button>
           </div>
         </div>
       </AppSidebar>
@@ -164,18 +165,17 @@ export default function Dashboard() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-heading text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">Visão geral da sua carteira de investimentos</p>
+            <h1 className="font-heading text-2xl font-bold text-foreground">{t("dashboard.title")}</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("dashboard.subtitle")}</p>
           </div>
           <SubscriptionBadge />
         </div>
 
-        {/* Investor profile badge */}
         {investorProfile && (
           <div className="bg-card border border-border rounded-xl p-3 flex items-center gap-3">
             <span className="text-xl">{category.emoji}</span>
             <div className="flex-1">
-              <p className="text-[10px] text-muted-foreground">Perfil</p>
+              <p className="text-[10px] text-muted-foreground">{t("dashboard.profile")}</p>
               <p className="font-heading font-bold text-sm text-foreground">{category.name}</p>
             </div>
             <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">{category.title}</span>
@@ -185,19 +185,19 @@ export default function Dashboard() {
         <SubscriptionStatusCard />
 
         <BentoGrid columns={3}>
-          <BentoCard title="Patrimônio Total">
+          <BentoCard title={t("dashboard.totalAssets")}>
             <StatValue label="" value={formatCurrency(stats.totalValue)} />
           </BentoCard>
-          <BentoCard title="Nº de Ativos">
-            <StatValue label="" value={String(stats.assetCount)} sub="posições" />
+          <BentoCard title={t("dashboard.assetCount")}>
+            <StatValue label="" value={String(stats.assetCount)} sub={t("dashboard.positions")} />
           </BentoCard>
-          <BentoCard title="Alertas" badge={String(stats.alerts.length)} badgeVariant="warning">
-            <StatValue label="" value={String(stats.alerts.length)} sub="pontos de atenção" />
+          <BentoCard title={t("dashboard.alerts")} badge={String(stats.alerts.length)} badgeVariant="warning">
+            <StatValue label="" value={String(stats.alerts.length)} sub={t("dashboard.attentionPoints")} />
           </BentoCard>
         </BentoGrid>
 
         <BentoGrid columns={3}>
-          <BentoCard title="Alocação por Classe" subtitle="Distribuição atual da carteira">
+          <BentoCard title={t("dashboard.allocation")} subtitle={t("dashboard.allocationDesc")}>
             <div className="h-48 flex items-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -221,7 +221,7 @@ export default function Dashboard() {
             </div>
           </BentoCard>
 
-          <BentoCard title="Exposição por Setor" subtitle="Distribuição setorial">
+          <BentoCard title={t("dashboard.sector")} subtitle={t("dashboard.sectorDesc")}>
             <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.sectors} layout="vertical" margin={{ left: 0 }}>
@@ -234,7 +234,7 @@ export default function Dashboard() {
             </div>
           </BentoCard>
 
-          <BentoCard title="Alertas" subtitle="Pontos de atenção" badge={`${stats.alerts.length}`} badgeVariant="warning">
+          <BentoCard title={t("dashboard.alerts")} subtitle={t("dashboard.alertsDesc")} badge={`${stats.alerts.length}`} badgeVariant="warning">
             {stats.alerts.length > 0 ? (
               <div className="space-y-2">
                 {stats.alerts.slice(0, 4).map((alert) => (
@@ -242,13 +242,13 @@ export default function Dashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Nenhum alerta no momento.</p>
+              <p className="text-sm text-muted-foreground">{t("dashboard.noAlerts")}</p>
             )}
           </BentoCard>
         </BentoGrid>
 
         <BentoGrid columns={2}>
-          <BentoCard title="Liquidez" subtitle="Prazo para resgate">
+          <BentoCard title={t("dashboard.liquidity")} subtitle={t("dashboard.liquidityDesc")}>
             <div className="h-40">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -273,7 +273,7 @@ export default function Dashboard() {
             </div>
           </BentoCard>
 
-          <BentoCard title="Maiores Posições" subtitle="Top 5 por valor">
+          <BentoCard title={t("dashboard.topPositions")} subtitle={t("dashboard.topPositionsDesc")}>
             <div className="space-y-2.5 mt-1">
               {stats.topAssets.map((a) => (
                 <div key={a.ticker} className="flex items-center justify-between">
