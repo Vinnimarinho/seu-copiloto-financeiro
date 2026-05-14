@@ -144,12 +144,12 @@ export default function PortfolioImport() {
         analysisId: result.analysisId,
         periodLabel,
       });
-      toast.success("Diagnóstico pronto! Redirecionando...");
+      toast.success(t("portfolioImport.toasts.diagnosisReady"));
     } catch (e) {
       setFiles((current) => current.map((file) => file.file === uploadedFile.file ? { ...file, status: "error", error: (e as Error).message } : file));
-      toast.error(`Erro: ${(e as Error).message}`);
+      toast.error(t("portfolioImport.toasts.uploadError", { msg: (e as Error).message }));
     }
-  }, [diagnosisMutation, isPeriodValid, periodEnd, periodLabel, periodStart, profile?.onboarding_completed, uploadedFile]);
+  }, [diagnosisMutation, isPeriodValid, periodEnd, periodLabel, periodStart, profile?.onboarding_completed, uploadedFile, t]);
 
   const removeFile = (file: File) => setFiles(prev => prev.filter(f => f.file !== file));
 
