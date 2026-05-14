@@ -3,7 +3,12 @@ import { useAdminMetrics, AdminUser } from "@/hooks/useAdmin";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, CreditCard, Briefcase, Target, Shield, Plus, Ticket, Coins, Loader2 } from "lucide-react";
+import { Users, CreditCard, Briefcase, Target, Shield, Plus, Ticket, Coins, Loader2, UserPlus, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -107,7 +112,128 @@ function GrantCreditsDialog({ user }: { user: AdminUser }) {
   );
 }
 
-// ---------- Coupons Section ----------
+// ---------- Create User Dialog ----------
+function CreateUserDialog() {
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [password, setPassword] = useState("");
+  const [makeAdmin, setMakeAdmin] = useState(false);
+  const qc = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("admin-manage-users", {
+        body: {
+          action: "create",
+          email,
+          full_name: fullName || undefined,
+          password: password || undefined,
+          make_admin: makeAdmin,
+        },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error(typeof (data as any).error === "string" ? (data as any).error : JSON.stringify((data as any).error));
+      return data;
+    },
+    onSuccess: () => {
+      toast.success(password ? "Usuário criado" : "Convite enviado por email");
+      qc.invalidateQueries({ queryKey: ["admin-metrics"] });
+      setOpen(false);
+      setEmail(""); setFullName(""); setPassword(""); setMakeAdmin(false);
+    },
+    onError: (e: Error) => toast.error(e.message || "Falha ao criar usuário"),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm"><UserPlus className="w-4 h-4 mr-1" /> Novo usuário</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Adicionar usuário</DialogTitle>
+          <CardDescription>Deixe a senha vazia para enviar convite por email.</CardDescription>
+        </DialogHeader>
+        <div className="space-y-3 py-2">
+          <div>
+            <Label htmlFor="new-email">E-mail *</Label>
+            <Input id="new-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="usuario@exemplo.com" />
+          </div>
+          <div>
+            <Label htmlFor="new-name">Nome completo</Label>
+            <Input id="new-name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="new-pass">Senha (opcional)</Label>
+            <Input id="new-pass" type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mín. 8 caracteres — ou deixe vazio p/ convite" />
+          </div>
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <Checkbox checked={makeAdmin} onCheckedChange={(v) => setMakeAdmin(!!v)} />
+            Promover a administrador
+          </label>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button>
+          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || !email}>
+            {mutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            {password ? "Criar" : "Enviar convite"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ---------- Delete User Button ----------
+function DeleteUserButton({ user }: { user: AdminUser }) {
+  const [open, setOpen] = useState(false);
+  const qc = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("admin-manage-users", {
+        body: { action: "delete", user_id: user.user_id },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Usuário excluído");
+      qc.invalidateQueries({ queryKey: ["admin-metrics"] });
+      setOpen(false);
+    },
+    onError: (e: Error) => toast.error(e.message || "Falha ao excluir"),
+  });
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-destructive hover:text-destructive" onClick={() => setOpen(true)}>
+        <Trash2 className="w-3 h-3" />
+      </Button>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Excluir {user.full_name ?? user.email}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Ação <strong>permanente</strong>. Apaga conta, carteiras, análises e histórico.
+            Registros de cobrança são mantidos por obrigação legal.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={mutation.isPending}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={(e) => { e.preventDefault(); mutation.mutate(); }}
+            disabled={mutation.isPending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {mutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Excluir definitivamente
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
 interface AdminCoupon {
   id: string; name: string | null; percent_off: number | null;
   duration: string; duration_in_months: number | null; valid: boolean;
@@ -344,7 +470,10 @@ export default function Admin() {
                     <CardTitle className="text-base font-heading">Base de Contatos</CardTitle>
                     <CardDescription>Conceda créditos grátis ou consulte status dos usuários</CardDescription>
                   </div>
-                  <Input placeholder="Buscar por nome, e-mail ou telefone…" value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
+                  <div className="flex items-center gap-2">
+                    <Input placeholder="Buscar por nome, e-mail ou telefone…" value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
+                    <CreateUserDialog />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
@@ -378,7 +507,12 @@ export default function Admin() {
                           <TableCell className="text-xs font-mono">{u.credits_balance}</TableCell>
                           <TableCell className="text-xs">{new Date(u.created_at).toLocaleDateString("pt-BR")}</TableCell>
                           <TableCell className="text-xs">{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString("pt-BR") : "—"}</TableCell>
-                          <TableCell><GrantCreditsDialog user={u} /></TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <GrantCreditsDialog user={u} />
+                              <DeleteUserButton user={u} />
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))
                     )}
