@@ -1,27 +1,38 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Currency } from "@/contexts/CurrencyContext";
 
-// Mapeamento Stripe product/price.
-// LIVE: defina VITE_STRIPE_PRODUCT_ESSENCIAL/_PRO e VITE_STRIPE_PRICE_ESSENCIAL_BRL/_PRO_BRL
-// no ambiente. Os defaults abaixo são os IDs históricos para retrocompatibilidade
-// e não devem ser tratados como verdade em produção.
+// Mapeamento Stripe product/price com suporte multi-moeda (BRL + USD).
+// LIVE: defina VITE_STRIPE_* no ambiente. Defaults abaixo são os IDs de produção atuais.
 const PROD_ESSENCIAL = import.meta.env.VITE_STRIPE_PRODUCT_ESSENCIAL || "prod_UKvbpwN51mHV2B";
 const PROD_PRO = import.meta.env.VITE_STRIPE_PRODUCT_PRO || "prod_UL9kxDPtv9xpCp";
-const PRICE_ESSENCIAL = import.meta.env.VITE_STRIPE_PRICE_ESSENCIAL_BRL || "price_1TMFkWGlgACWhSKnOIdAPcmq";
-const PRICE_PRO = import.meta.env.VITE_STRIPE_PRICE_PRO_BRL || "price_1TMTQjGlgACWhSKnnSTH435t";
+
+const PRICE_ESSENCIAL_BRL = import.meta.env.VITE_STRIPE_PRICE_ESSENCIAL_BRL || "price_1TMFkWGlgACWhSKnOIdAPcmq";
+const PRICE_PRO_BRL = import.meta.env.VITE_STRIPE_PRICE_PRO_BRL || "price_1TMTQjGlgACWhSKnnSTH435t";
+
+// USD prices criados em 2026-05 (Live) — ver STRIPE_RELEASE_CHECK
+const PRICE_ESSENCIAL_USD = import.meta.env.VITE_STRIPE_PRICE_ESSENCIAL_USD || "price_1TX5RnK2nJVoAQb000emEHen";
+const PRICE_PRO_USD = import.meta.env.VITE_STRIPE_PRICE_PRO_USD || "price_1TX5ScK2nJVoAQb0OwNSRwg0";
 
 export const PLANS = {
-  free: { name: "Gratuito", product_id: null as string | null, price_id: null as string | null },
+  free: {
+    name: "Gratuito",
+    product_id: null as string | null,
+    prices: { BRL: null, USD: null } as Record<Currency, string | null>,
+    amount: { BRL: 0, USD: 0 },
+  },
   essencial: {
     name: "Essencial",
     product_id: PROD_ESSENCIAL,
-    price_id: PRICE_ESSENCIAL,
+    prices: { BRL: PRICE_ESSENCIAL_BRL, USD: PRICE_ESSENCIAL_USD } as Record<Currency, string | null>,
+    amount: { BRL: 39.99, USD: 9.9 },
   },
   pro: {
     name: "Pro",
     product_id: PROD_PRO,
-    price_id: PRICE_PRO,
+    prices: { BRL: PRICE_PRO_BRL, USD: PRICE_PRO_USD } as Record<Currency, string | null>,
+    amount: { BRL: 89.99, USD: 19.9 },
   },
 } as const;
 
@@ -72,7 +83,7 @@ export function useSubscription() {
 
 /**
  * Inicia o checkout Stripe redirecionando o usuário na MESMA aba.
- * Cobrança em BRL — multimoeda desativada até validação Stripe ponta a ponta.
+ * Aceita priceId direto (de qualquer moeda) — moeda é determinada pelo próprio price no Stripe.
  */
 export async function startCheckout(priceId: string) {
   const { data, error } = await supabase.functions.invoke("create-checkout", {
@@ -84,10 +95,6 @@ export async function startCheckout(priceId: string) {
   }
 }
 
-/**
- * Abre o portal de assinatura Stripe na MESMA aba. O return_url da sessão
- * já aponta para /pricing, então o usuário volta naturalmente.
- */
 export async function openCustomerPortal() {
   const { data, error } = await supabase.functions.invoke("customer-portal");
   if (error) throw error;
