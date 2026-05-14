@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/data/mockData";
 import { useMemo } from "react";
-import { getScoreClass, getScoreLabel } from "@/lib/scoreClassification";
+import { getScoreClass } from "@/lib/scoreClassification";
 import { LiquidityBreakdown } from "@/components/LiquidityBreakdown";
 import { useTranslation } from "react-i18next";
 

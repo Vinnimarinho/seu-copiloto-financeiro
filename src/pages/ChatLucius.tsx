@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { usePortfolios, usePositions, useLatestAnalysis } from "@/hooks/usePortfolio";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 type Msg = { role: "user" | "assistant"; content: string };
 

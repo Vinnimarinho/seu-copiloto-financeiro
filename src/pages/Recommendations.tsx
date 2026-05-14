@@ -7,10 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { PaidFeatureOverlay } from "@/components/PaidFeatureOverlay";
+import { useTranslation } from "react-i18next";
 
-// Linguagem ajustada para evitar termos com conotação operacional/regulada
-// ("execute a ordem", "ordem de compra/venda"). Tudo aqui é caminho sugerido —
-// a decisão final é sempre do usuário.
 const ACTION_STEPS: Record<string, string[]> = {
   rebalance: [
     "Acesse sua corretora ou banco de investimentos",
@@ -49,6 +47,7 @@ function getSteps(recType: string): string[] {
 }
 
 export default function Recommendations() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { canAccessOpportunities, isLoading: planLoading } = usePlanAccess();
   const { data: dbRecs = [], isLoading } = useRecommendations();
@@ -63,7 +62,6 @@ export default function Recommendations() {
     });
   };
 
-  // Gating: plano gratuito não acessa Oportunidades — overlay bloqueante
   if (!planLoading && !canAccessOpportunities) {
     const mockRecs = [
       { title: "Reduzir concentração em PETR4", reason: "PETR4 representa 28% da sua carteira em ações.", impact: "Diversificação +15%" },
@@ -76,16 +74,16 @@ export default function Recommendations() {
           <PaidFeatureOverlay
             active
             plan="essencial"
-            title="Oportunidades de Melhoria"
-            description="Veja sugestões personalizadas de rebalanceamento, diversificação e otimização da sua carteira — com passo a passo para aplicar."
+            title={t("recommendations.paidTitle")}
+            description={t("recommendations.paidDesc")}
           >
             <div className="space-y-3">
-              <h1 className="font-heading text-2xl font-bold text-foreground">Oportunidades de Melhoria</h1>
+              <h1 className="font-heading text-2xl font-bold text-foreground">{t("recommendations.title")}</h1>
               {mockRecs.map((r, i) => (
                 <div key={i} className="bg-card border border-border rounded-xl p-4">
                   <h3 className="font-heading font-semibold text-foreground">{r.title}</h3>
                   <p className="text-sm text-muted-foreground mt-1">{r.reason}</p>
-                  <p className="text-xs text-foreground/70 mt-1"><strong>Impacto possível:</strong> {r.impact}</p>
+                  <p className="text-xs text-foreground/70 mt-1"><strong>{t("recommendations.impact")}</strong> {r.impact}</p>
                 </div>
               ))}
             </div>
@@ -108,21 +106,17 @@ export default function Recommendations() {
     <AppSidebar>
       <div className="max-w-3xl mx-auto space-y-4">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-foreground">Oportunidades de Melhoria</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Caminhos sugeridos para otimizar a performance da sua carteira — você decide o que fazer.
-          </p>
+          <h1 className="font-heading text-2xl font-bold text-foreground">{t("recommendations.title")}</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("recommendations.subtitle")}</p>
         </div>
 
         {isLoading ? (
           <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
         ) : recs.length === 0 ? (
           <div className="bg-card border border-border rounded-xl p-6 text-center space-y-3">
-            <h2 className="font-heading text-lg font-semibold text-foreground">Nenhuma oportunidade identificada ainda</h2>
-            <p className="text-sm text-muted-foreground">
-              Envie a performance da sua carteira e rode o diagnóstico para identificar oportunidades.
-            </p>
-            <Button onClick={() => navigate("/portfolio/import")} size="sm">Importar performance da carteira</Button>
+            <h2 className="font-heading text-lg font-semibold text-foreground">{t("recommendations.emptyTitle")}</h2>
+            <p className="text-sm text-muted-foreground">{t("recommendations.emptyDesc")}</p>
+            <Button onClick={() => navigate("/portfolio/import")} size="sm">{t("recommendations.importBtn")}</Button>
           </div>
         ) : (
           <div className="space-y-3">
@@ -130,6 +124,7 @@ export default function Recommendations() {
               const isPending = rec.status === "pending";
               const showSteps = expandedSteps.has(rec.id);
               const steps = getSteps(rec.type);
+              const statusKey = rec.status === "accepted" ? "accepted" : rec.status === "postponed" ? "postponed" : "discarded";
 
               return (
                 <div key={rec.id} className={`bg-card border border-border rounded-xl p-4 transition-opacity ${!isPending ? "opacity-60" : ""}`}>
@@ -137,7 +132,7 @@ export default function Recommendations() {
                     <h3 className="font-heading font-semibold text-foreground">{rec.title}</h3>
                     {!isPending && (
                       <span className="text-[10px] font-medium text-muted-foreground bg-secondary px-2 py-0.5 rounded-md whitespace-nowrap">
-                        {rec.status === "accepted" ? "✓ Aceita" : rec.status === "postponed" ? "⏳ Adiada" : "✕ Descartada"}
+                        {t(`recommendations.status.${statusKey}`)}
                       </span>
                     )}
                   </div>
@@ -146,22 +141,21 @@ export default function Recommendations() {
                     <p className="text-sm text-muted-foreground mb-1">{rec.reason}</p>
                   )}
                   {rec.impact && (
-                    <p className="text-xs text-foreground/70"><strong>Impacto possível:</strong> {rec.impact}</p>
+                    <p className="text-xs text-foreground/70"><strong>{t("recommendations.impact")}</strong> {rec.impact}</p>
                   )}
 
-                  {/* Caminho sugerido — sem CTA isolado para o LUCIUS dentro do card */}
                   <button
                     onClick={() => toggleSteps(rec.id)}
                     className="flex items-center gap-1.5 text-xs text-primary font-medium mt-2 hover:underline"
                   >
                     <ListChecks className="w-3.5 h-3.5" />
-                    {showSteps ? "Ocultar caminho sugerido" : "Como aplicar na prática?"}
+                    {showSteps ? t("recommendations.hideSteps") : t("recommendations.showSteps")}
                   </button>
 
                   {showSteps && (
                     <div className="mt-2 bg-secondary/50 rounded-lg p-3">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium mb-2">
-                        Caminho sugerido
+                        {t("recommendations.stepsKicker")}
                       </p>
                       <ol className="space-y-1.5">
                         {steps.map((step, i) => (
@@ -179,13 +173,13 @@ export default function Recommendations() {
                   {isPending && (
                     <div className="flex items-center gap-2 pt-3 mt-3 border-t border-border">
                       <Button variant="default" size="sm" className="h-7 text-xs" disabled={updateRec.isPending} onClick={() => updateRec.mutate({ id: rec.id, status: "accepted" })}>
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Aceitar
+                        <CheckCircle2 className="w-3.5 h-3.5" /> {t("recommendations.accept")}
                       </Button>
                       <Button variant="outline" size="sm" className="h-7 text-xs" disabled={updateRec.isPending} onClick={() => updateRec.mutate({ id: rec.id, status: "postponed" })}>
-                        <Clock className="w-3.5 h-3.5" /> Adiar
+                        <Clock className="w-3.5 h-3.5" /> {t("recommendations.postpone")}
                       </Button>
                       <Button variant="ghost" size="sm" className="h-7 text-xs" disabled={updateRec.isPending} onClick={() => updateRec.mutate({ id: rec.id, status: "discarded" })}>
-                        <X className="w-3.5 h-3.5" /> Descartar
+                        <X className="w-3.5 h-3.5" /> {t("recommendations.discard")}
                       </Button>
                     </div>
                   )}
@@ -195,7 +189,6 @@ export default function Recommendations() {
           </div>
         )}
 
-        {/* CTA único ao LUCIUS — apenas no final da página */}
         {recs.length > 0 && (
           <div className="bg-card border border-primary/30 rounded-xl p-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -203,11 +196,11 @@ export default function Recommendations() {
                 <MessageCircle className="w-4 h-4" />
               </div>
               <div className="text-sm">
-                <p className="font-medium text-foreground">Dúvidas sobre alguma oportunidade?</p>
-                <p className="text-xs text-muted-foreground">Converse com o LUCIUS para entender melhor cada sugestão.</p>
+                <p className="font-medium text-foreground">{t("recommendations.ctaTitle")}</p>
+                <p className="text-xs text-muted-foreground">{t("recommendations.ctaDesc")}</p>
               </div>
             </div>
-            <Button size="sm" onClick={() => navigate("/chat")}>Fale com o LUCIUS</Button>
+            <Button size="sm" onClick={() => navigate("/chat")}>{t("recommendations.ctaBtn")}</Button>
           </div>
         )}
 
